@@ -24,7 +24,7 @@ const Start = () => {
             alignItems: "center",
           }}
         >
-          <Link to="/FindReport2">
+          <Link to="/doctor_use/FindAdmission">
             <FaUserDoctor style={{ fontSize: "15vh", color: "skyblue" }} />
           </Link>
           <h6 style={{ fontSize: "2vh" }}>Doctor's Use</h6>
@@ -37,7 +37,7 @@ const Start = () => {
             alignItems: "center",
           }}
         >
-          <Link to="/RetailorsSheet">
+          <Link to="/retail_use/RetailorsSheet">
             <TbBrandShopee style={{ fontSize: "15vh", color: "skyblue" }} />
           </Link>
           <h6 style={{ fontSize: "2vh" }}>Retailer's Use</h6>

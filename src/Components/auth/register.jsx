@@ -24,7 +24,7 @@ const Register = () => {
   return (
     <div>
       <Wrapper>
-        {userLoggedIn && <Navigate to={"/InitialSettings"} replace={true} />}
+        {userLoggedIn && <Navigate to={"/doctor_use/InitialSheet"} replace={true} />}
         <main className="main-container">
           <div className="card">
             <div className="card-title">

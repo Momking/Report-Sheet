@@ -10,7 +10,6 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
   const [userData, setUserData] = useState([]);
   const [test, setTest] = useState([]);
 
-  console.log("use2: ", printData);
 
   const fetchData = async () => {
     try {

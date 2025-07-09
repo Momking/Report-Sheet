@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
-import { storeUserData2 } from "../Components/storeUserData";
-import { useAuth } from "../Context/AuthContext";
-import { storage } from "../config/firebase";
+import { storeUserData2 } from "../../Components/storeUserData";
+import { useAuth } from "../../Context/AuthContext";
+import { storage } from "../../config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const InitialSheet = () => {

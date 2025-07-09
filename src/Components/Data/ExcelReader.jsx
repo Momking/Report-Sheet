@@ -45,7 +45,7 @@ const ExcelReader = () => {
         width: "100%",
       }}
     >
-      <Navbar destination={"/DoctorsSheet"} />
+      <Navbar destination={"/doctor_use/TestAdmission"} />
       <input
         type="file"
         accept=".xlsx, .xls"

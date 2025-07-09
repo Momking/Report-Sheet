@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Navbar from "../Components/Navbar";
+import Navbar from "../../Components/Navbar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
 
@@ -81,7 +81,7 @@ const ViewReport = () => {
 
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      <Navbar destination={"/FindReport"} />
+      <Navbar destination={"/doctor_use/FindReport"} />
       <Wrapper>
         <div className="container">
           <div className="modal">
@@ -96,7 +96,7 @@ const ViewReport = () => {
                     width: "fit-content",
                     cursor: "pointer",
                   }}
-                  onClick={() => navigate("/FindReport", { state: { date } })}
+                  onClick={() => navigate("/doctor_use/FindReport", { state: { date } })}
                 />
               </div>
               <div className="modal-left">

@@ -16,10 +16,10 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
     try {
       const userDocRef = doc(db, currentUser.uid, "PendingReport");
       const userDocSnapshot = await getDoc(userDocRef);
-
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
         setPendingData(Object.values(userFetchData));
+        console.log("pending: ",pendingData);
       } else {
         setError(true);
       }
@@ -65,9 +65,9 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
               }}
               type="text"
               className="button1"
-              onClick={() => onAdmissionIDSelect(data.AdmissionID)}
+              onClick={() => onAdmissionIDSelect(data.PatientID)}
             >
-              <h4>{data.AdmissionID}</h4>
+              <h4>{data.PatientID}</h4>
               <h4>{data.PatientName}</h4>
             </button>
           ))

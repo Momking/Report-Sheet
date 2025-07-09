@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import Navbar from "../Components/Navbar";
+import Navbar from "../../Components/Navbar";
 import styled from "styled-components";
+import { useSnackbar } from "notistack";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../config/firebase";
-import { useAuth } from "../Context/AuthContext";
-import Invoice from "../Components/Print/Invoice";
+import { db } from "../../config/firebase";
+import { useAuth } from "../../Context/AuthContext";
+import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
-import Receipt from "../Components/Print/Receipt";
 
-const FindReport = () => {
+const FindAdmission = () => {
   const [data, setData] = useState([]);
   const [userData, setUserData] = useState([]);
   const [pidValue, setPidValue] = useState(null);
@@ -17,17 +17,21 @@ const FindReport = () => {
   const [patientName, setPatientName] = useState([]);
   const [age, setAge] = useState([]);
   const [sex, setSex] = useState([]);
-  const [date, setDate] = useState([]);
-  const [status, setStatus] = useState([]);
+  const [t_amount, setT_amount] = useState([]);
+  const [paid, setPaid] = useState([]);
+  const [dues, setDues] = useState([]);
+  const [rebate, setRebate] = useState([]);
   const [centerName, setCenterName] = useState([]);
   const [centerID, setCenterID] = useState([]);
   const [patientID, setPatientID] = useState([]);
+  const [name, setName] = useState();
   const [useButton, setUseButton] = useState([]);
   const [error, setError] = useState();
   const { currentUser } = useAuth();
-  const receiptRef = useRef(null);
+  const invoiceRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar("");
   const [chooseYear, setChooseYear] = useState(
     `Year: ${new Date().getFullYear()}`
   );
@@ -35,33 +39,33 @@ const FindReport = () => {
   const freeSpace = () => {
     setHeaders([]);
     setPatientName([]);
-    setDate([]);
     setAge([]);
     setSex([]);
-    setStatus([]);
+    setT_amount([]);
+    setPaid([]);
+    setDues([]);
+    setRebate([]);
     setCenterName([]);
     setCenterID([]);
     setPatientID([]);
     setUseButton([]);
   };
 
-  const handlePrintReceipt = useReactToPrint({
-    content: () => receiptRef.current,
+  const handlePrintInvoice = useReactToPrint({
+    content: () => invoiceRef.current,
   });
 
   const handleFind = async (e, check) => {
     setUserData([]);
     try {
-      const userDocRef = doc(db, currentUser.uid, `TD${e}`);
+      const userDocRef = doc(db, currentUser.uid, `RD${e}`);
       const userDocSnapshot = await getDoc(userDocRef);
-      // console.log(userDocSnapshot);
 
-      console.log("use3: ", userData);
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
         setUserData(userFetchData);
         if (userData && check) {
-          setTimeout(handlePrintReceipt, 100);
+          setTimeout(handlePrintInvoice, 100);
         }
         return userFetchData;
       } else {
@@ -73,28 +77,59 @@ const FindReport = () => {
     }
   };
 
-  const handleAddMultipleTests = (val, month1, day1) => {
+  const searchByName = async (name) => {
+    try {
+      if (name && currentUser?.uid) {
+        const userDocRef = doc(db, currentUser.uid, "Name list");
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          name = name.toUpperCase();
+          const useData = docSnap.data()[name];
+          if(useData != undefined){
+            setData(useData);
+            handleAddMultipleTests(useData, null, null, name);
+          }else{
+            enqueueSnackbar("Name not fount", { variant: "info" });
+          }
+        } else {
+          enqueueSnackbar("Name not fount", { variant: "info" });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data from Firestore: ", error);
+      setError("Error fetching data.");
+    }
+  };
+
+  const handleAddMultipleTests = (val, month1, day1, name=null) => {
     freeSpace();
-    const month = `Month: ${month1}`;
-    const day = `Date: ${day1}`;
-    val = val[month][day];
+    let month = "", day = "";
+    if(!name){
+      month = `Month: ${month1}`;
+      day = `Date: ${day1}`;
+      val = val[month][day];
+    }
     const count = Object.keys(val).length;
     const keys = Object.keys(val);
 
+    
     const newHeaders = [];
     const newPatientName = [];
     const newAge = [];
     const newSex = [];
-    const newDate = [];
-    const newStatus = [];
+    const newT_amount = [];
+    const newPaid = [];
+    const newDues = [];
+    const newRebate = [];
     const newCenterName = [];
     const newCenterID = [];
     const newPatientID = [];
     const newButtons = [];
+    
     for (let i = 0; i < count; i++) {
       const key = keys[i];
       const data2 = val[key];
-
       newHeaders.push(
         <h1
           key={headers.length + i}
@@ -108,6 +143,7 @@ const FindReport = () => {
           {headers.length + i + 1}
         </h1>
       );
+
       newPatientName.push(
         <p
           style={{
@@ -122,6 +158,7 @@ const FindReport = () => {
           {data2?.PatientName}
         </p>
       );
+
       newPatientID.push(
         <p
           style={{
@@ -136,6 +173,7 @@ const FindReport = () => {
           {data2?.PatientID}
         </p>
       );
+
       newAge.push(
         <p
           style={{
@@ -164,7 +202,7 @@ const FindReport = () => {
           {data2?.Sex}
         </p>
       );
-      newStatus.push(
+      newT_amount.push(
         <p
           style={{
             fontSize: "17px",
@@ -175,10 +213,10 @@ const FindReport = () => {
             color: "black",
           }}
         >
-          {data2?.Status}
+          {data2?.GrandAmount}
         </p>
       );
-      newDate.push(
+      newPaid.push(
         <p
           style={{
             fontSize: "17px",
@@ -189,8 +227,35 @@ const FindReport = () => {
             color: "black",
           }}
         >
-          {day.split(": ")[1]} / {month.split(": ")[1]} /{" "}
-          {chooseYear.split(": ")[1][2]}{chooseYear.split(": ")[1][3]}
+          {data2?.AdvanceAmount}
+        </p>
+      );
+      newDues.push(
+        <p
+          style={{
+            fontSize: "17px",
+            padding: "1px",
+            height: "26px",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+            color: "black",
+          }}
+        >
+          {data2?.BalanceAmount}
+        </p>
+      );
+      newRebate.push(
+        <p
+          style={{
+            fontSize: "17px",
+            padding: "1px",
+            height: "26px",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+            color: "black",
+          }}
+        >
+          {data2?.Discount}
         </p>
       );
       newCenterName.push(
@@ -227,7 +292,7 @@ const FindReport = () => {
             display: "flex",
             flexDirection: "row",
             padding: "2px",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
             border: "1px solid #ddd",
             height: "26px",
           }}
@@ -235,9 +300,10 @@ const FindReport = () => {
           <button
             className="input-button"
             style={{
-              fontSize: "17px",
+              fontSize: "15px",
               padding: "2px",
               height: "20px",
+              width: "45%",
               borderRadius: "2px",
             }}
             onClick={() => {
@@ -251,15 +317,16 @@ const FindReport = () => {
           <button
             className="input-button"
             style={{
-              fontSize: "17px",
+              fontSize: "15px",
               padding: "2px",
               height: "20px",
+              width: "45%",
               borderRadius: "2px",
             }}
             onClick={() => {
-              navigate("/DoctorsSheetTest", {
+              navigate("/doctor_use/TestAdmission", {
                 state: {
-                  AdiValue: data2?.PatientID,
+                  PidValue: data2?.PatientID,
                   date: `${chooseYear.split(" ")[1]}-${month1}-${day1}`,
                 },
               });
@@ -278,11 +345,13 @@ const FindReport = () => {
       ...prevPatientName,
       ...newPatientName,
     ]);
+    setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
     setAge((prevAge) => [...prevAge, ...newAge]);
     setSex((prevSex) => [...prevSex, ...newSex]);
-    setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
-    setDate((prevDate) => [...prevDate, ...newDate]);
-    setStatus((prevStatus) => [...prevStatus, ...newStatus]);
+    setT_amount((prevT_amount) => [...prevT_amount, ...newT_amount]);
+    setPaid((prePaid) => [...prePaid, ...newPaid]);
+    setDues((prevDues) => [...prevDues, ...newDues]);
+    setRebate((prevRebate) => [...prevRebate, ...newRebate]);
     setCenterName((prevCenterName) => [...prevCenterName, ...newCenterName]);
     setCenterID((prevCenterID) => [...prevCenterID, ...newCenterID]);
     setUseButton((prevButton) => [...prevButton, ...newButtons]);
@@ -323,15 +392,30 @@ const FindReport = () => {
 
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      {console.log("use: ", userData) && userData && (
-        <Receipt ref={receiptRef} printData={userData} />
-      )}
+      {userData && <Invoice ref={invoiceRef} printData={userData} />}
       <Navbar destination={"/"} />
       <Wrapper>
         <div className="container">
           <div className="modal">
             <div className="modal-container">
               <div className="modal-left">
+                <button
+                  className="input-button"
+                  style={{
+                    fontSize: "17px",
+                    padding: "2px",
+                    height: "25px",
+                    width: "20%",
+                    borderRadius: "3px",
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                  }}
+                  onClick={() => {
+                    navigate("/doctor_use/TestAdmission");
+                  }}
+                >
+                  <h4>New Registration</h4>
+                </button>
                 <h1 className="modal-title">Find Report</h1>
                 <div
                   className="input-block"
@@ -387,11 +471,43 @@ const FindReport = () => {
                         backgroundColor: "#8c7569",
                       }}
                       onClick={() => {
-                        navigate("/DoctorsSheetTest", {
+                        navigate("/doctor_use/TestAdmission", {
                           state: {
-                            AdiValue: pidValue,
+                            PidValue: pidValue,
                           },
                         });
+                      }}
+                    >
+                      Search
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Find by Patient Name: &nbsp;</h4>
+                    <input
+                      style={{
+                        fontSize: "17px",
+                        padding: "2px",
+                        border: "2px solid #ddd",
+                        backgroundColor: "#ffffff",
+                        color: "black",
+                      }}
+                      type="text"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setName(e.target.value);
+                      }}
+                    />
+                    <button
+                      style={{
+                        fontSize: "17px",
+                        padding: "2px",
+                        borderRadius: "2px",
+                        backgroundColor: "#8c7569",
+                      }}
+                      onClick={() => {
+                        searchByName(name);
                       }}
                     >
                       Search
@@ -422,14 +538,14 @@ const FindReport = () => {
                     </div>
                     <div
                       style={{
-                        width: "40%",
+                        width: "35%",
                         display: "flex",
                         flexDirection: "column",
                         border: "1px solid #ddd",
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        PATIENT NAME&nbsp;
+                        PATIENT NAME
                       </label>
                       {patientName}
                     </div>
@@ -442,7 +558,20 @@ const FindReport = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        P-Age&nbsp;
+                        PATIENT ID
+                      </label>
+                      {patientID}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label">
+                        Age&nbsp;
                       </label>
                       {age}
                     </div>
@@ -455,7 +584,7 @@ const FindReport = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        Gender&nbsp;
+                        Sex&nbsp;
                       </label>
                       {sex}
                     </div>
@@ -468,9 +597,9 @@ const FindReport = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        Date&nbsp;
+                        T_Amount&nbsp;
                       </label>
-                      {date}
+                      {t_amount}
                     </div>
                     <div
                       style={{
@@ -481,7 +610,46 @@ const FindReport = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        C Name&nbsp;
+                        Paid&nbsp;
+                      </label>
+                      {paid}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label">
+                        Dues&nbsp;
+                      </label>
+                      {dues}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label">
+                        Rebate&nbsp;
+                      </label>
+                      {rebate}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label">
+                        C. Name&nbsp;
                       </label>
                       {centerName}
                     </div>
@@ -494,22 +662,9 @@ const FindReport = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        C ID&nbsp;
+                        C. ID&nbsp;
                       </label>
                       {centerID}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Status&nbsp;
-                      </label>
-                      {status}
                     </div>
                     <div
                       style={{
@@ -687,4 +842,4 @@ const Wrapper = styled.section`
     }
   }
 `;
-export default FindReport;
+export default FindAdmission;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
-import Navbar from "../Components/Navbar";
+import Navbar from "../../Components/Navbar";
 import styled from "styled-components";
-import { useAuth } from "../Context/AuthContext";
-import { storeUserData2 } from "../Components/storeUserData";
-import { db, storage } from "../config/firebase";
+import { useAuth } from "../../Context/AuthContext";
+import { storeUserData2 } from "../../Components/storeUserData";
+import { db, storage } from "../../config/firebase";
 import {
   getDownloadURL,
   ref,
@@ -144,12 +144,12 @@ const ConfigureSettings = () => {
   const handleChange = () => {};
 
   if (error) {
-    return <Navigate to={"/InitialSettings"} replace={true} />;
+    return <Navigate to={"doctor_use/InitialSheet"} replace={true} />;
   }
 
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      <Navbar destination={"/DoctorsSheet"} />
+      <Navbar destination={"/doctor_use/TestAdmission"} />
       <Wrapper>
         <div className="container">
           <div className="modal">

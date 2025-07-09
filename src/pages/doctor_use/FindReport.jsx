@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import Navbar from "../Components/Navbar";
+import Navbar from "../../Components/Navbar";
 import styled from "styled-components";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../config/firebase";
-import { useAuth } from "../Context/AuthContext";
-import Invoice from "../Components/Print/Invoice";
+import { db } from "../../config/firebase";
+import { useAuth } from "../../Context/AuthContext";
+import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
+import Receipt from "../../Components/Print/Receipt";
 
-const FindReport2 = () => {
+const FindReport = () => {
   const [data, setData] = useState([]);
   const [userData, setUserData] = useState([]);
   const [pidValue, setPidValue] = useState(null);
@@ -16,17 +17,16 @@ const FindReport2 = () => {
   const [patientName, setPatientName] = useState([]);
   const [age, setAge] = useState([]);
   const [sex, setSex] = useState([]);
-  const [t_amount, setT_amount] = useState([]);
-  const [paid, setPaid] = useState([]);
-  const [dues, setDues] = useState([]);
-  const [rebate, setRebate] = useState([]);
+  const [date, setDate] = useState([]);
+  const [status, setStatus] = useState([]);
   const [centerName, setCenterName] = useState([]);
   const [centerID, setCenterID] = useState([]);
   const [patientID, setPatientID] = useState([]);
+  const [name, setName] = useState();
   const [useButton, setUseButton] = useState([]);
   const [error, setError] = useState();
   const { currentUser } = useAuth();
-  const invoiceRef = useRef(null);
+  const receiptRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [chooseYear, setChooseYear] = useState(
@@ -36,33 +36,33 @@ const FindReport2 = () => {
   const freeSpace = () => {
     setHeaders([]);
     setPatientName([]);
+    setDate([]);
     setAge([]);
     setSex([]);
-    setT_amount([]);
-    setPaid([]);
-    setDues([]);
-    setRebate([]);
+    setStatus([]);
     setCenterName([]);
     setCenterID([]);
     setPatientID([]);
     setUseButton([]);
   };
 
-  const handlePrintInvoice = useReactToPrint({
-    content: () => invoiceRef.current,
+  const handlePrintReceipt = useReactToPrint({
+    content: () => receiptRef.current,
   });
 
   const handleFind = async (e, check) => {
     setUserData([]);
     try {
-      const userDocRef = doc(db, currentUser.uid, `TR${e}`);
+      const userDocRef = doc(db, currentUser.uid, `TD${e}`);
       const userDocSnapshot = await getDoc(userDocRef);
+      // console.log(userDocSnapshot);
 
+      // console.log("use3: ", userData);
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
         setUserData(userFetchData);
         if (userData && check) {
-          setTimeout(handlePrintInvoice, 100);
+          setTimeout(handlePrintReceipt, 100);
         }
         return userFetchData;
       } else {
@@ -74,11 +74,39 @@ const FindReport2 = () => {
     }
   };
 
-  const handleAddMultipleTests = (val, month1, day1) => {
+  const searchByName = async (name) => {
+    try {
+      if (name && currentUser?.uid) {
+        const userDocRef = doc(db, currentUser.uid, "Name list");
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          name = name.toUpperCase();
+          const useData = docSnap.data()[name];
+          if(useData != undefined){
+            setData(useData);
+            handleAddMultipleTests(useData, null, null, name);
+          }else{
+            enqueueSnackbar("Name not fount", { variant: "info" });
+          }
+        } else {
+          enqueueSnackbar("Name not fount", { variant: "info" });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data from Firestore: ", error);
+      setError("Error fetching data.");
+    }
+  };
+
+  const handleAddMultipleTests = (val, month1, day1, name=null) => {
     freeSpace();
-    const month = `Month: ${month1}`;
-    const day = `Date: ${day1}`;
-    val = val[month][day];
+    let month = "", day = "";
+    if(!name){
+      month = `Month: ${month1}`;
+      day = `Date: ${day1}`;
+      val = val[month][day];
+    }
     const count = Object.keys(val).length;
     const keys = Object.keys(val);
 
@@ -86,18 +114,16 @@ const FindReport2 = () => {
     const newPatientName = [];
     const newAge = [];
     const newSex = [];
-    const newT_amount = [];
-    const newPaid = [];
-    const newDues = [];
-    const newRebate = [];
+    const newDate = [];
+    const newStatus = [];
     const newCenterName = [];
     const newCenterID = [];
     const newPatientID = [];
     const newButtons = [];
-
     for (let i = 0; i < count; i++) {
       const key = keys[i];
       const data2 = val[key];
+
       newHeaders.push(
         <h1
           key={headers.length + i}
@@ -111,7 +137,6 @@ const FindReport2 = () => {
           {headers.length + i + 1}
         </h1>
       );
-
       newPatientName.push(
         <p
           style={{
@@ -126,7 +151,6 @@ const FindReport2 = () => {
           {data2?.PatientName}
         </p>
       );
-
       newPatientID.push(
         <p
           style={{
@@ -141,7 +165,6 @@ const FindReport2 = () => {
           {data2?.PatientID}
         </p>
       );
-
       newAge.push(
         <p
           style={{
@@ -170,7 +193,7 @@ const FindReport2 = () => {
           {data2?.Sex}
         </p>
       );
-      newT_amount.push(
+      newStatus.push(
         <p
           style={{
             fontSize: "17px",
@@ -181,10 +204,10 @@ const FindReport2 = () => {
             color: "black",
           }}
         >
-          {data2?.GrandAmount}
+          {data2?.Status}
         </p>
       );
-      newPaid.push(
+      newDate.push(
         <p
           style={{
             fontSize: "17px",
@@ -195,35 +218,10 @@ const FindReport2 = () => {
             color: "black",
           }}
         >
-          {data2?.AdvanceAmount}
-        </p>
-      );
-      newDues.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "26px",
-            borderRadius: "1px",
-            border: "1px solid #ddd",
-            color: "black",
-          }}
-        >
-          {data2?.BalanceAmount}
-        </p>
-      );
-      newRebate.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "26px",
-            borderRadius: "1px",
-            border: "1px solid #ddd",
-            color: "black",
-          }}
-        >
-          {data2?.Discount}
+          {data2?.CollectionOn? `${data2?.CollectionOn.split("-")[2]} / ${data2?.CollectionOn.split("-")[1]} / ${" "}
+          ${data2?.CollectionOn.split("-")[0][2]}${data2?.CollectionOn.split("-")[0][3]}` :
+          `${day.split(": ")[1]} / ${month.split(": ")[1]} / ${" "}
+          ${chooseYear.split(": ")[1][2]}${chooseYear.split(": ")[1][3]}`}
         </p>
       );
       newCenterName.push(
@@ -260,7 +258,7 @@ const FindReport2 = () => {
             display: "flex",
             flexDirection: "row",
             padding: "2px",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             border: "1px solid #ddd",
             height: "26px",
           }}
@@ -271,7 +269,6 @@ const FindReport2 = () => {
               fontSize: "17px",
               padding: "2px",
               height: "20px",
-              // width: "25%",
               borderRadius: "2px",
             }}
             onClick={() => {
@@ -288,13 +285,12 @@ const FindReport2 = () => {
               fontSize: "17px",
               padding: "2px",
               height: "20px",
-              // width: "40%",
               borderRadius: "2px",
             }}
             onClick={() => {
-              navigate("/DoctorsSheet", {
+              navigate("/doctor_use/TestReport", {
                 state: {
-                  PidValue: data2?.PatientID,
+                  AdiValue: data2?.PatientID,
                   date: `${chooseYear.split(" ")[1]}-${month1}-${day1}`,
                 },
               });
@@ -303,32 +299,6 @@ const FindReport2 = () => {
             id="name"
           >
             Update
-          </button>
-          <button
-            className="input-button"
-            style={{
-              fontSize: "17px",
-              padding: "2px",
-              height: "20px",
-              // width: "25%",
-              borderRadius: "2px",
-            }}
-            onClick={() => {
-              handleFind(data2?.PatientID, false).then((userData) => {
-                if (userData != []) {
-                  navigate("/ViewReport", {
-                    state: {
-                      userData,
-                      date: `${chooseYear.split(" ")[1]}-${month1}-${day1}`,
-                    },
-                  });
-                }
-              });
-            }}
-            name={`button3${headers.length + i}`}
-            id="name"
-          >
-            View
           </button>
         </div>
       );
@@ -339,13 +309,11 @@ const FindReport2 = () => {
       ...prevPatientName,
       ...newPatientName,
     ]);
-    setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
     setAge((prevAge) => [...prevAge, ...newAge]);
     setSex((prevSex) => [...prevSex, ...newSex]);
-    setT_amount((prevT_amount) => [...prevT_amount, ...newT_amount]);
-    setPaid((prePaid) => [...prePaid, ...newPaid]);
-    setDues((prevDues) => [...prevDues, ...newDues]);
-    setRebate((prevRebate) => [...prevRebate, ...newRebate]);
+    setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
+    setDate((prevDate) => [...prevDate, ...newDate]);
+    setStatus((prevStatus) => [...prevStatus, ...newStatus]);
     setCenterName((prevCenterName) => [...prevCenterName, ...newCenterName]);
     setCenterID((prevCenterID) => [...prevCenterID, ...newCenterID]);
     setUseButton((prevButton) => [...prevButton, ...newButtons]);
@@ -386,30 +354,15 @@ const FindReport2 = () => {
 
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      {userData && <Invoice ref={invoiceRef} printData={userData} />}
+      {userData && (
+        <Receipt ref={receiptRef} printData={userData} />
+      )}
       <Navbar destination={"/"} />
       <Wrapper>
         <div className="container">
           <div className="modal">
             <div className="modal-container">
               <div className="modal-left">
-                <button
-                  className="input-button"
-                  style={{
-                    fontSize: "17px",
-                    padding: "2px",
-                    height: "25px",
-                    width: "20%",
-                    borderRadius: "3px",
-                    display: "flex",
-                    justifyContent: "space-evenly",
-                  }}
-                  onClick={() => {
-                    navigate("/DoctorsSheet");
-                  }}
-                >
-                  <h4>New Registration</h4>
-                </button>
                 <h1 className="modal-title">Find Report</h1>
                 <div
                   className="input-block"
@@ -465,11 +418,43 @@ const FindReport2 = () => {
                         backgroundColor: "#8c7569",
                       }}
                       onClick={() => {
-                        navigate("/DoctorsSheet", {
+                        navigate("/doctor_use/TestAdmission", {
                           state: {
                             PidValue: pidValue,
                           },
                         });
+                      }}
+                    >
+                      Search
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Find by Patient Name: &nbsp;</h4>
+                    <input
+                      style={{
+                        fontSize: "17px",
+                        padding: "2px",
+                        border: "2px solid #ddd",
+                        backgroundColor: "#ffffff",
+                        color: "black",
+                      }}
+                      type="text"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setName(e.target.value);
+                      }}
+                    />
+                    <button
+                      style={{
+                        fontSize: "17px",
+                        padding: "2px",
+                        borderRadius: "2px",
+                        backgroundColor: "#8c7569",
+                      }}
+                      onClick={() => {
+                        searchByName(name);
                       }}
                     >
                       Search
@@ -500,14 +485,14 @@ const FindReport2 = () => {
                     </div>
                     <div
                       style={{
-                        width: "35%",
+                        width: "40%",
                         display: "flex",
                         flexDirection: "column",
                         border: "1px solid #ddd",
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        PATIENT NAME
+                        PATIENT NAME&nbsp;
                       </label>
                       {patientName}
                     </div>
@@ -520,20 +505,7 @@ const FindReport2 = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        PATIENT ID
-                      </label>
-                      {patientID}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Age&nbsp;
+                        P-Age&nbsp;
                       </label>
                       {age}
                     </div>
@@ -546,7 +518,7 @@ const FindReport2 = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        Sex&nbsp;
+                        Gender&nbsp;
                       </label>
                       {sex}
                     </div>
@@ -559,9 +531,9 @@ const FindReport2 = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        T_Amount&nbsp;
+                        Date&nbsp;
                       </label>
-                      {t_amount}
+                      {date}
                     </div>
                     <div
                       style={{
@@ -572,46 +544,7 @@ const FindReport2 = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        Paid&nbsp;
-                      </label>
-                      {paid}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Dues&nbsp;
-                      </label>
-                      {dues}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Rebate&nbsp;
-                      </label>
-                      {rebate}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        C. Name&nbsp;
+                        C Name&nbsp;
                       </label>
                       {centerName}
                     </div>
@@ -624,9 +557,22 @@ const FindReport2 = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        C. ID&nbsp;
+                        C ID&nbsp;
                       </label>
                       {centerID}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label">
+                        Status&nbsp;
+                      </label>
+                      {status}
                     </div>
                     <div
                       style={{
@@ -804,4 +750,4 @@ const Wrapper = styled.section`
     }
   }
 `;
-export default FindReport2;
+export default FindReport;

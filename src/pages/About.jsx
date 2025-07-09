@@ -11,7 +11,7 @@ const About = () => {
         width: "100%",
       }}
     >
-      <Navbar destination={"/DoctorsSheet"} />
+      <Navbar destination={"/doctor_use/TestAdmission"} />
       <div
         style={{
           paddingTop: "12vh",

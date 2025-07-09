@@ -18,7 +18,7 @@ export const storeUserData2 = async (exportData, currentUser) => {
     console.log(currentUser);
     if (currentUser) {
       const userId = currentUser.uid;
-      await setDoc(doc(db, userId, "UserData"), exportData);
+      await setDoc(doc(db, "Users", userId), exportData);
     }
   } catch (error) {
     console.log(error);

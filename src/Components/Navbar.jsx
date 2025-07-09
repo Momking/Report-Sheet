@@ -30,11 +30,11 @@ const Navbar = ({ destination }) => {
     >
       <BackButton destination={destination} />
       <ul style={{ flex: "1", listStyle: "none", textAlign: "center" }}>
-        <Link to="/FindReport2">
-          <li style={liStyle}>Patient Entry.</li>
+        <Link to="/doctor_use/FindAdmission">
+          <li style={liStyle}>Test Admission</li>
         </Link>
-        <Link to="/FindReport">
-          <li style={liStyle}>Finding Report</li>
+        <Link to="/doctor_use/FindReport">
+          <li style={liStyle}>Test Report</li>
         </Link>
         <Link>
           <li style={liStyle}>Test Master</li>
@@ -45,7 +45,7 @@ const Navbar = ({ destination }) => {
         <Link>
           <li style={liStyle}>Patient List</li>
         </Link>
-        <Link to="/DoctorsSheet/Configure">
+        <Link to="/doctor_use/Configure">
           <li style={liStyle}>Settings</li>
         </Link>
         <Link to="">

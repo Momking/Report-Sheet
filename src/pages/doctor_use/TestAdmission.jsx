@@ -1,54 +1,165 @@
-import React, { useRef, useState, useEffect } from "react";
-import Navbar from "../Components/Navbar";
+import React, { useEffect, useRef, useState } from "react";
+import Navbar from "../../Components/Navbar";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
-import { storeUserData } from "../Components/storeUserData";
-import { useAuth } from "../Context/AuthContext";
-import { db } from "../config/firebase";
+import { storeUserData } from "../../Components/storeUserData";
+import { useAuth } from "../../Context/AuthContext";
+import { db } from "../../config/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import Invoice from "../Components/Print/Invoice";
+import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
-import PendingReport from "../Components/PendingReport";
-import Receipt from "../Components/Print/Receipt";
-import { TestName } from "../Components/Data/TestName";
-import { useLocation, useNavigate } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
-import PopUpCard from "../Components/PopUpCard";
-import CommentBox from "../Components/CommentBox";
+import { useLocation, useNavigate } from "react-router-dom";
+import { TestName } from "../../Components/Data/TestName";
 
-const DoctorsSheetTest = () => {
+const TestAdmission = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { AdiValue, date } = location.state || {};
-  const [testData, setTestData] = useState({ tests: [] });
+  const { PidValue, date } = location.state || {};
   const [headers, setHeaders] = useState([]);
+  const [testData, setTestData] = useState({ tests: [] });
   const [test, setTest] = useState([]);
-  const [normalValue, setNormalValue] = useState([]);
-  const [findings, setFindings] = useState([]);
-  const [buttons, setButtons] = useState([]);
-  const [adi, setAdi] = useState("");
-  const [cards, setCards] = useState(null);
-  const [comment, setComment] = useState(null);
+  const [rate, setRate] = useState([]);
+  const [vno, setVno] = useState("");
   const [error, setError] = useState(false);
   const { currentUser } = useAuth();
-  const invoiceRef = useRef(null);
-  const receiptRef = useRef(null);
+  const componentRef = useRef(null);
   const [printData, setPrintData] = useState([]);
   const [saveAndPrint, setSaveAndPrint] = useState(false);
-  const [saveAndPrint2, setSaveAndPrint2] = useState(false);
   const { enqueueSnackbar } = useSnackbar("");
+
+  const handleTestChange = (e, index) => {
+    let value = e.target.value.split(",");
+    const updateRate = [...rate];
+    const updateTest = [...test];
+    if (value !== "") {
+      updateRate[index] = (
+        <input
+          key={index}
+          style={{
+            fontSize: "17px",
+            padding: "2px",
+            color: "black",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+          }}
+          type="text"
+          pattern="^\d*\.?\d{0,2}$"
+          autoComplete="off"
+          name={`Rate${index}`}
+          id="name"
+          placeholder="Rate"
+          defaultValue={value[6]}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          readOnly
+        />
+      );
+      updateTest[index] = (
+        <input
+          key={index}
+          style={{
+            fontSize: "17px",
+            padding: "2px",
+            color: "black",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+          }}
+          type="text"
+          pattern="^\d*\.?\d{0,2}$"
+          autoComplete="off"
+          name={`TestName${index}`}
+          id="name"
+          placeholder="Rate"
+          defaultValue={value[1]}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          readOnly
+        />
+      );
+    }
+    setRate(updateRate);
+    setTest(updateTest);
+  };
+
+  const handleClick = () => {
+    const index = headers.length;
+    // console.log(headers.length);
+    if (headers.length === 0 || test[headers.length - 1].type !== "select") {
+      const newHeader = (
+        <h1
+          key={index}
+          style={{ color: "black", fontSize: "13px", border: "1px solid #ddd", height: "29px" }}
+        >
+          {index + 1}
+        </h1>
+      );
+
+      const newTest = (
+        <select
+          id="options"
+          name={`TestName1${index}`}
+          onChange={(e) => handleTestChange(e, index)}
+          style={{
+            fontSize: "17px",
+            padding: "2px",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+            minWidth: "50%",
+          }}
+        >
+          {TestName.map((name, i) => (
+            <option key={i} value={name}>
+              {name[1]}
+            </option>
+          ))}
+        </select>
+      );
+
+      const newRate = (
+        <input
+          key={index}
+          style={{
+            fontSize: "17px",
+            padding: "2px",
+            color: "black",
+            borderRadius: "1px",
+            border: "1px solid #ddd",
+          }}
+          type="text"
+          pattern="^\d*\.?\d{0,2}$"
+          autoComplete="off"
+          name={`Rate1${index}`}
+          id="name"
+          placeholder="Rate"
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      );
+
+      if (headers.length < 20) {
+        setHeaders([...headers, newHeader]);
+        setTest([...test, newTest]);
+        setRate([...rate, newRate]);
+      }
+    } else {
+      enqueueSnackbar("Fill up the test option", {
+        variant: "info",
+      });
+    }
+  };
 
   const handleAddMultipleTests = (count) => {
     const newHeaders = [];
     const newTests = [];
-    const newNormalValue = [];
-    const newFindings = [];
-    const newButtons = [];
+    const newRates = [];
+
     for (let i = 0; i < count; i++) {
       newHeaders.push(
         <h1
           key={headers.length + i}
-          style={{ color: "black", fontSize: "10px", border: "1px solid #ddd" }}
+          style={{ color: "black", fontSize: "13px", border: "1px solid #ddd", height: "29px"}}
+          className="head"
         >
           {headers.length + i + 1}
         </h1>
@@ -73,30 +184,9 @@ const DoctorsSheetTest = () => {
           readOnly
         />
       );
-      newNormalValue.push(
+      newRates.push(
         <input
-          key={normalValue.length + i}
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            borderRadius: "1px",
-            border: "1px solid #ddd",
-          }}
-          type="text"
-          autoComplete="off"
-          name={`normalValue${normalValue.length + i}`}
-          id="name"
-          placeholder="Normal Value"
-          defaultValue={
-            testData?.tests[normalValue.length + i]?.normalValue || ""
-          }
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-      );
-      newFindings.push(
-        <input
-          key={findings.length + i}
+          key={rate.length + i}
           style={{
             fontSize: "17px",
             padding: "2px",
@@ -106,79 +196,37 @@ const DoctorsSheetTest = () => {
           type="text"
           pattern="^\d*\.?\d{0,2}$"
           autoComplete="off"
-          name={`findings${findings.length + i}`}
+          name={`Rate${rate.length + i}`}
           id="name"
-          placeholder="Findings"
-          defaultValue={testData?.tests[findings.length + i]?.findings || ""}
+          placeholder="Rate"
+          defaultValue={testData?.tests[rate.length + i]?.Rate || ""}
           onChange={handleChange}
           onBlur={handleBlur}
+          readOnly
         />
-      );
-      newButtons.push(
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            padding: "2px",
-            justifyContent: "space-around",
-            border: "1px solid #ddd",
-            height: "26px",
-          }}
-        >
-          <button
-            className="input-button"
-            type="button"
-            style={{
-              fontSize: "17px",
-              padding: "2px",
-              height: "20px",
-              borderRadius: "2px",
-            }}
-            name={`button1${headers.length + i}`}
-            onClick={() => setCards(testData?.tests[findings.length + i])}
-          >
-            Attach-table
-          </button>
-          <button
-            className="input-button"
-            type="button"
-            style={{
-              fontSize: "17px",
-              padding: "2px",
-              height: "20px",
-              borderRadius: "2px",
-            }}
-            name={`button2${headers.length + i}`}
-            onClick={() => setComment(testData?.tests[findings.length + i])}
-          >
-            Comment
-          </button>
-        </div>
       );
     }
 
     setHeaders((prevHeaders) => [...prevHeaders, ...newHeaders]);
     setTest((prevTest) => [...prevTest, ...newTests]);
-    setNormalValue((prevNormalValue) => [
-      ...prevNormalValue,
-      ...newNormalValue,
-    ]);
-    setFindings((prevFindings) => [...prevFindings, ...newFindings]);
-    setButtons((prevButtons) => [...prevButtons, ...newButtons]);
+    setRate((prevRate) => [...prevRate, ...newRates]);
   };
 
-  const handleAdmissionIDSelect = (AdmissionID) => {
-    setAdi(AdmissionID);
-    handleFind(AdmissionID);
+  const handleClick2 = () => {
+    if (headers.length > 0) {
+      setHeaders(headers.slice(0, -1));
+      setTest(test.slice(0, -1));
+      setRate(rate.slice(0, -1));
+    }
   };
-
   const handleFind = async (e) => {
     try {
       let userDocRef = null;
       if (e.length != undefined) {
-        userDocRef = doc(db, currentUser.uid, `TD${e}`);
+        setVno(e);
+        userDocRef = doc(db, currentUser.uid, `${e}`);
       } else {
-        userDocRef = doc(db, currentUser.uid, `TD${adi}`);
+        userDocRef = doc(db, currentUser.uid, vno);
       }
       const userDocSnapshot = await getDoc(userDocRef);
 
@@ -188,7 +236,7 @@ const DoctorsSheetTest = () => {
         setTestData(userFetchData);
       } else {
         setError(true);
-        enqueueSnackbar("Admission ID doesn't exist", { variant: "info" });
+        enqueueSnackbar("Voucher no doesn't exist", { variant: "info" });
       }
     } catch (error) {
       setError(true);
@@ -202,37 +250,27 @@ const DoctorsSheetTest = () => {
   useEffect(() => {
     if (testData.tests) {
       handleAddMultipleTests(testData.tests.length);
-      // handleAdmissionIDSelect;
     }
   }, [testData]);
 
   useEffect(() => {
-    console.log("adi: ", AdiValue);
-    if (AdiValue) {
-      handleFind(AdiValue);
+    if (PidValue) {
+      handleFind(PidValue);
     }
-  }, [AdiValue]);
+  }, [PidValue]);
 
-  const handlePrintInvoice = useReactToPrint({
-    content: () => invoiceRef.current,
-  });
-
-  const handlePrintReceipt = useReactToPrint({
-    content: () => receiptRef.current,
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
   });
 
   const handleNew = () => {
-    setAdi("");
+    setVno("");
     setError(false);
     setHeaders([]);
     setTest([]);
-    setNormalValue([]);
-    setFindings([]);
-    setButtons([]);
+    setRate([]);
     setTestData({ tests: [] });
     setPrintData([]);
-    setSaveAndPrint(false);
-    setSaveAndPrint2(false);
     document.getElementById("formId").reset();
   };
 
@@ -240,23 +278,22 @@ const DoctorsSheetTest = () => {
     setError(false);
     setHeaders([]);
     setTest([]);
-    setNormalValue([]);
-    setFindings([]);
-    setButtons([]);
+    setRate([]);
     setTestData({ tests: [] });
     setPrintData([]);
-    setSaveAndPrint(false);
-    setSaveAndPrint2(false);
     document.getElementById("formId").reset();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const admissionID = formData.get("Patient ID");
-    setAdi(admissionID);
-
-    if (admissionID) {
+    let newTest = test;
+    if (test[test.length - 1].props.name === `TestName1${test.length - 1}`) {
+      handleClick2();
+      newTest = test.slice(0, -1);
+    }
+    setVno(formData.get("Patient ID"));
+    if (vno) {
       const exportData = {
         PatientName: formData.get("Patient Name"),
         PatientID: formData.get("Patient ID"),
@@ -269,37 +306,75 @@ const DoctorsSheetTest = () => {
         ReportingOn: formData.get("Reporting On"),
         CenterID: formData.get("Center ID"),
         CenterName: formData.get("Center Name"),
-        tests: test.map((_, index) => ({
+        tests: newTest.map((_, index) => ({
           TestName: formData.get(`TestName${index}`),
-          normalValue: formData.get(`normalValue${index}`),
-          findings: formData.get(`findings${index}`),
-          buttons: formData.get(`buttons${index}`),
+          Rate: formData.get(`Rate${index}`),
         })),
+        EmailAddress: formData.get("Email Address"),
+        GrandAmount: formData.get("Grand Amount"),
+        AdvanceAmount: formData.get("Advance Amount"),
+        Discount: formData.get("Discount"),
+        BalanceAmount: formData.get("Balance Amount"),
       };
+      // console.log(exportData);
+      await storeUserData(vno, exportData, currentUser);
 
-      await storeUserData(`TD${admissionID}`, exportData, currentUser);
-      //===============================================================
+      //----------------------------------------------------
+
+      const pendingReportRef = doc(db, currentUser.uid, `PendingReport`);
+      const pendingReportSnapshot = await getDoc(pendingReportRef);
+      let existingPendingData = {};
+      
+      if (pendingReportSnapshot.exists()) {
+        existingPendingData = pendingReportSnapshot.data();
+      }
+      
+      const updatedPendingData = { ...existingPendingData };
+    
+      updatedPendingData[vno] = {
+        PatientID: vno,
+        PatientName: formData.get("Patient Name"),
+        Age: formData.get("Age"),
+        Sex: formData.get("Sex"),
+        Status: "Pending",
+        CenterID: formData.get("Center ID"),
+        CenterName: formData.get("Center Name"),
+        GrandAmount: formData.get("Grand Amount"),
+        AdvanceAmount: formData.get("Advance Amount"),
+        Discount: formData.get("Discount"),
+        BalanceAmount: formData.get("Balance Amount"),
+      },
+
+      await setDoc(pendingReportRef, updatedPendingData);
+
+      //-----------------------------------------------------
 
       const date = formData.get("Registration On");
       let [year, month, day] = date.split("-");
       month = `Month: ${month}`;
       day = `Date: ${day}`;
 
-      const yearData = {
-        [month]: {
-          [day]: {
-            [admissionID]: {
-              PatientID: admissionID,
-              PatientName: formData.get("Patient Name"),
-              Age: formData.get("Age"),
-              Sex: formData.get("Sex"),
-              Status: "Pending",
-              CenterID: formData.get("Center ID"),
-              CenterName: formData.get("Center Name"),
-            },
-          },
-        },
-      };
+      // const yearData = {
+      //   [month]: {
+      //     [day]: {
+      //       [vno]: {
+      //         PatientID: vno,
+      //         PatientName: formData.get("Patient Name"),
+      //         Age: formData.get("Age"),
+      //         Sex: formData.get("Sex"),
+      //         Status: "Pending",
+      //         CenterID: formData.get("Center ID"),
+      //         CenterName: formData.get("Center Name"),
+      //         GrandAmount: formData.get("Grand Amount"),
+      //         AdvanceAmount: formData.get("Advance Amount"),
+      //         Discount: formData.get("Discount"),
+      //         BalanceAmount: formData.get("Balance Amount"),
+      //       },
+      //     },
+      //   },
+      // };
+
+      
       //-----------------------------------------------------
       const pendingReportRef2 = doc(db, currentUser.uid, `Year: ${year}`);
       const pendingReportSnapshot2 = await getDoc(pendingReportRef2);
@@ -316,38 +391,68 @@ const DoctorsSheetTest = () => {
       if (!updatedPendingData2[month][day]) {
         updatedPendingData2[month][day] = {};
       }
-      updatedPendingData2[month][day][admissionID] = {
-        PatientID: admissionID,
+      updatedPendingData2[month][day][vno] = {
+        PatientID: vno,
         PatientName: formData.get("Patient Name"),
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
         Status: "Pending",
         CenterID: formData.get("Center ID"),
         CenterName: formData.get("Center Name"),
+        GrandAmount: formData.get("Grand Amount"),
+        AdvanceAmount: formData.get("Advance Amount"),
+        Discount: formData.get("Discount"),
+        BalanceAmount: formData.get("Balance Amount"),
       };
       await setDoc(pendingReportRef2, updatedPendingData2);
+      //-------------------------------------------------------
 
-      //================================================
+      const name = formData.get("Patient Name").toUpperCase();
+      const pendingReportRef3 = doc(db, currentUser.uid, `Name list`);
+      const pendingReportSnapshot3 = await getDoc(pendingReportRef3);
+      let existingPendingData3 = {};
 
+      if (pendingReportSnapshot3.exists()) {
+        existingPendingData3 = pendingReportSnapshot3.data();
+      }
+
+      const updatedPendingData3 = { ...existingPendingData3 };
+
+      if (!updatedPendingData3[name]) {
+        updatedPendingData3[name] = {};
+      }
+
+      updatedPendingData3[name][vno] = {
+        PatientID: vno,
+        PatientName: formData.get("Patient Name"),
+        Age: formData.get("Age"),
+        Sex: formData.get("Sex"),
+        Status: "Pending",
+        CollectionOn: formData.get("Collection On"),
+        CenterID: formData.get("Center ID"),
+        CenterName: formData.get("Center Name"),
+        GrandAmount: formData.get("Grand Amount"),
+        AdvanceAmount: formData.get("Advance Amount"),
+        Discount: formData.get("Discount"),
+        BalanceAmount: formData.get("Balance Amount"),
+      };
+      await setDoc(pendingReportRef3, updatedPendingData3);
+
+      //---------------------------------------------------------
+      
       setPrintData(exportData);
-      if (saveAndPrint2 && !saveAndPrint) {
-        setTimeout(handlePrintReceipt, 100);
-        setTimeout(handleNew, 1000);
+      if (saveAndPrint === true) {
+        setTimeout(handlePrint, 100);
       }
-
-      if (saveAndPrint && !saveAndPrint2) {
-        setTimeout(handlePrintInvoice, 100);
-        setTimeout(handleNew, 1000);
-      }
-      if (!saveAndPrint && !saveAndPrint2) {
-        handleNew();
-      }
-
+      setTimeout(handleNew, 200);
       enqueueSnackbar("Your Report saved", { variant: "info" });
     } else {
-      enqueueSnackbar("Admission ID is empty", { variant: "info" });
+      enqueueSnackbar("Voucher no is empty", { variant: "info" });
     }
   };
+
+  const handleBlur = (e) => {};
+  const handleChange = () => {};
 
   const getCurrentDateIST = () => {
     const now = new Date();
@@ -356,24 +461,16 @@ const DoctorsSheetTest = () => {
     return date;
   };
 
-  const handleBlur = (e) => {};
-  const handleChange = () => {};
-
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
       <Navbar destination={"/"} />
       <Wrapper>
-        {printData && <Invoice ref={invoiceRef} printData={printData} />}
-        {printData && <Receipt ref={receiptRef} printData={printData} />}
-        {cards && <PopUpCard testData={cards} onClose={() => setCards(null)} />}
-        {comment && (
-          <CommentBox testData={comment} onClose={() => setComment(null)} />
-        )}
+        {printData && <Invoice ref={componentRef} printData={printData} />}
         <div className="container">
           <div className="modal">
             <div className="modal-container">
               <button
-                onClick={() => navigate("/FindReport", { state: { date } })}
+                onClick={() => navigate("/doctor_use/FindAdmission", { state: { date } })}
                 style={{
                   position: "absolute",
                   fontSize: "15px",
@@ -389,7 +486,7 @@ const DoctorsSheetTest = () => {
                 &nbsp; Go back to Patient List
               </button>
               <div className="modal-left">
-                <h1 className="modal-title">TEST REPORT</h1>
+                <h1 className="modal-title">NEW REGISTRATION</h1>
                 <form onSubmit={handleSubmit} id="formId">
                   <div className="input-block">
                     <div
@@ -422,7 +519,7 @@ const DoctorsSheetTest = () => {
                         </div>
                         <div>
                           <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
                             ID:&nbsp;
                           </label>
                           <input
@@ -433,7 +530,7 @@ const DoctorsSheetTest = () => {
                             id="name"
                             placeholder="Name"
                             defaultValue={testData.PatientID}
-                            onChange={(e) => setAdi(e.target.value)}
+                            onChange={(e) => setVno(e.target.value)}
                             onBlur={handleBlur}
                           />
                         </div>
@@ -467,7 +564,7 @@ const DoctorsSheetTest = () => {
                       >
                         <div>
                           <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;
                           </label>
                           <input
                             type="text"
@@ -526,7 +623,7 @@ const DoctorsSheetTest = () => {
                       >
                         <div>
                           <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sex:&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sex:&nbsp;
                           </label>
                           <select
                             id="options"
@@ -546,7 +643,7 @@ const DoctorsSheetTest = () => {
                         </div>
                         <div>
                           <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref
                             By Dr:&nbsp;
                           </label>
                           <input
@@ -590,7 +687,7 @@ const DoctorsSheetTest = () => {
                       >
                         <div>
                           <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center ID:&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center ID:&nbsp;
                           </label>
                           <input
                             type="name"
@@ -622,18 +719,11 @@ const DoctorsSheetTest = () => {
                       </div>
                     </div>
                   </div>
-                  <div
-                    style={{
-                      border: "3px solid #ddd",
-                      borderRadius: "4px",
-                      overflowY: "auto",
-                      height: "25vh",
-                    }}
-                  >
+                  <div className="testName" style={{ overflowY: "auto" }} >
                     <div style={{ display: "flex" }}>
                       <div
                         style={{
-                          width: "10%",
+                          width: "20%",
                           display: "flex",
                           flexDirection: "column",
                           border: "1px solid #ddd",
@@ -646,69 +736,137 @@ const DoctorsSheetTest = () => {
                       </div>
                       <div
                         style={{
-                          width: "30%",
+                          width: "60%",
                           display: "flex",
                           flexDirection: "column",
                           border: "1px solid #ddd",
-                          color: "black",
                         }}
                       >
                         <label htmlFor="email" className="input-label">
-                          TEST NAME&nbsp;
+                          INVESTIGATION NAME&nbsp;
                         </label>
                         {test}
                       </div>
                       <div
                         style={{
-                          width: "15%",
+                          width: "20%",
                           display: "flex",
                           flexDirection: "column",
                           border: "1px solid #ddd",
                         }}
                       >
                         <label htmlFor="email" className="input-label">
-                          Normal Value&nbsp;
+                          RATE&nbsp;
                         </label>
-                        {normalValue}
-                      </div>
-                      <div
-                        style={{
-                          width: "15%",
-                          display: "flex",
-                          flexDirection: "column",
-                          border: "1px solid #ddd",
-                        }}
-                      >
-                        <label htmlFor="email" className="input-label">
-                          Findings&nbsp;
-                        </label>
-                        {findings}
-                      </div>
-                      <div
-                        style={{
-                          width: "30%",
-                          display: "flex",
-                          flexDirection: "column",
-                          border: "1px solid #ddd",
-                        }}
-                      >
-                        <label htmlFor="email" className="input-label">
-                          Buttons&nbsp;
-                        </label>
-                        {buttons}
+                        {rate}
                       </div>
                     </div>
                   </div>
-                  <br></br>
-                  <div className="modal-buttons">
-                    <button
-                      className="input-button"
-                      type="button"
-                      onClick={handleFind}
+                  <div className="input-block">
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
                     >
-                      Find a Report
-                    </button>
-                    <div style={{ padding: "2px" }}>
+                      <div>
+                        <label htmlFor="Email" className="input-label">
+                          Email Address:&nbsp;
+                        </label>
+                        <input
+                          type="Email"
+                          autoComplete="off"
+                          name="Email Address"
+                          id="Email"
+                          placeholder="Email"
+                          defaultValue={testData.EmailAddress}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                      </div>
+                      <button
+                        className="input-button2"
+                        type="button"
+                        onClick={handleClick}
+                        style={{
+                          padding: "0px",
+                          paddingLeft: "5px",
+                          paddingRight: "5px",
+                          height: "35px",
+                        }}
+                      >
+                        Add test
+                      </button>
+                      <button
+                        className="input-button2"
+                        type="button"
+                        onClick={handleClick2}
+                        style={{
+                          padding: "0px",
+                          paddingLeft: "5px",
+                          paddingRight: "5px",
+                          height: "35px",
+                        }}
+                      >
+                        Remove test
+                      </button>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <label htmlFor="Email" className="input-label">
+                          &nbsp;&nbsp;&nbsp;&nbsp;Grand Amount:&nbsp;
+                          <input
+                            type="text"
+                            pattern="^\d*\.?\d{0,2}$"
+                            name="Grand Amount"
+                            // value={amount2}
+                            placeholder="0"
+                            defaultValue={testData.GrandAmount || 0}
+                            onChange={handleChange}
+                            readOnly
+                          />
+                        </label>
+                        <label htmlFor="Email" className="input-label">
+                          Advance Amount:&nbsp;
+                          <input
+                            type="text"
+                            pattern="^\d*\.?\d{0,2}$"
+                            name="Advance Amount"
+                            // value={amount2}
+                            placeholder="0"
+                            defaultValue={testData.AdvanceAmount || 0}
+                            onChange={handleChange}
+                            readOnly
+                          />
+                        </label>
+                        <label htmlFor="Email" className="input-label">
+                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Discount:&nbsp;
+                          <input
+                            type="text"
+                            pattern="^\d*\.?\d{0,2}$"
+                            name="Discount"
+                            // value={amount2}
+                            placeholder="0"
+                            defaultValue={testData.Discount || 0}
+                            onChange={handleChange}
+                            readOnly
+                          />
+                        </label>
+                        <label htmlFor="Email" className="input-label">
+                          &nbsp;&nbsp;Balance Amount:&nbsp;
+                          <input
+                            type="text"
+                            pattern="^\d*\.?\d{0,2}$"
+                            name="Balance Amount"
+                            // value={amount2}
+                            placeholder="0"
+                            defaultValue={testData.BalanceAmount || 0}
+                            onChange={handleChange}
+                            readOnly
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-buttons">
                       <button
                         className="input-button"
                         type="button"
@@ -717,52 +875,27 @@ const DoctorsSheetTest = () => {
                       >
                         NEW REPORT
                       </button>
+                    <div style={{ padding: "2px" }}>
+                      
                       <button
                         className="input-button"
                         type="submit"
                         style={{ marginRight: "2px" }}
-                        onClick={() => {
-                          setSaveAndPrint(false);
-                          setSaveAndPrint2(false);
-                        }}
+                        onClick={() => setSaveAndPrint(false)}
                       >
                         SAVE
                       </button>
                       <button
                         className="input-button"
                         type="submit"
-                        style={{ marginRight: "2px" }}
-                        onClick={() => {
-                          setSaveAndPrint(true);
-                          setSaveAndPrint2(false);
-                        }}
+                        onClick={() => setSaveAndPrint(true)}
                       >
-                        SAVE & PRINT INVOICE
-                      </button>
-                      <button
-                        className="input-button"
-                        type="submit"
-                        onClick={() => {
-                          setSaveAndPrint2(true);
-                          setSaveAndPrint(false);
-                        }}
-                      >
-                        SAVE & PRINT RECEIPT
+                        SAVE & PRINT
                       </button>
                     </div>
                   </div>
                 </form>
               </div>
-              {/* <div
-                className="modal-right"
-                style={{
-                  color: "black",
-                  overflowY: "auto",
-                  height: "80vh",
-                }}
-              >
-                <PendingReport onAdmissionIDSelect={handleAdmissionIDSelect} />
-              </div> */}
             </div>
           </div>
         </div>
@@ -800,7 +933,7 @@ const Wrapper = styled.section`
     border-radius: 10px;
     overflow: hidden;
     position: absolute;
-
+    height: 90vh;
     transition-duration: 0.3s;
     background: #fff;
   }
@@ -817,22 +950,11 @@ const Wrapper = styled.section`
     margin: 6px 0 30px 0;
   }
   .modal-left {
-    padding: 50px 30px 20px;
+    padding: 50px 30px 50px;
     background: #fff;
-    width: 100%;
     flex: 1.5;
     transition-duration: 0.5s;
     opacity: 1;
-  }
-
-  .modal-right {
-    border: 2px solid #8c7569;
-    border-radius: 10px;
-    padding: 0px 20px 0px;
-    width: 30%:
-    flex: 2;
-    transition: 0.3s;
-    overflow: hidden;
   }
 
   .modal.is-open .modal-left {
@@ -880,9 +1002,9 @@ const Wrapper = styled.section`
   }
 
   .input-label {
-    font-size: 11px;
+    font-size: 13px;
     // text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 800;
     letter-spacing: 0.7px;
     color: #8c7569;
     transition: 0.3s;
@@ -904,6 +1026,8 @@ const Wrapper = styled.section`
     padding: 4px 4px 1px;
     border-radius: 3px;
     font-size: 15px;
+    // color: black;
+    // background: #f3f4f5;
   }
 
   .input-block input::-moz-placeholder {
@@ -925,6 +1049,13 @@ const Wrapper = styled.section`
     color: rgba(140, 117, 105, 0.8);
   }
 
+  .testName {
+    overflowY: auto;
+    border: 3px solid #ddd;
+    borderRadius: 4px;
+    height: 35vh;
+  }
+
   @media (max-width: 750px) {
     .modal-container {
       max-width: 90vw;
@@ -936,7 +1067,31 @@ const Wrapper = styled.section`
     .flexChange {
       flex-direction: column;
     }
+
+    .testName {
+      height: 20vh;
+    }
+
+    .input-label {
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .testName {
+      height: 25vh;
+    }
+  }
+
+  @media (max-height: 720px) {
+    .testName {
+      height: 25vh;
+    }
+
+    .input-label {
+      font-size: 11px;
+    }
   }
 `;
 
-export default DoctorsSheetTest;
+export default TestAdmission;
