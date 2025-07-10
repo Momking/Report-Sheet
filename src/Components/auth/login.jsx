@@ -7,6 +7,7 @@ import {
 } from "../../config/auth";
 import styled from "styled-components";
 import { useAuth } from "../../Context/AuthContext";
+import { useSnackbar } from "notistack";
 
 const Login = () => {
   const { userLoggedIn } = useAuth();
@@ -14,13 +15,26 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { enqueueSnackbar } = useSnackbar("");
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!isSigningIn) {
       setIsSigningIn(true);
-      await doSignInWithEmailAndPassword(email, password);
-      doSendEmailVerification();
+      try{
+        await doSignInWithEmailAndPassword(email, password);
+      }catch (error){
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            horizontal: "center",
+            vertical: "bottom",
+          },
+        });
+      } finally{
+        setIsSigningIn(false);
+        doSendEmailVerification();
+      }
     }
   };
 

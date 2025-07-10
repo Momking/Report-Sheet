@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { doCreateUserWithEmailAndPassword } from "../../config/auth";
 import styled from "styled-components";
 import { useAuth } from "../../Context/AuthContext";
+import { useSnackbar } from "notistack";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -11,13 +12,27 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const { enqueueSnackbar } = useSnackbar("");
   const [errorMessage, setErrorMessage] = useState("");
+
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!isRegistering) {
-      setIsRegistering(true);
-      await doCreateUserWithEmailAndPassword(email, password);
+      try {
+        await doCreateUserWithEmailAndPassword(email, password);
+      } catch (error) {
+        console.error("Registration error:", error);
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            horizontal: "center",
+            vertical: "bottom",
+          },
+        });
+      } finally {
+        setIsRegistering(false);
+      }
     }
   };
 

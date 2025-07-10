@@ -8,6 +8,7 @@ import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import Receipt from "../../Components/Print/Receipt";
+import { useSnackbar } from "notistack";
 
 const FindReport = () => {
   const [data, setData] = useState([]);
@@ -29,6 +30,7 @@ const FindReport = () => {
   const receiptRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar("");
   const [chooseYear, setChooseYear] = useState(
     `Year: ${new Date().getFullYear()}`
   );

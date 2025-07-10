@@ -6,31 +6,35 @@ import { storeUserData2 } from "../../Components/storeUserData";
 import { useAuth } from "../../Context/AuthContext";
 import { storage } from "../../config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import WaitBar from "../../Components/WaitBar";
 
 const InitialSheet = () => {
   const { currentUser } = useAuth();
   const { enqueueSnackbar } = useSnackbar("");
   const [correct, setCorrect] = useState(false);
+  const [waitBar, setWaitBar] = useState(false);
   const [profileImage, setProfileImage] = useState("");
 
   const fetchData = async () => {
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);
-      console.log(userDocSnapshot);
 
       if (userDocSnapshot.exists()) {
-        const userData = userDocSnapshot.data();
         const img_url = await getDownloadURL(
           ref(storage, `profile-images/${currentUser.uid}`)
         );
         setProfileImage(`url(${img_url})`);
         setCorrect(true);
       } else {
-        setError(true);
         enqueueSnackbar("First save your settings", { variant: "info" });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      enqueueSnackbar("Something went wrong while loading your settings", {
+        variant: "error",
+    });
+    }
   };
   useEffect(() => {
     fetchData();
@@ -46,7 +50,13 @@ const InitialSheet = () => {
       const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
 
       try {
-        const snapshot = await uploadBytes(storageRef, file);
+        console.log("downloded 1");
+        setWaitBar(true);
+        await uploadBytes(storageRef, file);
+        console.log("downloded 2");
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log("downloded 3");
+        // const snapshot = await uploadBytes(storageRef, file);
         const exportData = {
           CompanyName: formData.get("Company Name"),
           Address1: formData.get("Address1"),
@@ -55,7 +65,7 @@ const InitialSheet = () => {
           State: formData.get("State"),
           PinCode: formData.get("Pin Code"),
           Phone: formData.get("Phone"),
-          Image: profileImage,
+          Image: `url(${downloadURL})`,
         };
         await storeUserData2(exportData, currentUser);
         setCorrect(true);
@@ -71,6 +81,7 @@ const InitialSheet = () => {
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
       <Wrapper>
+      {waitBar && <WaitBar/>}
         <div className="container">
           <div className="modal">
             <div className="modal-container">
