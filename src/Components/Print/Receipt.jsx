@@ -10,7 +10,6 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
   const [userData, setUserData] = useState([]);
   const [test, setTest] = useState([]);
 
-
   const fetchData = async () => {
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
@@ -54,7 +53,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           <h4 style={{ maxWidth: "30%" }}>
             {printData.tests[test.length + i].TestName}
           </h4>
-          <h4>{printData.BalanceAmount}</h4>
+          <h4>{(printData.BalanceAmount != null) ? printData.BalanceAmount: 0}</h4>
         </div>
       );
     }

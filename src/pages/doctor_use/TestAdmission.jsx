@@ -6,11 +6,11 @@ import { storeUserData } from "../../Components/storeUserData";
 import { useAuth } from "../../Context/AuthContext";
 import { db } from "../../config/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { BsArrowLeft } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TestName } from "../../Components/Data/TestName";
+import Receipt from "../../Components/Print/Receipt";
 
 const TestAdmission = () => {
   const navigate = useNavigate();
@@ -465,7 +465,7 @@ const TestAdmission = () => {
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
       <Navbar destination={"/"} />
       <Wrapper>
-        {printData && <Invoice ref={componentRef} printData={printData} />}
+        {printData && <Receipt ref={componentRef} printData={printData} />}
         <div className="container">
           <div className="modal">
             <div className="modal-container">

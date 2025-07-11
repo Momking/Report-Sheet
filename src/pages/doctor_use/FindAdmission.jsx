@@ -5,9 +5,9 @@ import { useSnackbar } from "notistack";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useAuth } from "../../Context/AuthContext";
-import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
+import Receipt from "../../Components/Print/Receipt";
 
 const FindAdmission = () => {
   const [data, setData] = useState([]);
@@ -58,7 +58,7 @@ const FindAdmission = () => {
   const handleFind = async (e, check) => {
     setUserData([]);
     try {
-      const userDocRef = doc(db, currentUser.uid, `RD${e}`);
+      const userDocRef = doc(db, currentUser.uid, `${e}`);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
@@ -392,7 +392,7 @@ const FindAdmission = () => {
 
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      {userData && <Invoice ref={invoiceRef} printData={userData} />}
+      {userData && <Receipt ref={invoiceRef} printData={userData} />}
       <Navbar destination={"/"} />
       <Wrapper>
         <div className="container">

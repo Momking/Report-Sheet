@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TestName } from "../Components/Data/TestName";
 
-const WaitBar = () => {
+const WaitBar = ({ message }) => {
 
   return (
     <div
@@ -20,7 +20,7 @@ const WaitBar = () => {
         alignItems: "center",
       }}
     >
-      <h1>Please Wait...</h1>
+      <h1>{message}</h1>
     </div>
   );
 };

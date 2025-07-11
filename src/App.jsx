@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import TestAdmission from "./pages/doctor_use/TestAdmission";
 import RetailorsSheet from "./pages/retail_use/RetailorsSheet";
@@ -19,11 +19,21 @@ import FindAdmission from "./pages/doctor_use/FindAdmission";
 import ViewReport from "./pages/doctor_use/ViewReport";
 
 const App = () => {
-  const { currentUser } = useAuth();
-  
+
   const RequireAuth = ({ children }) => {
-    return currentUser ? children : <Login />;
+    const { currentUser, initialSettingsSet } = useAuth();
+    const location = useLocation();
+  
+    if (!currentUser) {
+      return <Navigate to="/Login" replace />;
+    }
+    if (!initialSettingsSet && location.pathname !== "/doctor_use/InitialSheet") {
+      return <Navigate to="/doctor_use/InitialSheet" replace />;
+    }
+  
+    return children;
   };
+
   return (
     <Routes>
       <Route path="/" element={<RequireAuth><Start /></RequireAuth>} />

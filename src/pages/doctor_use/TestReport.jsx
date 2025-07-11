@@ -175,7 +175,6 @@ const TestReport = () => {
   }, [testData]);
 
   useEffect(() => {
-    console.log("adi: ", AdiValue);
     if (AdiValue) {
       handleFind(AdiValue);
     }
@@ -885,6 +884,10 @@ const Wrapper = styled.section`
   @media (max-width: 1000px) {
     .testName {
       height: 25vh;
+    }
+
+    .modal-right {
+      display: none;
     }
   }
 

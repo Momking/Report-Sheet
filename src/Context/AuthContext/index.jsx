@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [isEmailUser, setIsEmailUser] = useState(false);
   const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [initialSettingsSet, setInitialSettingsSet] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +36,20 @@ export function AuthProvider({ children }) {
       setIsGoogleUser(isGoogle);
 
       setUserLoggedIn(true);
+
+      try {
+        const userDocRef = doc(db, "Users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        setInitialSettingsSet(userDocSnap.exists());
+      } catch (error) {
+        console.error("Error checking user initial settings:", error);
+        setInitialSettingsSet(false);
+      }
+
     } else {
       setCurrentUser(null);
       setUserLoggedIn(false);
+      setInitialSettingsSet(false);
     }
 
     setLoading(false);
@@ -49,6 +61,8 @@ export function AuthProvider({ children }) {
     isGoogleUser,
     currentUser,
     setCurrentUser,
+    initialSettingsSet,
+    setInitialSettingsSet,
   };
 
   return (

@@ -7,7 +7,6 @@ import { useAuth } from "../../Context/AuthContext";
 import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
-import Receipt from "../../Components/Print/Receipt";
 import { useSnackbar } from "notistack";
 
 const FindReport = () => {
@@ -55,7 +54,7 @@ const FindReport = () => {
   const handleFind = async (e, check) => {
     setUserData([]);
     try {
-      const userDocRef = doc(db, currentUser.uid, `TD${e}`);
+      const userDocRef = doc(db, currentUser.uid, `${e}`);
       const userDocSnapshot = await getDoc(userDocRef);
       // console.log(userDocSnapshot);
 
@@ -357,7 +356,7 @@ const FindReport = () => {
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
       {userData && (
-        <Receipt ref={receiptRef} printData={userData} />
+        <Invoice ref={receiptRef} printData={userData} />
       )}
       <Navbar destination={"/"} />
       <Wrapper>

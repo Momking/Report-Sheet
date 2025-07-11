@@ -7,15 +7,21 @@ import { useAuth } from "../../Context/AuthContext";
 import { storage } from "../../config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import WaitBar from "../../Components/WaitBar";
+import { Link, useNavigate } from "react-router-dom";
+import { doSignOut } from "../../config/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const InitialSheet = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, setInitialSettingsSet } = useAuth();
   const { enqueueSnackbar } = useSnackbar("");
   const [correct, setCorrect] = useState(false);
-  const [waitBar, setWaitBar] = useState(false);
+  const [waitBar, setWaitBar] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const navigate = useNavigate();
 
   const fetchData = async () => {
+    setWaitBar("Trying to Your Fetching Data");
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);
@@ -25,17 +31,21 @@ const InitialSheet = () => {
           ref(storage, `profile-images/${currentUser.uid}`)
         );
         setProfileImage(`url(${img_url})`);
+        setInitialSettingsSet(true);
         setCorrect(true);
       } else {
+        setWaitBar("");
         enqueueSnackbar("First save your settings", { variant: "info" });
       }
     } catch (error) {
+      setWaitBar("");
       console.error("Failed to fetch data:", error);
       enqueueSnackbar("Something went wrong while loading your settings", {
         variant: "error",
     });
     }
   };
+  
   useEffect(() => {
     fetchData();
   }, []);
@@ -51,12 +61,12 @@ const InitialSheet = () => {
 
       try {
         console.log("downloded 1");
-        setWaitBar(true);
+        setWaitBar("Please Wait...");
         await uploadBytes(storageRef, file);
         console.log("downloded 2");
         const downloadURL = await getDownloadURL(storageRef);
         console.log("downloded 3");
-        // const snapshot = await uploadBytes(storageRef, file);
+        
         const exportData = {
           CompanyName: formData.get("Company Name"),
           Address1: formData.get("Address1"),
@@ -68,6 +78,9 @@ const InitialSheet = () => {
           Image: `url(${downloadURL})`,
         };
         await storeUserData2(exportData, currentUser);
+        console.log("setInitialToTrue");
+        setInitialSettingsSet(true);
+        console.log("image..");
         setCorrect(true);
       } catch (error) {
         enqueueSnackbar("Error uploading image", { variant: "error" });
@@ -81,11 +94,26 @@ const InitialSheet = () => {
   return (
     <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
       <Wrapper>
-      {waitBar && <WaitBar/>}
+      {waitBar && <WaitBar message={waitBar}/>}
         <div className="container">
           <div className="modal">
             <div className="modal-container">
               <div className="modal-left">
+              <button
+                onClick={() => {
+                  doSignOut().then(() => {
+                    navigate("/login");
+                  });
+                }}
+                style={{
+                  display: "flex",
+                  marginLeft: "auto",
+                  fontSize: "small",
+                  backgroundColor: "CaptionText",
+                }}
+              >
+                Logout
+              </button>
                 <br></br>
                 <h1 className="modal-title">SETTINGS</h1>
                 <br></br>
