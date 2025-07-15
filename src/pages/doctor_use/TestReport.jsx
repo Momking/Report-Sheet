@@ -244,55 +244,6 @@ const TestReport = () => {
       await storeUserData(`RD${admissionID}`, exportData, currentUser);
       //===============================================================
 
-      const date = formData.get("Registration On");
-      let [year, month, day] = date.split("-");
-      month = `Month: ${month}`;
-      day = `Date: ${day}`;
-
-      const yearData = {
-        [month]: {
-          [day]: {
-            [admissionID]: {
-              PatientID: admissionID,
-              PatientName: formData.get("Patient Name"),
-              Age: formData.get("Age"),
-              Sex: formData.get("Sex"),
-              Status: "Pending",
-              CenterID: formData.get("Center ID"),
-              CenterName: formData.get("Center Name"),
-            },
-          },
-        },
-      };
-      //-----------------------------------------------------
-      const pendingReportRef2 = doc(db, currentUser.uid, `Year: ${year}`);
-      const pendingReportSnapshot2 = await getDoc(pendingReportRef2);
-      let existingPendingData2 = {};
-
-      if (pendingReportSnapshot2.exists()) {
-        existingPendingData2 = pendingReportSnapshot2.data();
-      }
-
-      const updatedPendingData2 = { ...existingPendingData2 };
-      if (!updatedPendingData2[month]) {
-        updatedPendingData2[month] = {};
-      }
-      if (!updatedPendingData2[month][day]) {
-        updatedPendingData2[month][day] = {};
-      }
-      updatedPendingData2[month][day][admissionID] = {
-        PatientID: admissionID,
-        PatientName: formData.get("Patient Name"),
-        Age: formData.get("Age"),
-        Sex: formData.get("Sex"),
-        Status: "Pending",
-        CenterID: formData.get("Center ID"),
-        CenterName: formData.get("Center Name"),
-      };
-      await setDoc(pendingReportRef2, updatedPendingData2);
-
-      //================================================
-
       setPrintData(exportData);
       if (saveAndPrint2 && !saveAndPrint) {
         setTimeout(handlePrintReceipt, 100);
@@ -382,6 +333,7 @@ const TestReport = () => {
                             defaultValue={testData.PatientName}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                         <div>
@@ -412,7 +364,7 @@ const TestReport = () => {
                             id="name"
                             placeholder="currentDate.toISOString().split('T')[0]"
                             defaultValue={
-                              testData.Date
+                              testData.RegistrationOn
                                 ? new Date(testData.RegistrationOn)
                                     .toISOString()
                                     .split("T")[0]
@@ -420,6 +372,7 @@ const TestReport = () => {
                             }
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -522,6 +475,7 @@ const TestReport = () => {
                             defaultValue={testData.RefByDr}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                         <div>
@@ -581,6 +535,7 @@ const TestReport = () => {
                             defaultValue={testData.CenterName}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                       </div>

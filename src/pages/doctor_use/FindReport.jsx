@@ -18,6 +18,7 @@ const FindReport = () => {
   const [age, setAge] = useState([]);
   const [sex, setSex] = useState([]);
   const [date, setDate] = useState([]);
+  const [searchDate, setSearchDate] = useState();
   const [status, setStatus] = useState([]);
   const [centerName, setCenterName] = useState([]);
   const [centerID, setCenterID] = useState([]);
@@ -75,23 +76,49 @@ const FindReport = () => {
     }
   };
 
-  const searchByName = async (name) => {
+  const searchBy = async () => {
     try {
-      if (name && currentUser?.uid) {
+      if (name && currentUser?.uid && searchDate) {
         const userDocRef = doc(db, currentUser.uid, "Name list");
         const docSnap = await getDoc(userDocRef);
 
         if (docSnap.exists()) {
-          name = name.toUpperCase();
-          const useData = docSnap.data()[name];
+          const new_name = name.toUpperCase();
+          const useData = docSnap.data()[new_name][searchDate];
           if(useData != undefined){
             setData(useData);
-            handleAddMultipleTests(useData, null, null, name);
+            handleAddMultipleTests(useData, null, null);
           }else{
             enqueueSnackbar("Name not fount", { variant: "info" });
           }
         } else {
           enqueueSnackbar("Name not fount", { variant: "info" });
+        }
+      } else if(searchDate && !name && currentUser?.uid) {
+        await fetchUserData(searchDate);
+      } else if(name && !searchDate && currentUser?.uid){
+        const userDocRef = doc(db, currentUser.uid, "Name list");
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          const new_name = name.toUpperCase();
+          const dates = docSnap.data()[new_name];
+          const result = {};
+          for (const date in dates) {
+            const vnos = dates[date];
+      
+            for (const vno in vnos) {
+              result[vno] = vnos[vno];
+            }
+          }
+          if(result != undefined){
+            setData(result);
+            handleAddMultipleTests(result, null, null);
+          }else{
+            enqueueSnackbar("Name with required date not fount", { variant: "info" });
+          }
+        } else {
+          enqueueSnackbar("Name with required date not fount", { variant: "info" });
         }
       }
     } catch (error) {
@@ -100,7 +127,7 @@ const FindReport = () => {
     }
   };
 
-  const handleAddMultipleTests = (val, month1, day1, name=null) => {
+  const handleAddMultipleTests = (val, month1, day1) => {
     freeSpace();
     let month = "", day = "";
     if(!name){
@@ -377,62 +404,7 @@ const FindReport = () => {
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Find by date: &nbsp;</h4>
-                    <input
-                      style={{
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                        border: "2px solid #ddd",
-                      }}
-                      type="date"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        const [year, month, day] = e.target.value.split("-");
-                        handleAddMultipleTests(data, month, day);
-                      }}
-                      defaultValue={location.state?.date || getCurrentDateIST()}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Find by PatientID: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setPidValue(e.target.value);
-                      }}
-                    />
-                    <button
-                      className="input-button2"
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        borderRadius: "2px",
-                      }}
-                      onClick={() => {
-                        navigate("/doctor_use/TestAdmission", {
-                          state: {
-                            PidValue: pidValue,
-                          },
-                        });
-                      }}
-                    >
-                      Search
-                    </button>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Find by Patient Name: &nbsp;</h4>
+                    <h4>Patient Name: &nbsp;</h4>
                     <input
                       style={{
                         fontSize: "17px",
@@ -449,20 +421,66 @@ const FindReport = () => {
                         setName(e.target.value);
                       }}
                     />
-                    <button
-                      className="input-button2"
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Patient ID: &nbsp;</h4>
+                    <input
                       style={{
                         fontSize: "17px",
                         padding: "2px",
-                        borderRadius: "2px",
+                        border: "2px solid #ddd",
+                        backgroundColor: "#ffffff",
+                        color: "black",
                       }}
-                      onClick={() => {
-                        searchByName(name);
+                      type="text"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setPidValue(e.target.value);
                       }}
-                    >
-                      Search
-                    </button>
+                    />
                   </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Date: &nbsp;</h4>
+                    <input
+                      style={{
+                        backgroundColor: "#ffffff",
+                        color: "black",
+                        border: "2px solid #ddd",
+                      }}
+                      type="date"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setSearchDate(e.target.value);
+                      }}
+                      defaultValue={location.state?.date || getCurrentDateIST()}
+                    />
+                  </div>
+                  <button
+                    className="input-button"
+                    style={{
+                      fontSize: "17px",
+                      padding: "2px",
+                      borderRadius: "2px",
+                    }}
+                    onClick={() => {
+                      if (pidValue){
+                        navigate("/doctor_use/TestAdmission", {
+                          state: {
+                            PidValue: pidValue,
+                          },
+                        });
+                      }else{
+                        setName(name);
+                        searchBy();
+                      }
+                    }}
+                  >
+                    Search
+                  </button>
                 </div>
                 <div
                   style={{
@@ -682,21 +700,6 @@ const Wrapper = styled.section`
     font-family: "Nunito", sans-serif;
   }
   .input-button:hover {
-    background: #55311c;
-  }
-
-  .input-button2 {
-    outline: none;
-    border: 0;
-    color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-
-  .input-button2:hover {
     background: #55311c;
   }
 

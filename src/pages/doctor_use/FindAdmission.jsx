@@ -25,6 +25,7 @@ const FindAdmission = () => {
   const [centerID, setCenterID] = useState([]);
   const [patientID, setPatientID] = useState([]);
   const [name, setName] = useState();
+  const [date, setDate] = useState();
   const [useButton, setUseButton] = useState([]);
   const [error, setError] = useState();
   const { currentUser } = useAuth();
@@ -49,6 +50,8 @@ const FindAdmission = () => {
     setCenterID([]);
     setPatientID([]);
     setUseButton([]);
+    setName();
+    setDate();
   };
 
   const handlePrintInvoice = useReactToPrint({
@@ -77,23 +80,53 @@ const FindAdmission = () => {
     }
   };
 
-  const searchByName = async (name) => {
+  const searchBy = async () => {
+    console.log(date);
     try {
-      if (name && currentUser?.uid) {
+      if (name && currentUser?.uid && date) {
+        console.log("name and date only");
         const userDocRef = doc(db, currentUser.uid, "Name list");
         const docSnap = await getDoc(userDocRef);
 
         if (docSnap.exists()) {
-          name = name.toUpperCase();
-          const useData = docSnap.data()[name];
+          const new_name = name.toUpperCase();
+          const useData = docSnap.data()[new_name][date];
           if(useData != undefined){
             setData(useData);
-            handleAddMultipleTests(useData, null, null, name);
+            handleAddMultipleTests(useData, null, null);
           }else{
             enqueueSnackbar("Name not fount", { variant: "info" });
           }
         } else {
           enqueueSnackbar("Name not fount", { variant: "info" });
+        }
+      } else if(date && !name && currentUser?.uid) {
+        console.log("date only");
+        await fetchUserData(date);
+      } else if(name && !date && currentUser?.uid){
+        console.log("name only");
+        const userDocRef = doc(db, currentUser.uid, "Name list");
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          const new_name = name.toUpperCase();
+          const dates = docSnap.data()[new_name];
+          const result = {};
+          for (const date in dates) {
+            const vnos = dates[date];
+      
+            for (const vno in vnos) {
+              result[vno] = vnos[vno];
+            }
+          }
+          if(result != undefined){
+            setData(result);
+            handleAddMultipleTests(result, null, null);
+          }else{
+            enqueueSnackbar("Name with required date not fount", { variant: "info" });
+          }
+        } else {
+          enqueueSnackbar("Name with required date not fount", { variant: "info" });
         }
       }
     } catch (error) {
@@ -102,7 +135,7 @@ const FindAdmission = () => {
     }
   };
 
-  const handleAddMultipleTests = (val, month1, day1, name=null) => {
+  const handleAddMultipleTests = (val, month1, day1) => {
     freeSpace();
     let month = "", day = "";
     if(!name){
@@ -112,7 +145,6 @@ const FindAdmission = () => {
     }
     const count = Object.keys(val).length;
     const keys = Object.keys(val);
-
     
     const newHeaders = [];
     const newPatientName = [];
@@ -416,7 +448,7 @@ const FindAdmission = () => {
                 >
                   <h4>New Registration</h4>
                 </button>
-                <h1 className="modal-title">Find Report</h1>
+                <h1 className="modal-title">Admission</h1>
                 <div
                   className="input-block"
                   style={{
@@ -427,62 +459,7 @@ const FindAdmission = () => {
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "row", color: "#052d28" }}>
-                    <h4>Find by date: &nbsp;</h4>
-                    <input
-                      style={{
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                        border: "2px solid #ddd",
-                      }}
-                      type="date"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        const [year, month, day] = e.target.value.split("-");
-                        handleAddMultipleTests(data, month, day);
-                      }}
-                      defaultValue={location.state?.date || getCurrentDateIST()}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Find by PatientID: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setPidValue(e.target.value);
-                      }}
-                    />
-                    <button
-                      className="input-button2"
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        borderRadius: "2px",
-                      }}
-                      onClick={() => {
-                        navigate("/doctor_use/TestAdmission", {
-                          state: {
-                            PidValue: pidValue,
-                          },
-                        });
-                      }}
-                    >
-                      Search
-                    </button>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Find by Patient Name: &nbsp;</h4>
+                    <h4>Patient Name: &nbsp;</h4>
                     <input
                       style={{
                         fontSize: "17px",
@@ -499,20 +476,68 @@ const FindAdmission = () => {
                         setName(e.target.value);
                       }}
                     />
-                    <button
-                      className="input-button2"
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Patient ID: &nbsp;</h4>
+                    <input
                       style={{
                         fontSize: "17px",
                         padding: "2px",
-                        borderRadius: "2px",
+                        border: "2px solid #ddd",
+                        backgroundColor: "#ffffff",
+                        color: "black",
                       }}
-                      onClick={() => {
-                        searchByName(name);
+                      type="text"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setPidValue(e.target.value);
                       }}
-                    >
-                      Search
-                    </button>
+                    />
                   </div>
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <h4>Date: &nbsp;</h4>
+                    <input
+                      style={{
+                        backgroundColor: "#ffffff",
+                        color: "black",
+                        border: "2px solid #ddd",
+                      }}
+                      type="date"
+                      autoComplete="off"
+                      name="Date"
+                      id="name"
+                      onChange={(e) => {
+                        setDate(e.target.value);
+                      }}
+                      defaultValue={location.state?.date || getCurrentDateIST()}
+                    />
+                  </div>
+                  <button
+                    className="input-button"
+                    style={{
+                      fontSize: "17px",
+                      padding: "2px",
+                      borderRadius: "2px",
+                    }}
+                    onClick={() => {
+                      if (pidValue){
+                        console.log("pid");
+                        navigate("/doctor_use/TestAdmission", {
+                          state: {
+                            PidValue: pidValue,
+                          },
+                        });
+                      }else{
+                        console.log("searchby");
+                        setName(name);
+                        searchBy();
+                      }
+                    }}
+                  >
+                    Search
+                  </button>
                 </div>
                 <div
                   style={{
@@ -774,21 +799,6 @@ const Wrapper = styled.section`
     background: #55311c;
   }
 
-  .input-button2 {
-    outline: none;
-    border: 0;
-    color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-
-  .input-button2:hover {
-    background: #55311c;
-  }
-
   .input-label {
     font-size: 11px;
     // text-transform: uppercase;
@@ -844,4 +854,5 @@ const Wrapper = styled.section`
     }
   }
 `;
+
 export default FindAdmission;

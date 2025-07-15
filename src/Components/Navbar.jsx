@@ -30,7 +30,7 @@ const Navbar = ({ destination }) => {
           <Link to="/doctor_use/FindReport">
             <li className="nav-item">Test Report</li>
           </Link>
-          <Link>
+          <Link to="/doctor_use/TestMaster">
             <li className="nav-item">Test Master</li>
           </Link>
           <Link>

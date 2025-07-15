@@ -7,7 +7,7 @@ import { useAuth } from "../../Context/AuthContext";
 import { db } from "../../config/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useReactToPrint } from "react-to-print";
-import { BsArrowLeft } from "react-icons/bs";
+import { BsArrowLeft, BsInputCursorText } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TestName } from "../../Components/Data/TestName";
 import Receipt from "../../Components/Print/Receipt";
@@ -330,12 +330,12 @@ const TestAdmission = () => {
       handleClick2();
       newTest = test.slice(0, -1);
     }
-    setVno(formData.get("Patient ID"));
+    // setVno(formData.get("Patient ID"));
     
     if (vno) {
       const exportData = {
         PatientName: formData.get("Patient Name"),
-        PatientID: formData.get("Patient ID"),
+        PatientID: vno,
         RegistrationOn: formData.get("Registration On"),
         Age: formData.get("Age"),
         ContactDetails: formData.get("Contact Details"),
@@ -458,9 +458,62 @@ const TestAdmission = () => {
         BalanceAmount: formData.get("Balance Amount"),
       };
       await setDoc(pendingReportRef3, updatedPendingData3);
+      //---------------------------------------------------------
+      // TESTMASTER
+
+      const accountMasterRef = doc(db, currentUser.uid, `Account Master`);
+      const accountMasterSnapshot = await getDoc(accountMasterRef);
+      let existingAccountMasterData = {};
+
+      if (accountMasterSnapshot.exists()) {
+        existingAccountMasterData = accountMasterSnapshot.data();
+      }
+
+      const updatedAccountMaster = { ...existingAccountMasterData };
+
+      if (!updatedAccountMaster[year]) {
+        updatedAccountMaster[year] = {};
+      }
+
+      if (!updatedAccountMaster[year][month]) {
+        updatedAccountMaster[year][month] = {};
+      }
+
+      if (!updatedAccountMaster[year][month][date]) {
+        updatedAccountMaster[year][month][date] = {
+          GrandAmount: 0,
+          AdvanceAmount: 0,
+          Discount: 0,
+          BalanceAmount: 0,
+        };
+      }
+
+      updatedAccountMaster[year][month][date] = {
+        GrandAmount: parseFloat(formData.get("Grand Amount")) + parseFloat(updatedAccountMaster[year][month][date].GrandAmount),
+        AdvanceAmount: parseFloat(formData.get("Advance Amount")) + parseFloat(updatedAccountMaster[year][month][date].AdvanceAmount),
+        Discount: parseFloat(formData.get("Discount")) + parseFloat(updatedAccountMaster[year][month][date].Discount),
+        BalanceAmount: parseFloat(formData.get("Balance Amount")) + parseFloat(updatedAccountMaster[year][month][date].BalanceAmount),
+      }
+
+      await setDoc(accountMasterRef, updatedAccountMaster);
 
       //---------------------------------------------------------
-      
+
+      const idRef = doc(db, "Users", currentUser.uid);
+      const idRefDoc = await getDoc(idRef);
+
+      if (idRefDoc.exists()) {
+        const userData = idRefDoc.data();
+        const newVID = parseFloat(userData.VID) + 1;
+
+        const updatedData = {
+          ...userData,
+          VID: newVID,
+        };
+
+        await setDoc(idRef, updatedData);
+      }
+
       setPrintData(exportData);
       if (saveAndPrint === true) {
         setTimeout(handlePrint, 100);
@@ -471,6 +524,21 @@ const TestAdmission = () => {
       enqueueSnackbar("Voucher no is empty", { variant: "info" });
     }
   };
+
+  const importID = async () => {
+    const idRef = doc(db, "Users", currentUser.uid);
+    const idRefDoc = await getDoc(idRef);
+
+    if(idRefDoc.exists()){
+      const id = idRefDoc.data();
+      let temp = parseFloat(id.VID) + 1;
+      setVno(temp);;
+    }
+  }
+
+  useEffect(() => {
+    importID();
+  }, [])
 
   const handleBlur = (e) => {};
   const handleChange = (e) => {
@@ -542,15 +610,16 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Patient Name"
                             id="email"
-                            placeholder="Email"
+                            placeholder="Patient Name"
                             defaultValue={testData.PatientName}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                         <div>
                           <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
                             ID:&nbsp;
                           </label>
                           <input
@@ -559,10 +628,11 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Patient ID"
                             id="name"
-                            placeholder="Name"
-                            defaultValue={testData.PatientID}
+                            placeholder="Patient ID"
+                            defaultValue={testData.PatientID? testData.PatientID: vno}
                             onChange={(e) => setVno(e.target.value)}
                             onBlur={handleBlur}
+                            readOnly
                           />
                         </div>
                         <div>
@@ -576,7 +646,7 @@ const TestAdmission = () => {
                             id="name"
                             placeholder="currentDate.toISOString().split('T')[0]"
                             defaultValue={
-                              testData.Date
+                              testData.RegistrationOn
                                 ? new Date(testData.RegistrationOn)
                                     .toISOString()
                                     .split("T")[0]
@@ -584,6 +654,7 @@ const TestAdmission = () => {
                             }
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -603,7 +674,7 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Age"
                             id="email"
-                            placeholder="Email"
+                            placeholder="Age"
                             defaultValue={testData.Age}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -618,7 +689,7 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Contact Details"
                             id="email"
-                            placeholder="Email"
+                            placeholder="Contact Details"
                             defaultValue={testData.ContactDetails}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -686,6 +757,7 @@ const TestAdmission = () => {
                             defaultValue={testData.RefByDr}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                         <div>
@@ -725,7 +797,7 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Center ID"
                             id="email"
-                            placeholder="Email"
+                            placeholder="Center ID"
                             defaultValue={testData.CenterID}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -741,10 +813,11 @@ const TestAdmission = () => {
                             autoComplete="off"
                             name="Center Name"
                             id="email"
-                            placeholder="Email"
+                            placeholder="Center Name"
                             defaultValue={testData.CenterName}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            style={{textTransform: "uppercase"}}
                           />
                         </div>
                       </div>

@@ -75,6 +75,7 @@ const InitialSheet = () => {
           State: formData.get("State"),
           PinCode: formData.get("Pin Code"),
           Phone: formData.get("Phone"),
+          VID: 1,
           Image: `url(${downloadURL})`,
         };
         await storeUserData2(exportData, currentUser);
