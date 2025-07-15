@@ -108,6 +108,13 @@ const Invoice = React.forwardRef(({ printData }, ref) => {
     }
   }, [printData]);
 
+  const getCurrentDateIST = () => {
+    const now = new Date();
+    const options = { timeZone: "Asia/Kolkata" };
+    const date = now.toLocaleDateString("en-CA", options); // 'en-CA' locale formats date as YYYY-MM-DD
+    return date;
+  };
+
   return (
     <div ref={ref}>
       <Wrapper>
@@ -195,7 +202,7 @@ const Invoice = React.forwardRef(({ printData }, ref) => {
               }}
             >
               <p>
-                <strong>Date:</strong> {printData.Date}
+                <strong>Date:</strong> {getCurrentDateIST()}
               </p>
             </div>
           </div>

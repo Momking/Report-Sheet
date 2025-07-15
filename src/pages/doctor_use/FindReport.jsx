@@ -267,9 +267,10 @@ const FindReport = () => {
           <button
             className="input-button"
             style={{
-              fontSize: "17px",
+              fontSize: "15px",
               padding: "2px",
               height: "20px",
+              width: "45%",
               borderRadius: "2px",
             }}
             onClick={() => {
@@ -283,9 +284,10 @@ const FindReport = () => {
           <button
             className="input-button"
             style={{
-              fontSize: "17px",
+              fontSize: "15px",
               padding: "2px",
               height: "20px",
+              width: "45%",
               borderRadius: "2px",
             }}
             onClick={() => {
@@ -368,7 +370,7 @@ const FindReport = () => {
                 <div
                   className="input-block"
                   style={{
-                    color: "black",
+                    color: "#052d28",
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
@@ -412,11 +414,11 @@ const FindReport = () => {
                       }}
                     />
                     <button
+                      className="input-button2"
                       style={{
                         fontSize: "17px",
                         padding: "2px",
                         borderRadius: "2px",
-                        backgroundColor: "#8c7569",
                       }}
                       onClick={() => {
                         navigate("/doctor_use/TestAdmission", {
@@ -448,11 +450,11 @@ const FindReport = () => {
                       }}
                     />
                     <button
+                      className="input-button2"
                       style={{
                         fontSize: "17px",
                         padding: "2px",
                         borderRadius: "2px",
-                        backgroundColor: "#8c7569",
                       }}
                       onClick={() => {
                         searchByName(name);
@@ -682,6 +684,7 @@ const Wrapper = styled.section`
   .input-button:hover {
     background: #55311c;
   }
+
   .input-button2 {
     outline: none;
     border: 0;
@@ -692,6 +695,7 @@ const Wrapper = styled.section`
     cursor: pointer;
     font-family: "Nunito", sans-serif;
   }
+
   .input-button2:hover {
     background: #55311c;
   }

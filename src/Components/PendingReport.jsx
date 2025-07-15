@@ -62,6 +62,7 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
                 padding: "10px",
                 borderRadius: "2px",
                 border: "1px solid #ddd",
+                background: "#606a69",
               }}
               type="text"
               className="button1"

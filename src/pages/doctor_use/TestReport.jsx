@@ -59,6 +59,7 @@ const TestReport = () => {
             padding: "2px",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           autoComplete="off"
@@ -824,14 +825,15 @@ const Wrapper = styled.section`
     // border-radius: 4px;
     margin-bottom: 10px;
     transition: 0.3s;
-  }
-
+    }
+    
   .input-block input {
     outline: 0;
     border: 0;
     padding: 4px 4px 1px;
     border-radius: 3px;
     font-size: 15px;
+    background: #606a69;
   }
 
   .input-block input::-moz-placeholder {

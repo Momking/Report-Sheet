@@ -21,7 +21,7 @@ const InitialSheet = () => {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    setWaitBar("Trying to Your Fetching Data");
+    setWaitBar("Trying to Fetching Your Data");
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);

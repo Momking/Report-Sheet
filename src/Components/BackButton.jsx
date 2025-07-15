@@ -8,13 +8,14 @@ const BackButton = ({ destination }) => {
       <Link
         to={destination}
         style={{
-          backgroundColor: "#2d3748",
-          padding: "8px",
-          borderRadius: "10px",
+          backgroundColor: "white",
+          paddingTop: "7px",
+          padding: "5px",
+          borderRadius: "50%",
           width: "fit-content",
         }}
       >
-        <BsArrowLeft style={{ fontSize: "30px" }} />
+        <BsArrowLeft style={{ fontSize: "30px", }} />
       </Link>
     </div>
   );

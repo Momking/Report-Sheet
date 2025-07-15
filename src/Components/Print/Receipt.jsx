@@ -53,7 +53,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           <h4 style={{ maxWidth: "30%" }}>
             {printData.tests[test.length + i].TestName}
           </h4>
-          <h4>{(printData.BalanceAmount != null) ? printData.BalanceAmount: 0}</h4>
+          <h4>{(printData.tests[test.length + i].Rate != null) ? printData.tests[test.length + i].Rate: 0}</h4>
         </div>
       );
     }
@@ -70,6 +70,13 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
       handleAddMultipleTests(printData.tests.length);
     }
   }, [printData]);
+
+  const getCurrentDateIST = () => {
+    const now = new Date();
+    const options = { timeZone: "Asia/Kolkata" };
+    const date = now.toLocaleDateString("en-CA", options); // 'en-CA' locale formats date as YYYY-MM-DD
+    return date;
+  };
 
   return (
     <div ref={ref}>
@@ -96,7 +103,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           }}
         >
           <h4>Name: {printData.PatientName}</h4>
-          <h4>Date: {printData.Date}</h4>
+          <h4>Date: {getCurrentDateIST()}</h4>
         </div>
         <div
           style={{
@@ -107,7 +114,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           }}
         >
           <h4>Age: {printData.Age}</h4>
-          <h4>Ref No: {printData.AdmissionID}</h4>
+          <h4>Ref No: {printData.PatientID}</h4>
         </div>
         <div
           style={{
@@ -149,7 +156,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           }}
         >
           <h4 style={{}}>Gross Amount: </h4>
-          <h4 style={{}}>{printData.UnPaidAmount}</h4>
+          <h4 style={{}}>{printData.GrandAmount}</h4>
         </div>
         <div
           style={{
@@ -165,7 +172,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           }}
         >
           <h4 style={{}}>Advance Paid: </h4>
-          <h4 style={{}}>{printData.ReceivedAmount}</h4>
+          <h4 style={{}}>{printData.AdvanceAmount}</h4>
         </div>
         <div
           style={{
@@ -181,7 +188,7 @@ const Receipt = React.forwardRef(({ printData }, ref) => {
           }}
         >
           <h4 style={{}}>Discount: </h4>
-          <h4 style={{}}>{0}</h4>
+          <h4 style={{}}>{printData.Discount}</h4>
         </div>
         <div
           style={{

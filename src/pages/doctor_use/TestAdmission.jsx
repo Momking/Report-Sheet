@@ -27,6 +27,30 @@ const TestAdmission = () => {
   const [printData, setPrintData] = useState([]);
   const [saveAndPrint, setSaveAndPrint] = useState(false);
   const { enqueueSnackbar } = useSnackbar("");
+  const [grandAmount, setGrandAmount] = useState(0);
+  const [advanceAmount, setAdvanceAmount] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [balanceAmount, setBalanceAmount] = useState(0);
+
+  useEffect(() => {
+    let total = 0;
+    for (const x of rate) {
+      if (typeof x === "number") {
+        total += x;
+      } else if (typeof x?.props?.defaultValue === "string" && !isNaN(x.props.defaultValue)) {
+        total += parseFloat(x.props.defaultValue);
+      }
+    }
+    setGrandAmount(total);
+    if(testData.tests.length != 0){
+      setAdvanceAmount(testData.AdvanceAmount);
+      setDiscount(testData.Discount);
+      setBalanceAmount(total - testData.AdvanceAmount - testData.Discount);
+    }else{
+      console.log("dis: ", discount);
+      setBalanceAmount(total - discount - advanceAmount);
+    }
+  }, [rate, discount, advanceAmount])
 
   const handleTestChange = (e, index) => {
     let value = e.target.value.split(",");
@@ -39,9 +63,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: "black",
+            // color: "black",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -61,9 +86,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: "black",
+            // color: "black",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -106,6 +132,7 @@ const TestAdmission = () => {
             borderRadius: "1px",
             border: "1px solid #ddd",
             minWidth: "50%",
+            background: "#606a69",
           }}
         >
           {TestName.map((name, i) => (
@@ -125,6 +152,7 @@ const TestAdmission = () => {
             color: "black",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -172,6 +200,7 @@ const TestAdmission = () => {
             padding: "2px",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           autoComplete="off"
@@ -192,6 +221,7 @@ const TestAdmission = () => {
             padding: "2px",
             borderRadius: "1px",
             border: "1px solid #ddd",
+            background: "#606a69",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -269,6 +299,10 @@ const TestAdmission = () => {
     setHeaders([]);
     setTest([]);
     setRate([]);
+    setAdvanceAmount(0);
+    setDiscount(0);
+    setBalanceAmount(0);
+    setGrandAmount(0);
     setTestData({ tests: [] });
     setPrintData([]);
     document.getElementById("formId").reset();
@@ -279,6 +313,10 @@ const TestAdmission = () => {
     setHeaders([]);
     setTest([]);
     setRate([]);
+    setAdvanceAmount(0);
+    setDiscount(0);
+    setBalanceAmount(0);
+    setGrandAmount(0);
     setTestData({ tests: [] });
     setPrintData([]);
     document.getElementById("formId").reset();
@@ -293,6 +331,7 @@ const TestAdmission = () => {
       newTest = test.slice(0, -1);
     }
     setVno(formData.get("Patient ID"));
+    
     if (vno) {
       const exportData = {
         PatientName: formData.get("Patient Name"),
@@ -316,7 +355,6 @@ const TestAdmission = () => {
         Discount: formData.get("Discount"),
         BalanceAmount: formData.get("Balance Amount"),
       };
-      // console.log(exportData);
       await storeUserData(vno, exportData, currentUser);
 
       //----------------------------------------------------
@@ -346,36 +384,14 @@ const TestAdmission = () => {
       },
 
       await setDoc(pendingReportRef, updatedPendingData);
-
       //-----------------------------------------------------
-
+      // FINDING BY DATE.
+      
       const date = formData.get("Registration On");
       let [year, month, day] = date.split("-");
       month = `Month: ${month}`;
       day = `Date: ${day}`;
 
-      // const yearData = {
-      //   [month]: {
-      //     [day]: {
-      //       [vno]: {
-      //         PatientID: vno,
-      //         PatientName: formData.get("Patient Name"),
-      //         Age: formData.get("Age"),
-      //         Sex: formData.get("Sex"),
-      //         Status: "Pending",
-      //         CenterID: formData.get("Center ID"),
-      //         CenterName: formData.get("Center Name"),
-      //         GrandAmount: formData.get("Grand Amount"),
-      //         AdvanceAmount: formData.get("Advance Amount"),
-      //         Discount: formData.get("Discount"),
-      //         BalanceAmount: formData.get("Balance Amount"),
-      //       },
-      //     },
-      //   },
-      // };
-
-      
-      //-----------------------------------------------------
       const pendingReportRef2 = doc(db, currentUser.uid, `Year: ${year}`);
       const pendingReportSnapshot2 = await getDoc(pendingReportRef2);
       let existingPendingData2 = {};
@@ -406,6 +422,7 @@ const TestAdmission = () => {
       };
       await setDoc(pendingReportRef2, updatedPendingData2);
       //-------------------------------------------------------
+      // FINDING BY NAME AND DATE.
 
       const name = formData.get("Patient Name").toUpperCase();
       const pendingReportRef3 = doc(db, currentUser.uid, `Name list`);
@@ -422,7 +439,11 @@ const TestAdmission = () => {
         updatedPendingData3[name] = {};
       }
 
-      updatedPendingData3[name][vno] = {
+      if (!updatedPendingData3[name][date]) {
+        updatedPendingData3[name][date] = {};
+      }
+
+      updatedPendingData3[name][date][vno] = {
         PatientID: vno,
         PatientName: formData.get("Patient Name"),
         Age: formData.get("Age"),
@@ -452,7 +473,17 @@ const TestAdmission = () => {
   };
 
   const handleBlur = (e) => {};
-  const handleChange = () => {};
+  const handleChange = (e) => {
+    console.log("change");
+    const { name, value } = e.target;
+    const num = parseFloat(value) || 0;
+
+    if (name === "Discount") {
+      setDiscount(num);
+    } else if (name === "Advance Amount") {
+      setAdvanceAmount(num);
+    }
+  };
 
   const getCurrentDateIST = () => {
     const now = new Date();
@@ -817,8 +848,7 @@ const TestAdmission = () => {
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             name="Grand Amount"
-                            // value={amount2}
-                            placeholder="0"
+                            value={grandAmount}
                             defaultValue={testData.GrandAmount || 0}
                             onChange={handleChange}
                             readOnly
@@ -830,11 +860,10 @@ const TestAdmission = () => {
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             name="Advance Amount"
-                            // value={amount2}
-                            placeholder="0"
+                            // value={advanceAmount}
+                            // placeholder="0"
                             defaultValue={testData.AdvanceAmount || 0}
                             onChange={handleChange}
-                            readOnly
                           />
                         </label>
                         <label htmlFor="Email" className="input-label">
@@ -843,21 +872,19 @@ const TestAdmission = () => {
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             name="Discount"
-                            // value={amount2}
-                            placeholder="0"
+                            // value={discount}
+                            // placeholder="0"
                             defaultValue={testData.Discount || 0}
                             onChange={handleChange}
-                            readOnly
                           />
                         </label>
                         <label htmlFor="Email" className="input-label">
-                          &nbsp;&nbsp;Balance Amount:&nbsp;
+                          &nbsp;Balance Amount:&nbsp;
                           <input
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             name="Balance Amount"
-                            // value={amount2}
-                            placeholder="0"
+                            value={balanceAmount}
                             defaultValue={testData.BalanceAmount || 0}
                             onChange={handleChange}
                             readOnly
@@ -1027,7 +1054,7 @@ const Wrapper = styled.section`
     border-radius: 3px;
     font-size: 15px;
     // color: black;
-    // background: #f3f4f5;
+    background: #606a69;
   }
 
   .input-block input::-moz-placeholder {
