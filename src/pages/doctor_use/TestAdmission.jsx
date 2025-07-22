@@ -10,7 +10,7 @@ import { useReactToPrint } from "react-to-print";
 import { BsArrowLeft, BsInputCursorText } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import Receipt from "../../Components/Print/Receipt";
-import TestList from "../../Components/Data/TestList.json";
+import Select from "react-select";
 
 const TestAdmission = () => {
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const TestAdmission = () => {
   const [discount, setDiscount] = useState(0);
   const [balanceAmount, setBalanceAmount] = useState(0);
   const [TestName, setTestName] = useState([]);
+  const [initials, setInitials] = useState({grandAmount: 0, advanceAmount: 0, discount: 0, balanceAmount: 0})
 
   useEffect(() => {
     let total = 0;
@@ -123,40 +124,55 @@ const TestAdmission = () => {
       const newHeader = (
         <h1
           key={index}
-          style={{ color: "black", fontSize: "13px", borderTop: "1px solid #ddd", height: "29px" }}
+          style={{
+            color: "black",
+            fontSize: "13px",
+            borderTop: "1px solid #ddd",
+            height: "29px",
+          }}
         >
           {index + 1}
         </h1>
       );
-
+  
+      const options = TestName.map((test) => ({
+        value: test["TEST NAME"],
+        label: test["TEST NAME"],
+      }));
+  
       const newTest = (
-        <select
-          id="options"
-          name={`TestName1${index}`}
-          onChange={(e) => handleTestChange(e, index)}
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            color: "#ccc",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            minWidth: "50%",
-            background: "#fff",
+        <Select
+          key={index}
+          options={options}
+          onChange={(selectedOption) => handleTestChange({ target: { value: selectedOption.value } }, index)}
+          placeholder="Search test..."
+          menuPortalTarget={document.body}
+          styles={{
+            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+            option: (provided, state) => ({
+              ...provided,
+              color: state.isSelected ? "black" : "black",       // Selected vs non-selected text color
+              backgroundColor: state.isSelected ? "#fff" : "#fff", // Selected vs default background
+              padding: 10,
+              zIndex: "100",
+            }),
+            control: (provided) => ({
+              ...provided,
+              minWidth: "50%",
+              borderRadius: "1px",
+              borderTop: "1px solid #ddd",
+              fontSize: "17px",
+              zIndex: "100",
+            }),
           }}
-        >
-          {TestName.map((test, i) => (
-            <option key={i} value={test["TEST NAME"]}>
-              {test["TEST NAME"]}
-            </option>
-          ))}
-        </select>
+        />
       );
-
+  
       const newRate = (
         <input
           key={index}
           style={{
-            fontSize: "17px",
+            fontSize: "21px",
             padding: "2px",
             color: "#ccc",
             borderRadius: "1px",
@@ -171,9 +187,10 @@ const TestAdmission = () => {
           placeholder="Rate"
           onChange={handleChange}
           onBlur={handleBlur}
+          readOnly
         />
       );
-
+  
       if (headers.length < 20) {
         setHeaders([...headers, newHeader]);
         setTest([...test, newTest]);
@@ -275,6 +292,12 @@ const TestAdmission = () => {
       if (userDocSnapshot.exists()) {
         handleNew2();
         const userFetchData = userDocSnapshot.data();
+        setInitials({
+          grandAmount: userFetchData.GrandAmount,
+          advanceAmount: userFetchData.AdvanceAmount,
+          discount: userFetchData.Discount,
+          balanceAmount: userFetchData.BalanceAmount,
+        });
         setTestData(userFetchData);
       } else {
         setError(true);
@@ -504,10 +527,10 @@ const TestAdmission = () => {
       }
 
       updatedAccountMaster[year][month][date] = {
-        GrandAmount: parseFloat(formData.get("Grand Amount")) + parseFloat(updatedAccountMaster[year][month][date].GrandAmount),
-        AdvanceAmount: parseFloat(formData.get("Advance Amount")) + parseFloat(updatedAccountMaster[year][month][date].AdvanceAmount),
-        Discount: parseFloat(formData.get("Discount")) + parseFloat(updatedAccountMaster[year][month][date].Discount),
-        BalanceAmount: parseFloat(formData.get("Balance Amount")) + parseFloat(updatedAccountMaster[year][month][date].BalanceAmount),
+        GrandAmount: parseFloat(formData.get("Grand Amount")) + parseFloat(updatedAccountMaster[year][month][date].GrandAmount) - initials.grandAmount,
+        AdvanceAmount: parseFloat(formData.get("Advance Amount")) + parseFloat(updatedAccountMaster[year][month][date].AdvanceAmount) - initials.advanceAmount,
+        Discount: parseFloat(formData.get("Discount")) + parseFloat(updatedAccountMaster[year][month][date].Discount) - initials.discount,
+        BalanceAmount: parseFloat(formData.get("Balance Amount")) + parseFloat(updatedAccountMaster[year][month][date].BalanceAmount) - initials.balanceAmount,
       }
 
       await setDoc(accountMasterRef, updatedAccountMaster);

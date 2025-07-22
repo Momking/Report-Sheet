@@ -3,8 +3,8 @@ import { db } from "../config/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../Context/AuthContext";
 
-const PendingReport = ({ onAdmissionIDSelect }) => {
-  const [pendingData, setPendingData] = useState([]);
+const TestList = ({onTestNameSelect}) => {
+  const [testName, setTestName] = useState([]);
   const [error, setError] = useState(false);
   const { currentUser } = useAuth();
 
@@ -14,12 +14,11 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
 
   const handleFind = async (e) => {
     try {
-      const userDocRef = doc(db, currentUser.uid, "PendingReport");
+      const userDocRef = doc(db, currentUser.uid, "TestName");
       const userDocSnapshot = await getDoc(userDocRef);
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
-        setPendingData(Object.values(userFetchData));
-        console.log("pending: ",pendingData);
+        setTestName(userFetchData.TestName);
       } else {
         setError(true);
       }
@@ -40,8 +39,8 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
           paddingTop: "10px",
         }}
       >
-        <h4 style={{ paddingRight: "10px" }}>Addmission ID</h4>
-        <h4>Patient Name</h4>
+        <h4 style={{ padding: "10px" }}>Test Name</h4>
+        <h4 style={{ padding: "10px" }}>Rate</h4>
       </div>
       <div
         style={{
@@ -49,8 +48,8 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
           flexDirection: "column",
         }}
       >
-        {pendingData.length > 0 ? (
-          pendingData.map((data, index) => (
+        {testName.length > 0 ? (
+          testName.map((data, index) => (
             <button
               key={index}
               style={{
@@ -67,14 +66,14 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
               }}
               type="text"
               className="button1"
-              onClick={() => onAdmissionIDSelect(data.PatientID)}
+              onClick={() => onTestNameSelect(data)}
             >
-              <h4>{data.PatientID}</h4>
-              <h4>{data.PatientName}</h4>
+              <h4>{data["TEST NAME"]}</h4>
+              <h4>{data["RATE"]}</h4>
             </button>
           ))
         ) : (
-          <p>No pending reports</p>
+          <p>No Test Name found...</p>
         )}
         {error && (
           <p style={{ color: "red" }}>
@@ -86,4 +85,4 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
   );
 };
 
-export default PendingReport;
+export default TestList;

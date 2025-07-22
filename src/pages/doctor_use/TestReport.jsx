@@ -289,16 +289,13 @@ const TestReport = () => {
           <div className="modal">
             <div className="modal-container">
               <button
+                className="input-button"
                 onClick={() => navigate("/doctor_use/FindReport", { state: { date } })}
                 style={{
                   position: "absolute",
                   fontSize: "15px",
                   height: "7%",
-                  backgroundColor: "#2d3748",
                   padding: "8px",
-                  borderRadius: "10px",
-                  width: "fit-content",
-                  cursor: "pointer",
                 }}
               >
                 <BsArrowLeft />

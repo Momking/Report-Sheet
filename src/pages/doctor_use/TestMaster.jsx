@@ -1,11 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Navbar from "../../Components/Navbar";
 import { useAuth } from "../../Context/AuthContext";
 import TestList from "../../Components/TestList";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const TestMaster = () => {
-    const {currestUser} = useAuth();
+    const {currentUser} = useAuth();
+    const [testName, setTestName] = useState();
+    const [rate, setRate] = useState();
+    const [unit, setUnit] = useState();
+    const [grounpName, setGroupName] = useState();
+    const [value, setValue] = useState({
+        normalValue: "",
+        minValue: "",
+        maxValue: "",
+    });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // prevent page reload
+      
+        const testDataRef = doc(db, currentUser.uid, "TestName");
+        const testDataSnapshot = await getDoc(testDataRef);
+      
+        let existingTestArray = [];
+      
+        if (testDataSnapshot.exists()) {
+          existingTestArray = testDataSnapshot.data().TestName || [];
+        }
+      
+        const newTest = {
+          "TEST NAME": testName?.toUpperCase() || "",
+          "RATE": Number(rate) || 0,
+          "UNIT": unit?.toUpperCase() || "",
+          "GROUP -NAME ": grounpName?.toUpperCase() || "",
+          "NORMAL  VALUE": value.normalValue || "",
+          "MIN - VALUE": value.minValue ? Number(value.minValue) : null,
+          "MAX VALUE": value.maxValue ? Number(value.maxValue) : null,
+          "RATE(DISC)": 0,
+          "SO.NO": existingTestArray.length + 1,
+        };
+      
+        const updatedTestArray = [...existingTestArray, newTest];
+      
+        await setDoc(testDataRef, { TestName: updatedTestArray });
+      
+        alert("Test saved successfully.");
+      };
+      
+      
+
+    const handleNew = () => {
+        setTestName();
+        setRate();
+        setUnit()
+        setGroupName()
+        setValue({
+            normalValue: "",
+            minValue: "",
+            maxValue: "",
+        })
+    }
+
+    const handleTestChange = (testData) => {
+        setTestName(testData["TEST NAME"]);
+        setRate(testData["RATE"]);
+        setUnit(testData["UNIT"])
+        setGroupName(testData["GROUP -NAME "])
+        setValue({
+            normalValue: testData["NORMAL  VALUE"],
+            minValue: testData["MIN - VALUE"],
+            maxValue: testData["MAX VALUE"],
+        })
+    }
 
     return(
         <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
@@ -17,17 +85,163 @@ const TestMaster = () => {
                             <div className="modal-left">
                                 <h1 className="modal-title">Test Master</h1>
                                 <br/>
+                                <form onSubmit={handleSubmit} id="formId">
+                                    <div className="input-block">
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "space-between",
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                padding: "5vh",
+                                            }}
+                                            >
+                                                <div>
+                                                    <label htmlFor="email" className="input-label" style={{marginRight: "3vh"}}>
+                                                        Test Name:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={testName}
+                                                        onChange={(e) => setTestName(e.target.value)}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="email" className="input-label">
+                                                        Test Rate:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={rate}
+                                                        onChange={(e) => setRate(e.target.value)}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                padding: "5vh",
+                                            }}
+                                            >
+                                                <div>
+                                                    <label htmlFor="email" className="input-label">
+                                                        Normal Value:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={value.normalValue}
+                                                        onChange={(e) => setValue({normalValue: e.target.value})}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="email" className="input-label">
+                                                        Unit:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={unit}
+                                                        onChange={(e) => setUnit(e.target.value)}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                padding: "5vh",
+                                            }}
+                                            >
+                                                <div>
+                                                    <label htmlFor="email" className="input-label" style={{marginRight: "3vh"}}>
+                                                        Min Value:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={value.minValue}
+                                                        onChange={(e) => setValue({minValue: e.target.value})}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="email" className="input-label">
+                                                        Max Value:&nbsp;
+                                                    </label>
+                                                    <input
+                                                        type="name"
+                                                        autoComplete="off"
+                                                        name="Patient Name"
+                                                        id="email"
+                                                        placeholder="Email"
+                                                        defaultValue={value.maxValue}
+                                                        onChange={(e) => setValue({maxValue: e.target.value})}
+                                                        style={{textTransform: "uppercase"}}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-buttons">
+                                        <button
+                                            className="input-button"
+                                            type="button"
+                                            onClick={handleNew}
+                                            style={{ marginRight: "2px" }}
+                                        >
+                                            NEW TEST
+                                        </button>
+                                        <div style={{ padding: "2px" }}>
+                                        
+                                        <button
+                                            className="input-button"
+                                            type="submit"
+                                            style={{ marginRight: "2px" }}
+                                        >
+                                            SAVE
+                                        </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                             <div
                                 className="modal-right"
                                 style={{
                                 color: "black",
-                                width: "15%",
+                                width: "35%",
                                 overflowY: "auto",
                                 height: "80vh",
                                 }}
                             >
-                                <TestList onAdmissionIDSelect={handleAdmissionIDSelect} />
+                                <TestList onTestNameSelect={handleTestChange}/>
                             </div>
                         </div>
                     </div>
@@ -123,7 +337,7 @@ const Wrapper = styled.section`
   }
 
   .input-label {
-    font-size: 15px;
+    font-size: 13px;
     // text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.7px;
@@ -139,14 +353,16 @@ const Wrapper = styled.section`
     border-radius: 4px;
     margin-bottom: 10px;
     transition: 0.3s;
-  }
-
+    }
+    
   .input-block input {
     outline: 0;
     border: 0;
     padding: 4px 4px 1px;
-    border-radius: 10px;
+    border-radius: 3px;
     font-size: 15px;
+    color: black;
+    background: #fff;
   }
 
   .input-block input::-moz-placeholder {
@@ -164,9 +380,9 @@ const Wrapper = styled.section`
   .input-block:focus-within {
     border-color: #8c7569;
   }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
+  // .input-block:focus-within .input-label {
+  //   color: rgba(140, 117, 105, 0.8);
+  // }
 
   .search-list {
     color: #2d4b62;
