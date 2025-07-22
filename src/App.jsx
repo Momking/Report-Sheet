@@ -17,6 +17,7 @@ import ExcelReader from "./Components/Data/ExcelReader";
 import FindReport from "./pages/doctor_use/FindReport";
 import FindAdmission from "./pages/doctor_use/FindAdmission";
 import ViewReport from "./pages/doctor_use/ViewReport";
+import AccountMaster from "./pages/doctor_use/AccountMaster";
 import TestMaster from "./pages/doctor_use/TestMaster";
 
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
       <Route path="/doctor_use/FindReport" element={<RequireAuth><FindReport/></RequireAuth>}/>
       <Route path="/doctor_use/FindAdmission" element={<RequireAuth><FindAdmission/></RequireAuth>}/>
       <Route path="/doctor_use/ViewReport" element={<RequireAuth><ViewReport/></RequireAuth>}/>
+      <Route path="/doctor_use/AccountMaster" element={<RequireAuth><AccountMaster/></RequireAuth>}/>
       <Route path="/doctor_use/TestMaster" element={<RequireAuth><TestMaster/></RequireAuth>}/>
     </Routes>
   );

@@ -3,10 +3,11 @@ import { db } from "../config/firebase";
 
 export const storeUserData = async (vno, exportData, currentUser) => {
   try {
+    console.log("store: ", exportData)
     console.log(currentUser);
     if (currentUser) {
       const userId = currentUser.uid;
-      await setDoc(doc(db, userId, vno), exportData);
+      await setDoc(doc(db, userId, `${vno}`), exportData);
     }
   } catch (error) {
     console.log(error);

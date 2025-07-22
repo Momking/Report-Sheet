@@ -9,8 +9,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useReactToPrint } from "react-to-print";
 import { BsArrowLeft, BsInputCursorText } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TestName } from "../../Components/Data/TestName";
 import Receipt from "../../Components/Print/Receipt";
+import TestList from "../../Components/Data/TestList.json";
 
 const TestAdmission = () => {
   const navigate = useNavigate();
@@ -31,14 +31,18 @@ const TestAdmission = () => {
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [balanceAmount, setBalanceAmount] = useState(0);
+  const [TestName, setTestName] = useState([]);
 
   useEffect(() => {
     let total = 0;
     for (const x of rate) {
+      console.log("rate...", x);
       if (typeof x === "number") {
         total += x;
       } else if (typeof x?.props?.defaultValue === "string" && !isNaN(x.props.defaultValue)) {
         total += parseFloat(x.props.defaultValue);
+      }else if(typeof x?.props?.defaultValue === "number" && !isNaN(x.props.defaultValue))  {
+        total += x?.props?.defaultValue;
       }
     }
     setGrandAmount(total);
@@ -53,20 +57,26 @@ const TestAdmission = () => {
   }, [rate, discount, advanceAmount])
 
   const handleTestChange = (e, index) => {
-    let value = e.target.value.split(",");
+    const selectedTestName = e.target.value;
+
+    const selectedTest = TestName.find(test => test["TEST NAME"] === selectedTestName);
+
+    if (!selectedTest) return;
+
+    const selectedRate = selectedTest["RATE"];
+
     const updateRate = [...rate];
     const updateTest = [...test];
-    if (value !== "") {
       updateRate[index] = (
         <input
           key={index}
           style={{
             fontSize: "17px",
             padding: "2px",
-            // color: "black",
+            color: "black",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            background: "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -74,7 +84,7 @@ const TestAdmission = () => {
           name={`Rate${index}`}
           id="name"
           placeholder="Rate"
-          defaultValue={value[6]}
+          defaultValue={selectedRate}
           onChange={handleChange}
           onBlur={handleBlur}
           readOnly
@@ -86,10 +96,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            // color: "black",
+            color: "black",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            background: "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -97,25 +107,23 @@ const TestAdmission = () => {
           name={`TestName${index}`}
           id="name"
           placeholder="Rate"
-          defaultValue={value[1]}
+          defaultValue={selectedTestName}
           onChange={handleChange}
           onBlur={handleBlur}
           readOnly
         />
       );
-    }
     setRate(updateRate);
     setTest(updateTest);
   };
 
   const handleClick = () => {
     const index = headers.length;
-    // console.log(headers.length);
     if (headers.length === 0 || test[headers.length - 1].type !== "select") {
       const newHeader = (
         <h1
           key={index}
-          style={{ color: "black", fontSize: "13px", border: "1px solid #ddd", height: "29px" }}
+          style={{ color: "black", fontSize: "13px", borderTop: "1px solid #ddd", height: "29px" }}
         >
           {index + 1}
         </h1>
@@ -129,15 +137,16 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
+            color: "#ccc",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             minWidth: "50%",
-            background: "#606a69",
+            background: "#fff",
           }}
         >
-          {TestName.map((name, i) => (
-            <option key={i} value={name}>
-              {name[1]}
+          {TestName.map((test, i) => (
+            <option key={i} value={test["TEST NAME"]}>
+              {test["TEST NAME"]}
             </option>
           ))}
         </select>
@@ -149,10 +158,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: "black",
+            color: "#ccc",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            background: "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -186,8 +195,7 @@ const TestAdmission = () => {
       newHeaders.push(
         <h1
           key={headers.length + i}
-          style={{ color: "black", fontSize: "13px", border: "1px solid #ddd", height: "29px"}}
-          className="head"
+          style={{ color: "black", fontSize: "13px", borderTop: "1px solid #ddd", height: "29px"}}
         >
           {headers.length + i + 1}
         </h1>
@@ -199,8 +207,9 @@ const TestAdmission = () => {
             fontSize: "17px",
             padding: "2px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            color: "black",
+            background: "#fff",
           }}
           type="text"
           autoComplete="off"
@@ -220,8 +229,9 @@ const TestAdmission = () => {
             fontSize: "17px",
             padding: "2px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            color: "black",
+            background: "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -254,8 +264,10 @@ const TestAdmission = () => {
       let userDocRef = null;
       if (e.length != undefined) {
         setVno(e);
+        console.log("e: ", e);
         userDocRef = doc(db, currentUser.uid, `${e}`);
       } else {
+        console.log("ei: ", e.length, vno);
         userDocRef = doc(db, currentUser.uid, vno);
       }
       const userDocSnapshot = await getDoc(userDocRef);
@@ -294,7 +306,7 @@ const TestAdmission = () => {
   });
 
   const handleNew = () => {
-    setVno("");
+    // setVno("");
     setError(false);
     setHeaders([]);
     setTest([]);
@@ -306,6 +318,7 @@ const TestAdmission = () => {
     setTestData({ tests: [] });
     setPrintData([]);
     document.getElementById("formId").reset();
+    importID();
   };
 
   const handleNew2 = () => {
@@ -331,11 +344,11 @@ const TestAdmission = () => {
       newTest = test.slice(0, -1);
     }
     // setVno(formData.get("Patient ID"));
-    
+    console.log("vno: ",vno);
     if (vno) {
       const exportData = {
         PatientName: formData.get("Patient Name"),
-        PatientID: vno,
+        PatientID: formData.get("Patient ID").toString(),
         RegistrationOn: formData.get("Registration On"),
         Age: formData.get("Age"),
         ContactDetails: formData.get("Contact Details"),
@@ -355,7 +368,9 @@ const TestAdmission = () => {
         Discount: formData.get("Discount"),
         BalanceAmount: formData.get("Balance Amount"),
       };
-      await storeUserData(vno, exportData, currentUser);
+      console.log("patientID: ",exportData.PatientID);
+      const new_vno = formData.get("Patient ID").toString();
+      await storeUserData(new_vno, exportData, currentUser);
 
       //----------------------------------------------------
 
@@ -369,8 +384,8 @@ const TestAdmission = () => {
       
       const updatedPendingData = { ...existingPendingData };
     
-      updatedPendingData[vno] = {
-        PatientID: vno,
+      updatedPendingData[new_vno] = {
+        PatientID: new_vno,
         PatientName: formData.get("Patient Name"),
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
@@ -407,8 +422,8 @@ const TestAdmission = () => {
       if (!updatedPendingData2[month][day]) {
         updatedPendingData2[month][day] = {};
       }
-      updatedPendingData2[month][day][vno] = {
-        PatientID: vno,
+      updatedPendingData2[month][day][new_vno] = {
+        PatientID: new_vno,
         PatientName: formData.get("Patient Name"),
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
@@ -443,8 +458,8 @@ const TestAdmission = () => {
         updatedPendingData3[name][date] = {};
       }
 
-      updatedPendingData3[name][date][vno] = {
-        PatientID: vno,
+      updatedPendingData3[name][date][new_vno] = {
+        PatientID: new_vno,
         PatientName: formData.get("Patient Name"),
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
@@ -502,7 +517,7 @@ const TestAdmission = () => {
       const idRef = doc(db, "Users", currentUser.uid);
       const idRefDoc = await getDoc(idRef);
 
-      if (idRefDoc.exists()) {
+      if (idRefDoc.exists() && !PidValue) {
         const userData = idRefDoc.data();
         const newVID = parseFloat(userData.VID) + 1;
 
@@ -529,10 +544,17 @@ const TestAdmission = () => {
     const idRef = doc(db, "Users", currentUser.uid);
     const idRefDoc = await getDoc(idRef);
 
+    const testRefDoc = await getDoc(doc(db, currentUser.uid, "TestName"));
+    if (testRefDoc.exists()) {
+      setTestName(testRefDoc.data().TestName || []);
+    }
+
     if(idRefDoc.exists()){
       const id = idRefDoc.data();
       let temp = parseFloat(id.VID) + 1;
-      setVno(temp);;
+      if(!vno){
+        setVno(temp);
+      }
     }
   }
 
@@ -569,16 +591,13 @@ const TestAdmission = () => {
           <div className="modal">
             <div className="modal-container">
               <button
+              className="input-button"
                 onClick={() => navigate("/doctor_use/FindAdmission", { state: { date } })}
                 style={{
                   position: "absolute",
                   fontSize: "15px",
                   height: "7%",
-                  backgroundColor: "#2d3748",
                   padding: "8px",
-                  borderRadius: "10px",
-                  width: "fit-content",
-                  cursor: "pointer",
                 }}
               >
                 <BsArrowLeft />
@@ -586,6 +605,7 @@ const TestAdmission = () => {
               </button>
               <div className="modal-left">
                 <h1 className="modal-title">NEW REGISTRATION</h1>
+                <br/>
                 <form onSubmit={handleSubmit} id="formId">
                   <div className="input-block">
                     <div
@@ -629,8 +649,8 @@ const TestAdmission = () => {
                             name="Patient ID"
                             id="name"
                             placeholder="Patient ID"
-                            defaultValue={testData.PatientID? testData.PatientID: vno}
-                            onChange={(e) => setVno(e.target.value)}
+                            defaultValue={testData.PatientID? testData.PatientID: vno.toString()}
+                            onChange={(e) => setVno(e.target.value.toString())}
                             onBlur={handleBlur}
                             readOnly
                           />
@@ -889,26 +909,22 @@ const TestAdmission = () => {
                         />
                       </div>
                       <button
-                        className="input-button2"
+                        className="input-button"
                         type="button"
                         onClick={handleClick}
                         style={{
-                          padding: "0px",
-                          paddingLeft: "5px",
-                          paddingRight: "5px",
+                          padding: "5px",
                           height: "35px",
                         }}
                       >
                         Add test
                       </button>
                       <button
-                        className="input-button2"
+                        className="input-button"
                         type="button"
                         onClick={handleClick2}
                         style={{
-                          padding: "0px",
-                          paddingLeft: "5px",
-                          paddingRight: "5px",
+                          padding: "5px",
                           height: "35px",
                         }}
                       >
@@ -1011,7 +1027,7 @@ const Wrapper = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #efedee;
+    background-color: #eef3f3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1040,18 +1056,18 @@ const Wrapper = styled.section`
   .modal-title {
     margin: 0;
     font-weight: 400;
-    color: #55311c;
+    color: #023656;
   }
   .form-error {
     font-size: 1.4rem;
     color: #b22b27;
   }
   .modal-desc {
-    margin: 6px 0 30px 0;
+    margin: 0.375vw 0 3.62vh 0;
   }
   .modal-left {
-    padding: 50px 30px 50px;
-    background: #fff;
+    padding: 3.75vw 3.62vh 2.14vh;
+    background: #e2eff5;
     flex: 1.5;
     transition-duration: 0.5s;
     opacity: 1;
@@ -1078,14 +1094,15 @@ const Wrapper = styled.section`
     text-transform: uppercase;
     border: 0;
     color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
+    border-radius: 10px;
+    background: #2975ad;
     transition: 0.3s;
     cursor: pointer;
     font-family: "Nunito", sans-serif;
   }
   .input-button:hover {
-    background: #55311c;
+    color: #2975ad;
+    background: #fff;
   }
   .input-button2 {
     outline: none;
@@ -1106,16 +1123,16 @@ const Wrapper = styled.section`
     // text-transform: uppercase;
     font-weight: 800;
     letter-spacing: 0.7px;
-    color: #8c7569;
+    color: #12263e;
     transition: 0.3s;
   }
 
   .input-block {
     display: flex;
     flex-direction: column;
-    padding: 10px 10px 8px;
+    padding: 0.625hw 1.2vh 0.96vh;
     // border: 1px solid #ddd;
-    // border-radius: 4px;
+    border-radius: 4px;
     margin-bottom: 10px;
     transition: 0.3s;
   }
@@ -1126,8 +1143,8 @@ const Wrapper = styled.section`
     padding: 4px 4px 1px;
     border-radius: 3px;
     font-size: 15px;
-    // color: black;
-    background: #606a69;
+    color: black;
+    background: #fff;
   }
 
   .input-block input::-moz-placeholder {
@@ -1145,14 +1162,15 @@ const Wrapper = styled.section`
   .input-block:focus-within {
     border-color: #8c7569;
   }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
+  // .input-block:focus-within .input-label {
+  //   color: black;
+  // }
 
   .testName {
     overflowY: auto;
     border: 3px solid #ddd;
     borderRadius: 4px;
+    background: #fff;
     height: 35vh;
   }
 

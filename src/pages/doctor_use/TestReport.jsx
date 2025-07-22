@@ -58,8 +58,9 @@ const TestReport = () => {
             fontSize: "17px",
             padding: "2px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
-            background: "#606a69",
+            borderTop: "1px solid #ddd",
+            color: "black",
+            background: "#fff",
           }}
           type="text"
           autoComplete="off"
@@ -79,7 +80,9 @@ const TestReport = () => {
             flexDirection: "row",
             padding: "2px",
             justifyContent: "space-around",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
+            color: "black",
+            background: "#fff",
             height: "29px",
           }}
         >
@@ -87,10 +90,9 @@ const TestReport = () => {
             className="input-button"
             type="button"
             style={{
-              fontSize: "17px",
-              padding: "2px",
-              // height: "26px",
-              borderRadius: "2px",
+              fontSize: "15px",
+              padding: "2px 20px 0px",
+              borderRadius: "3px",
             }}
             name={`button1${headers.length + i}`}
             onClick={() => setCards(testData?.tests[findings.length + i])}
@@ -101,10 +103,9 @@ const TestReport = () => {
             className="input-button"
             type="button"
             style={{
-              fontSize: "17px",
-              padding: "2px",
-              // height: "26px",
-              borderRadius: "2px",
+              fontSize: "15px",
+              padding: "2px 20px 0px",
+              borderRadius: "3px",
             }}
             name={`button2${headers.length + i}`}
             onClick={() => setComment(testData?.tests[findings.length + i])}
@@ -305,6 +306,7 @@ const TestReport = () => {
               </button>
               <div className="modal-left">
                 <h1 className="modal-title">TEST REPORT</h1>
+                <br/>
                 <form onSubmit={handleSubmit} id="formId">
                   <div className="input-block">
                     <div
@@ -338,7 +340,7 @@ const TestReport = () => {
                         </div>
                         <div>
                           <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
                             ID:&nbsp;
                           </label>
                           <input
@@ -589,15 +591,8 @@ const TestReport = () => {
                   </div>
                   <br></br>
                   <div className="modal-buttons">
-                      <button
-                        className="input-button"
-                        type="button"
-                        onClick={handleNew}
-                        style={{ marginRight: "2px" }}
-                      >
-                        NEW REPORT
-                      </button>
-                    <div style={{ padding: "2px" }}>
+                    <div></div>
+                    <div style={{ padding: "2px", }}>
                       
                       <button
                         className="input-button"
@@ -661,7 +656,7 @@ const Wrapper = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #efedee;
+    background-color: #eef3f3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -691,18 +686,18 @@ const Wrapper = styled.section`
   .modal-title {
     margin: 0;
     font-weight: 400;
-    color: #55311c;
+    color: #023656;
   }
   .form-error {
     font-size: 1.4rem;
     color: #b22b27;
   }
   .modal-desc {
-    margin: 6px 0 30px 0;
+    margin: 0.375vw 0 3.62vh 0;
   }
   .modal-left {
-    padding: 50px 30px 20px;
-    background: #fff;
+    padding: 3.75vw 3.62vh 2.14vh;
+    background: #e2eff5;
     width: 100%;
     flex: 1.5;
     transition-duration: 0.5s;
@@ -713,6 +708,7 @@ const Wrapper = styled.section`
     border: 2px solid #8c7569;
     border-radius: 10px;
     padding: 0px 20px 0px;
+    background: #edf7f9;
     width: 30%:
     flex: 2;
     transition: 0.3s;
@@ -740,14 +736,15 @@ const Wrapper = styled.section`
     text-transform: uppercase;
     border: 0;
     color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
+    border-radius: 10px;
+    background: #2975ad;
     transition: 0.3s;
     cursor: pointer;
     font-family: "Nunito", sans-serif;
   }
   .input-button:hover {
-    background: #55311c;
+    color: #2975ad;
+    background: #fff;
   }
   .input-button2 {
     outline: none;
@@ -768,16 +765,16 @@ const Wrapper = styled.section`
     // text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.7px;
-    color: #8c7569;
+    color: #12263e;
     transition: 0.3s;
   }
 
   .input-block {
     display: flex;
     flex-direction: column;
-    padding: 10px 10px 8px;
+    padding: 0.625hw 1.2vh 0.96vh;
     // border: 1px solid #ddd;
-    // border-radius: 4px;
+    border-radius: 4px;
     margin-bottom: 10px;
     transition: 0.3s;
     }
@@ -788,7 +785,8 @@ const Wrapper = styled.section`
     padding: 4px 4px 1px;
     border-radius: 3px;
     font-size: 15px;
-    background: #606a69;
+    color: black;
+    background: #fff;
   }
 
   .input-block input::-moz-placeholder {
@@ -806,14 +804,15 @@ const Wrapper = styled.section`
   .input-block:focus-within {
     border-color: #8c7569;
   }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
+  // .input-block:focus-within .input-label {
+  //   color: rgba(140, 117, 105, 0.8);
+  // }
 
   .testName {
     overflowY: auto;
     border: 3px solid #ddd;
     borderRadius: 4px;
+    background: #fff;
     height: 35vh;
   }
 

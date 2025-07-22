@@ -167,9 +167,9 @@ const FindAdmission = () => {
           key={headers.length + i}
           style={{
             color: "black",
-            fontSize: "10px",
-            border: "1px solid #ddd",
-            height: "26px",
+            fontSize: "12px",
+            borderTop: "1px solid #ddd",
+            height: "30px",
           }}
         >
           {headers.length + i + 1}
@@ -182,8 +182,8 @@ const FindAdmission = () => {
             fontSize: "17px",
             padding: "2px",
             borderRadius: "1px",
-            height: "26px",
-            border: "1px solid #ddd",
+            height: "30px",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -197,8 +197,8 @@ const FindAdmission = () => {
             fontSize: "17px",
             padding: "2px",
             borderRadius: "1px",
-            height: "26px",
-            border: "1px solid #ddd",
+            height: "30px",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -211,9 +211,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -225,9 +225,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -239,9 +239,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -253,9 +253,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -267,9 +267,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -281,9 +281,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -295,9 +295,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -309,9 +309,9 @@ const FindAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "1px",
-            height: "26px",
+            height: "30px",
             borderRadius: "1px",
-            border: "1px solid #ddd",
+            borderTop: "1px solid #ddd",
             color: "black",
           }}
         >
@@ -325,8 +325,8 @@ const FindAdmission = () => {
             flexDirection: "row",
             padding: "2px",
             justifyContent: "space-between",
-            border: "1px solid #ddd",
-            height: "26px",
+            borderTop: "1px solid #ddd",
+            height: "30px",
           }}
         >
           <button
@@ -334,9 +334,9 @@ const FindAdmission = () => {
             style={{
               fontSize: "15px",
               padding: "2px",
-              height: "20px",
+              height: "25px",
               width: "45%",
-              borderRadius: "2px",
+              // borderRadius: "2px",
             }}
             onClick={() => {
               handleFind(data2?.PatientID, true);
@@ -351,11 +351,12 @@ const FindAdmission = () => {
             style={{
               fontSize: "15px",
               padding: "2px",
-              height: "20px",
+              height: "25px",
               width: "45%",
-              borderRadius: "2px",
+              // borderRadius: "2px",
             }}
             onClick={() => {
+              console.log("ask: ",data2),
               navigate("/doctor_use/TestAdmission", {
                 state: {
                   PidValue: data2?.PatientID,
@@ -434,11 +435,6 @@ const FindAdmission = () => {
                 <button
                   className="input-button"
                   style={{
-                    fontSize: "17px",
-                    padding: "2px",
-                    height: "25px",
-                    width: "20%",
-                    borderRadius: "3px",
                     display: "flex",
                     justifyContent: "space-evenly",
                   }}
@@ -449,6 +445,7 @@ const FindAdmission = () => {
                   <h4>New Registration</h4>
                 </button>
                 <h1 className="modal-title">Admission</h1>
+                <br/>
                 <div
                   className="input-block"
                   style={{
@@ -459,7 +456,7 @@ const FindAdmission = () => {
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "row", color: "#052d28" }}>
-                    <h4>Patient Name: &nbsp;</h4>
+                    <h4 className="search-list">Patient Name: &nbsp;</h4>
                     <input
                       style={{
                         fontSize: "17px",
@@ -478,7 +475,7 @@ const FindAdmission = () => {
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Patient ID: &nbsp;</h4>
+                    <h4 className="search-list">Patient ID: &nbsp;</h4>
                     <input
                       style={{
                         fontSize: "17px",
@@ -497,7 +494,7 @@ const FindAdmission = () => {
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4>Date: &nbsp;</h4>
+                    <h4 className="search-list">Date: &nbsp;</h4>
                     <input
                       style={{
                         backgroundColor: "#ffffff",
@@ -516,11 +513,6 @@ const FindAdmission = () => {
                   </div>
                   <button
                     className="input-button"
-                    style={{
-                      fontSize: "17px",
-                      padding: "2px",
-                      borderRadius: "2px",
-                    }}
                     onClick={() => {
                       if (pidValue){
                         console.log("pid");
@@ -544,7 +536,8 @@ const FindAdmission = () => {
                     border: "3px solid #ddd",
                     borderRadius: "4px",
                     overflowY: "auto",
-                    MaxHeight: "70vh",
+                    MaxHeight: "50vh",
+                    backgroundColor: "#ffffff",
                   }}
                 >
                   <div style={{ display: "flex" }}>
@@ -553,7 +546,7 @@ const FindAdmission = () => {
                         width: "10%",
                         display: "flex",
                         flexDirection: "column",
-                        border: "1px solid #ddd",
+                        borderTop: "1px solid #ddd",
                       }}
                     >
                       <label htmlFor="email" className="input-label">
@@ -561,6 +554,7 @@ const FindAdmission = () => {
                       </label>
                       {headers}
                     </div>
+                    <div style={{width: "1px", backgroundColor: "#ddd", height: "19.4vh", MaxHeight: "70vh"}}></div>
                     <div
                       style={{
                         width: "35%",
@@ -600,7 +594,7 @@ const FindAdmission = () => {
                       </label>
                       {age}
                     </div>
-                    <div
+                    {/* <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -612,7 +606,7 @@ const FindAdmission = () => {
                         Sex&nbsp;
                       </label>
                       {sex}
-                    </div>
+                    </div> */}
                     <div
                       style={{
                         width: "15%",
@@ -639,7 +633,7 @@ const FindAdmission = () => {
                       </label>
                       {paid}
                     </div>
-                    <div
+                    {/* <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -651,8 +645,8 @@ const FindAdmission = () => {
                         Dues&nbsp;
                       </label>
                       {dues}
-                    </div>
-                    <div
+                    </div> */}
+                    {/* <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -664,7 +658,7 @@ const FindAdmission = () => {
                         Rebate&nbsp;
                       </label>
                       {rebate}
-                    </div>
+                    </div> */}
                     <div
                       style={{
                         width: "15%",
@@ -674,7 +668,7 @@ const FindAdmission = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        C. Name&nbsp;
+                        Ref Dr.&nbsp;
                       </label>
                       {centerName}
                     </div>
@@ -722,7 +716,7 @@ const Wrapper = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #efedee;
+    background-color: #eef3f3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -751,18 +745,18 @@ const Wrapper = styled.section`
   .modal-title {
     margin: 0;
     font-weight: 400;
-    color: #55311c;
+    color: #023656;
   }
   .form-error {
     font-size: 1.4rem;
     color: #b22b27;
   }
   .modal-desc {
-    margin: 6px 0 30px 0;
+    margin: 0.375vw 0 3.62vh 0;
   }
   .modal-left {
-    padding: 60px 30px 20px;
-    background: #fff;
+    padding: 3.75vw 3.62vh 2.14vh;
+    background: #e2eff5;
     flex: 1.5;
     transition-duration: 0.5s;
     opacity: 1;
@@ -789,31 +783,32 @@ const Wrapper = styled.section`
     text-transform: uppercase;
     border: 0;
     color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
+    border-radius: 10px;
+    background: #2975ad;
     transition: 0.3s;
     cursor: pointer;
     font-family: "Nunito", sans-serif;
   }
   .input-button:hover {
-    background: #55311c;
+    color: #2975ad;
+    background: #fff;
   }
 
   .input-label {
-    font-size: 11px;
+    font-size: 15px;
     // text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.7px;
-    color: #8c7569;
+    color: #12263e;
     transition: 0.3s;
   }
 
   .input-block {
     display: flex;
     flex-direction: column;
-    padding: 10px 10px 8px;
+    padding: 0.625hw 1.2vh 0.96vh;
     // border: 1px solid #ddd;
-    // border-radius: 4px;
+    border-radius: 4px;
     margin-bottom: 10px;
     transition: 0.3s;
   }
@@ -822,7 +817,7 @@ const Wrapper = styled.section`
     outline: 0;
     border: 0;
     padding: 4px 4px 1px;
-    border-radius: 3px;
+    border-radius: 10px;
     font-size: 15px;
   }
 
@@ -843,6 +838,13 @@ const Wrapper = styled.section`
   }
   .input-block:focus-within .input-label {
     color: rgba(140, 117, 105, 0.8);
+  }
+
+  .search-list {
+    color: #2d4b62;
+    font-size: 20px;
+    font-weight: 300;
+    padding: 10px 10px 10px;
   }
 
   @media (max-width: 750px) {

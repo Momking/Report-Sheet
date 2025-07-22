@@ -9,8 +9,9 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import WaitBar from "../../Components/WaitBar";
 import { Link, useNavigate } from "react-router-dom";
 import { doSignOut } from "../../config/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import TestList from "../../Components/Data/TestList.json"
 
 const InitialSheet = () => {
   const { currentUser, setInitialSettingsSet } = useAuth();
@@ -79,6 +80,9 @@ const InitialSheet = () => {
           Image: `url(${downloadURL})`,
         };
         await storeUserData2(exportData, currentUser);
+
+        await setDoc(doc(db, currentUser.uid, "TestName"), TestList);
+
         console.log("setInitialToTrue");
         setInitialSettingsSet(true);
         console.log("image..");
