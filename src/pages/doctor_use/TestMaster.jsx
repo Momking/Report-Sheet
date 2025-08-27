@@ -5,21 +5,23 @@ import { useAuth } from "../../Context/AuthContext";
 import TestList from "../../Components/TestList";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { useSnackbar } from "notistack";
 
 const TestMaster = () => {
     const {currentUser} = useAuth();
     const [testName, setTestName] = useState();
+    const [testValue, setTestValue] = useState([]);
     const [rate, setRate] = useState();
     const [unit, setUnit] = useState();
     const [grounpName, setGroupName] = useState();
-    const [value, setValue] = useState({
-        normalValue: "",
-        minValue: "",
-        maxValue: "",
-    });
+    const [normalValue, setNormalValue] = useState("");
+    const [minValue, setMinValue] = useState();
+    const [maxValue, setMaxValue] = useState();
+    const [refreshKey, setRefreshKey] = useState(0);
+    const { enqueueSnackbar } = useSnackbar("");
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // prevent page reload
+        e.preventDefault();
       
         const testDataRef = doc(db, currentUser.uid, "TestName");
         const testDataSnapshot = await getDoc(testDataRef);
@@ -29,38 +31,56 @@ const TestMaster = () => {
         if (testDataSnapshot.exists()) {
           existingTestArray = testDataSnapshot.data().TestName || [];
         }
-      
-        const newTest = {
-          "TEST NAME": testName?.toUpperCase() || "",
-          "RATE": Number(rate) || 0,
-          "UNIT": unit?.toUpperCase() || "",
-          "GROUP -NAME ": grounpName?.toUpperCase() || "",
-          "NORMAL  VALUE": value.normalValue || "",
-          "MIN - VALUE": value.minValue ? Number(value.minValue) : null,
-          "MAX VALUE": value.maxValue ? Number(value.maxValue) : null,
-          "RATE(DISC)": 0,
-          "SO.NO": existingTestArray.length + 1,
-        };
-      
-        const updatedTestArray = [...existingTestArray, newTest];
-      
-        await setDoc(testDataRef, { TestName: updatedTestArray });
-      
-        alert("Test saved successfully.");
-      };
+
+        if(testValue){
+          const updatedTestArray = [...existingTestArray];
+
+          updatedTestArray[testValue["SO.NO"] - 1] = {
+            "TEST NAME": testName?.toUpperCase() || "",
+            "RATE": Number(rate) || 0,
+            "UNIT": unit?.toUpperCase() || "",
+            "GROUP -NAME ": grounpName?.toUpperCase() || "",
+            "NORMAL  VALUE": normalValue || "",
+            "MIN - VALUE": minValue ? Number(minValue) : null,
+            "MAX VALUE": maxValue ? Number(maxValue) : null,
+            "RATE(DISC)": 0,
+            "SO.NO": testValue["SO.NO"],
+          };
+
+          await setDoc(testDataRef, { TestName: updatedTestArray });
+        }else 
+        {
+          const newTest = {
+            "TEST NAME": testName?.toUpperCase() || "",
+            "RATE": Number(rate) || 0,
+            "UNIT": unit?.toUpperCase() || "",
+            "GROUP -NAME ": grounpName?.toUpperCase() || "",
+            "NORMAL  VALUE": normalValue || "",
+            "MIN - VALUE": minValue ? Number(minValue) : null,
+            "MAX VALUE": maxValue ? Number(maxValue) : null,
+            "RATE(DISC)": 0,
+            "SO.NO": existingTestArray.length + 1,
+          };
+
+          const updatedTestArray = [...existingTestArray, newTest];
+          await setDoc(testDataRef, { TestName: updatedTestArray });
+        }
+      setRefreshKey(prev => prev + 1);
+      handleNew();
+      enqueueSnackbar("Your Report saved", { variant: "info" });
+    };
       
       
 
     const handleNew = () => {
         setTestName();
         setRate();
-        setUnit()
-        setGroupName()
-        setValue({
-            normalValue: "",
-            minValue: "",
-            maxValue: "",
-        })
+        setUnit();
+        setGroupName();
+        setNormalValue("");
+        setMinValue();
+        setMaxValue();
+        document.getElementById("formId").reset();
     }
 
     const handleTestChange = (testData) => {
@@ -68,11 +88,10 @@ const TestMaster = () => {
         setRate(testData["RATE"]);
         setUnit(testData["UNIT"])
         setGroupName(testData["GROUP -NAME "])
-        setValue({
-            normalValue: testData["NORMAL  VALUE"],
-            minValue: testData["MIN - VALUE"],
-            maxValue: testData["MAX VALUE"],
-        })
+        setNormalValue(testData["NORMAL  VALUE"])
+        setMaxValue(testData["MAX VALUE"])
+        setMinValue(testData["MIN - VALUE"])
+        setTestValue(testData);
     }
 
     return(
@@ -83,165 +102,9 @@ const TestMaster = () => {
                     <div className="modal">
                         <div className="modal-container">
                             <div className="modal-left">
-                                <h1 className="modal-title">Test Master</h1>
+                              {/* <h2 className="modal-title">TEST MASTER</h2> */}
                                 <br/>
-                                <form onSubmit={handleSubmit} id="formId">
-                                    <div className="input-block">
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                padding: "5vh",
-                                            }}
-                                            >
-                                                <div>
-                                                    <label htmlFor="email" className="input-label" style={{marginRight: "3vh"}}>
-                                                        Test Name:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={testName}
-                                                        onChange={(e) => setTestName(e.target.value)}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="email" className="input-label">
-                                                        Test Rate:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={rate}
-                                                        onChange={(e) => setRate(e.target.value)}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div
-                                                style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                padding: "5vh",
-                                            }}
-                                            >
-                                                <div>
-                                                    <label htmlFor="email" className="input-label">
-                                                        Normal Value:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={value.normalValue}
-                                                        onChange={(e) => setValue({normalValue: e.target.value})}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="email" className="input-label">
-                                                        Unit:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={unit}
-                                                        onChange={(e) => setUnit(e.target.value)}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div
-                                                style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                padding: "5vh",
-                                            }}
-                                            >
-                                                <div>
-                                                    <label htmlFor="email" className="input-label" style={{marginRight: "3vh"}}>
-                                                        Min Value:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={value.minValue}
-                                                        onChange={(e) => setValue({minValue: e.target.value})}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="email" className="input-label">
-                                                        Max Value:&nbsp;
-                                                    </label>
-                                                    <input
-                                                        type="name"
-                                                        autoComplete="off"
-                                                        name="Patient Name"
-                                                        id="email"
-                                                        placeholder="Email"
-                                                        defaultValue={value.maxValue}
-                                                        onChange={(e) => setValue({maxValue: e.target.value})}
-                                                        style={{textTransform: "uppercase"}}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-buttons">
-                                        <button
-                                            className="input-button"
-                                            type="button"
-                                            onClick={handleNew}
-                                            style={{ marginRight: "2px" }}
-                                        >
-                                            NEW TEST
-                                        </button>
-                                        <div style={{ padding: "2px" }}>
-                                        
-                                        <button
-                                            className="input-button"
-                                            type="submit"
-                                            style={{ marginRight: "2px" }}
-                                        >
-                                            SAVE
-                                        </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div
-                                className="modal-right"
-                                style={{
-                                color: "black",
-                                width: "35%",
-                                overflowY: "auto",
-                                height: "80vh",
-                                }}
-                            >
-                                <TestList onTestNameSelect={handleTestChange}/>
+                                <TestList key={refreshKey} onTestNameSelect={handleTestChange}/>
                             </div>
                         </div>
                     </div>
@@ -297,7 +160,7 @@ const Wrapper = styled.section`
     margin: 0.375vw 0 3.62vh 0;
   }
   .modal-left {
-    padding: 3.75vw 3.62vh 2.14vh;
+    padding: 0vw 1.62vh 4.62vh;
     background: #e2eff5;
     flex: 1.5;
     transition-duration: 0.5s;

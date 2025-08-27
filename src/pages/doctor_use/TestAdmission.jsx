@@ -37,7 +37,6 @@ const TestAdmission = () => {
   useEffect(() => {
     let total = 0;
     for (const x of rate) {
-      console.log("rate...", x);
       if (typeof x === "number") {
         total += x;
       } else if (typeof x?.props?.defaultValue === "string" && !isNaN(x.props.defaultValue)) {
@@ -52,7 +51,6 @@ const TestAdmission = () => {
       setDiscount(testData.Discount);
       setBalanceAmount(total - testData.AdvanceAmount - testData.Discount);
     }else{
-      console.log("dis: ", discount);
       setBalanceAmount(total - discount - advanceAmount);
     }
   }, [rate, discount, advanceAmount])
@@ -120,7 +118,8 @@ const TestAdmission = () => {
 
   const handleClick = () => {
     const index = headers.length;
-    if (headers.length === 0 || test[headers.length - 1].type !== "select") {
+    console.log("type: ", test[test.length - 1]?.type);
+    if (headers.length === 0 || test[test.length - 1]?.type === "input") {
       const newHeader = (
         <h1
           key={index}
@@ -173,7 +172,7 @@ const TestAdmission = () => {
           key={index}
           style={{
             fontSize: "21px",
-            padding: "2px",
+            padding: "3px",
             color: "#ccc",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
@@ -191,7 +190,7 @@ const TestAdmission = () => {
         />
       );
   
-      if (headers.length < 20) {
+      if (headers.length < 30) {
         setHeaders([...headers, newHeader]);
         setTest([...test, newTest]);
         setRate([...rate, newRate]);
@@ -281,10 +280,8 @@ const TestAdmission = () => {
       let userDocRef = null;
       if (e.length != undefined) {
         setVno(e);
-        console.log("e: ", e);
         userDocRef = doc(db, currentUser.uid, `${e}`);
       } else {
-        console.log("ei: ", e.length, vno);
         userDocRef = doc(db, currentUser.uid, vno);
       }
       const userDocSnapshot = await getDoc(userDocRef);
@@ -341,7 +338,7 @@ const TestAdmission = () => {
     setTestData({ tests: [] });
     setPrintData([]);
     document.getElementById("formId").reset();
-    importID();
+    importID(1);
   };
 
   const handleNew2 = () => {
@@ -366,8 +363,7 @@ const TestAdmission = () => {
       handleClick2();
       newTest = test.slice(0, -1);
     }
-    // setVno(formData.get("Patient ID"));
-    console.log("vno: ",vno);
+
     if (vno) {
       const exportData = {
         PatientName: formData.get("Patient Name"),
@@ -391,7 +387,7 @@ const TestAdmission = () => {
         Discount: formData.get("Discount"),
         BalanceAmount: formData.get("Balance Amount"),
       };
-      console.log("patientID: ",exportData.PatientID);
+
       const new_vno = formData.get("Patient ID").toString();
       await storeUserData(new_vno, exportData, currentUser);
 
@@ -451,8 +447,10 @@ const TestAdmission = () => {
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
         Status: "Pending",
+        RegistrationOn: formData.get("Registration On"),
         CenterID: formData.get("Center ID"),
         CenterName: formData.get("Center Name"),
+        RefByDr: formData.get("Ref By Dr"),
         GrandAmount: formData.get("Grand Amount"),
         AdvanceAmount: formData.get("Advance Amount"),
         Discount: formData.get("Discount"),
@@ -487,7 +485,7 @@ const TestAdmission = () => {
         Age: formData.get("Age"),
         Sex: formData.get("Sex"),
         Status: "Pending",
-        CollectionOn: formData.get("Collection On"),
+        RegistrationOn: formData.get("Registration On"),
         CenterID: formData.get("Center ID"),
         CenterName: formData.get("Center Name"),
         GrandAmount: formData.get("Grand Amount"),
@@ -563,7 +561,8 @@ const TestAdmission = () => {
     }
   };
 
-  const importID = async () => {
+  const importID = async (check = 0) => {
+    console.log("hi\n");
     const idRef = doc(db, "Users", currentUser.uid);
     const idRefDoc = await getDoc(idRef);
 
@@ -575,7 +574,8 @@ const TestAdmission = () => {
     if(idRefDoc.exists()){
       const id = idRefDoc.data();
       let temp = parseFloat(id.VID) + 1;
-      if(!vno){
+      if(!vno || check){
+        console.log(temp);
         setVno(temp);
       }
     }
@@ -587,7 +587,6 @@ const TestAdmission = () => {
 
   const handleBlur = (e) => {};
   const handleChange = (e) => {
-    console.log("change");
     const { name, value } = e.target;
     const num = parseFloat(value) || 0;
 
@@ -634,21 +633,24 @@ const TestAdmission = () => {
                     <div
                       style={{
                         display: "flex",
-                        flexDirection: "column",
+                        flexDirection: "row",
                         justifyContent: "space-between",
                       }}
                     >
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            Patient Name:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Patient Name:
                           </label>
                           <input
+                            style={{textTransform: "uppercase", width: "20vw", flex: "1"}}
                             type="name"
                             autoComplete="off"
                             name="Patient Name"
@@ -657,15 +659,15 @@ const TestAdmission = () => {
                             defaultValue={testData.PatientName}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
-                            ID:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Patient
+                            ID:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
@@ -678,11 +680,12 @@ const TestAdmission = () => {
                             readOnly
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Registration On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Registration On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Registration On"
@@ -700,18 +703,37 @@ const TestAdmission = () => {
                             readOnly
                           />
                         </div>
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Center ID:
+                          </label>
+                          <input
+                            style={{flex: "1"}}
+                            type="name"
+                            autoComplete="off"
+                            name="Center ID"
+                            id="email"
+                            placeholder="Center ID"
+                            defaultValue={testData.CenterID}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                        </div>
                       </div>
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Age:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="text"
                             // pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
@@ -723,11 +745,12 @@ const TestAdmission = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            Contact Details:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                          Contact Details:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
                             name="Contact Details"
@@ -738,11 +761,12 @@ const TestAdmission = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Collection On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Collection On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Collection On"
@@ -763,12 +787,14 @@ const TestAdmission = () => {
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sex:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Sex:
                           </label>
                           <select
                             id="options"
@@ -779,6 +805,7 @@ const TestAdmission = () => {
                               padding: "2px",
                               borderRadius: "1px",
                               border: "1px solid #ddd",
+                              flex: "1"
                             }}
                           >
                             <option value="Male">Male</option>
@@ -786,10 +813,9 @@ const TestAdmission = () => {
                             <option value="Neutral">Neutral</option>
                           </select>
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref
-                            By Dr:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                          Ref By Dr:
                           </label>
                           <input
                             type="name"
@@ -800,14 +826,15 @@ const TestAdmission = () => {
                             defaultValue={testData.RefByDr}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
+                            style={{textTransform: "uppercase", flex: "1"}}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Reporting On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Reporting On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Reporting On"
@@ -824,32 +851,9 @@ const TestAdmission = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center ID:&nbsp;
-                          </label>
-                          <input
-                            type="name"
-                            autoComplete="off"
-                            name="Center ID"
-                            id="email"
-                            placeholder="Center ID"
-                            defaultValue={testData.CenterID}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center
-                            Name:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Center Name:
                           </label>
                           <input
                             type="name"
@@ -860,7 +864,7 @@ const TestAdmission = () => {
                             defaultValue={testData.CenterName}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
+                            style={{textTransform: "uppercase", flex: "1"}}
                           />
                         </div>
                       </div>

@@ -22,7 +22,7 @@ const InitialSheet = () => {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    setWaitBar("Trying to Fetching Your Data");
+    setWaitBar("Trying to Fetch Your Data");
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);
@@ -57,16 +57,12 @@ const InitialSheet = () => {
       const formData = new FormData(e.target);
 
       const file = formData.get("Image");
-      console.log(file);
       const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
 
       try {
-        console.log("downloded 1");
         setWaitBar("Please Wait...");
         await uploadBytes(storageRef, file);
-        console.log("downloded 2");
         const downloadURL = await getDownloadURL(storageRef);
-        console.log("downloded 3");
         
         const exportData = {
           CompanyName: formData.get("Company Name"),
@@ -83,9 +79,7 @@ const InitialSheet = () => {
 
         await setDoc(doc(db, currentUser.uid, "TestName"), TestList);
 
-        console.log("setInitialToTrue");
         setInitialSettingsSet(true);
-        console.log("image..");
         setCorrect(true);
       } catch (error) {
         enqueueSnackbar("Error uploading image", { variant: "error" });

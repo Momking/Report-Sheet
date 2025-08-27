@@ -57,9 +57,6 @@ const FindReport = () => {
     try {
       const userDocRef = doc(db, currentUser.uid, `${e}`);
       const userDocSnapshot = await getDoc(userDocRef);
-      // console.log(userDocSnapshot);
-
-      // console.log("use3: ", userData);
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
         setUserData(userFetchData);
@@ -174,6 +171,7 @@ const FindReport = () => {
             borderTop: "1px solid #ddd",
             height: "30px",
             color: "black",
+            whiteSpace: "nowrap"
           }}
         >
           {data2?.PatientName}
@@ -244,10 +242,11 @@ const FindReport = () => {
             borderTop: "1px solid #ddd",
             height: "30px",
             color: "black",
+            whiteSpace: "nowrap"
           }}
         >
-          {data2?.CollectionOn? `${data2?.CollectionOn.split("-")[2]} / ${data2?.CollectionOn.split("-")[1]} / ${" "}
-          ${data2?.CollectionOn.split("-")[0][2]}${data2?.CollectionOn.split("-")[0][3]}` :
+          {data2?.RegistrationOn? `${data2?.RegistrationOn.split("-")[2]} / ${data2?.RegistrationOn.split("-")[1]} / ${" "}
+          ${data2?.RegistrationOn.split("-")[0][2]}${data2?.RegistrationOn.split("-")[0][3]}` :
           `${day.split(": ")[1]} / ${month.split(": ")[1]} / ${" "}
           ${chooseYear.split(": ")[1][2]}${chooseYear.split(": ")[1][3]}`}
         </p>
@@ -449,6 +448,7 @@ const FindReport = () => {
                         backgroundColor: "#ffffff",
                         color: "black",
                         border: "2px solid #ddd",
+                        whiteSpace: "nowrap",
                       }}
                       type="date"
                       autoComplete="off"
@@ -464,7 +464,7 @@ const FindReport = () => {
                     className="input-button"
                     onClick={() => {
                       if (pidValue){
-                        navigate("/doctor_use/TestAdmission", {
+                        navigate("/doctor_use/TestReport", {
                           state: {
                             PidValue: pidValue,
                           },

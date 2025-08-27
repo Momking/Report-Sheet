@@ -41,7 +41,6 @@ const TestReport = () => {
     const newHeaders = [];
     const newTests = [];
     const newButtons = [];
-    console.log("is enter...");
     for (let i = 0; i < count; i++) {
       newHeaders.push(
         <h1
@@ -135,7 +134,6 @@ const TestReport = () => {
         userDocRef = doc(db, currentUser.uid, `RD${adi}`);
       }
       const userDocSnapshot = await getDoc(userDocRef);
-      console.log("doc: ",userDocSnapshot);
 
       if (userDocSnapshot.exists()) {
         handleNew2();
@@ -309,19 +307,21 @@ const TestReport = () => {
                     <div
                       style={{
                         display: "flex",
-                        flexDirection: "column",
+                        flexDirection: "row",
                         justifyContent: "space-between",
                       }}
                     >
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            Patient Name:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Patient Name:
                           </label>
                           <input
                             type="name"
@@ -332,15 +332,16 @@ const TestReport = () => {
                             defaultValue={testData.PatientName}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
+                            style={{textTransform: "uppercase", flex: "1"}}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patient
-                            ID:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Patient
+                            ID:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="text"
                             pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
@@ -352,11 +353,12 @@ const TestReport = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Registration On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Registration On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Registration On"
@@ -374,18 +376,37 @@ const TestReport = () => {
                             readOnly
                           />
                         </div>
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Center ID:
+                          </label>
+                          <input
+                            style={{flex: "1"}}
+                            type="name"
+                            autoComplete="off"
+                            name="Center ID"
+                            id="email"
+                            placeholder="Email"
+                            defaultValue={testData.CenterID}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                        </div>
                       </div>
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Age:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="text"
                             // pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
@@ -397,11 +418,12 @@ const TestReport = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            Contact Details:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Contact Details:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             pattern="^\d*\.?\d{0,2}$"
                             autoComplete="off"
                             name="Contact Details"
@@ -412,18 +434,19 @@ const TestReport = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Collection On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Collection On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Collection On"
                             id="name"
                             placeholder="currentDate.toISOString().split('T')[0]"
                             defaultValue={
-                              testData.Date
+                              testData.CollectionOn
                                 ? new Date(testData.CollectionOn)
                                     .toISOString()
                                     .split("T")[0]
@@ -437,12 +460,14 @@ const TestReport = () => {
                       <div
                         style={{
                           display: "flex",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          width: "30%",
+                          textAlign: "left",
                         }}
                       >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sex:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Sex:
                           </label>
                           <select
                             id="options"
@@ -453,6 +478,7 @@ const TestReport = () => {
                               padding: "2px",
                               borderRadius: "1px",
                               border: "1px solid #ddd",
+                              flex: "1",
                             }}
                           >
                             <option value="Male">Male</option>
@@ -460,10 +486,10 @@ const TestReport = () => {
                             <option value="Neutral">Neutral</option>
                           </select>
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ref
-                            By Dr:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Ref
+                            By Dr:
                           </label>
                           <input
                             type="name"
@@ -474,21 +500,22 @@ const TestReport = () => {
                             defaultValue={testData.RefByDr}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
+                            style={{textTransform: "uppercase", flex: "1"}}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="name" className="input-label">
-                            Reporting On:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Reporting On:
                           </label>
                           <input
+                            style={{flex: "1"}}
                             type="date"
                             autoComplete="off"
                             name="Reporting On"
                             id="name"
                             placeholder="currentDate.toISOString().split('T')[0]"
                             defaultValue={
-                              testData.Date
+                              testData.ReportingOn
                                 ? new Date(testData.ReportingOn)
                                     .toISOString()
                                     .split("T")[0]
@@ -498,32 +525,10 @@ const TestReport = () => {
                             onBlur={handleBlur}
                           />
                         </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center ID:&nbsp;
-                          </label>
-                          <input
-                            type="name"
-                            autoComplete="off"
-                            name="Center ID"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.CenterID}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="email" className="input-label">
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Center
-                            Name:&nbsp;
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                            Center
+                            Name:
                           </label>
                           <input
                             type="name"
@@ -534,7 +539,7 @@ const TestReport = () => {
                             defaultValue={testData.CenterName}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            style={{textTransform: "uppercase"}}
+                            style={{textTransform: "uppercase", flex: "1"}}
                           />
                         </div>
                       </div>

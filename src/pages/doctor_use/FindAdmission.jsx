@@ -16,13 +16,13 @@ const FindAdmission = () => {
   const [headers, setHeaders] = useState([]);
   const [patientName, setPatientName] = useState([]);
   const [age, setAge] = useState([]);
-  const [sex, setSex] = useState([]);
+  const [collDate, setCollDate] = useState([]);
   const [t_amount, setT_amount] = useState([]);
   const [paid, setPaid] = useState([]);
   const [dues, setDues] = useState([]);
   const [rebate, setRebate] = useState([]);
+  const [doctorName, setDoctorName] = useState([]);
   const [centerName, setCenterName] = useState([]);
-  const [centerID, setCenterID] = useState([]);
   const [patientID, setPatientID] = useState([]);
   const [name, setName] = useState();
   const [date, setDate] = useState();
@@ -41,13 +41,13 @@ const FindAdmission = () => {
     setHeaders([]);
     setPatientName([]);
     setAge([]);
-    setSex([]);
+    setCollDate([]);
     setT_amount([]);
     setPaid([]);
     setDues([]);
     setRebate([]);
+    setDoctorName([]);
     setCenterName([]);
-    setCenterID([]);
     setPatientID([]);
     setUseButton([]);
     setName();
@@ -81,10 +81,8 @@ const FindAdmission = () => {
   };
 
   const searchBy = async () => {
-    console.log(date);
     try {
       if (name && currentUser?.uid && date) {
-        console.log("name and date only");
         const userDocRef = doc(db, currentUser.uid, "Name list");
         const docSnap = await getDoc(userDocRef);
 
@@ -101,10 +99,8 @@ const FindAdmission = () => {
           enqueueSnackbar("Name not fount", { variant: "info" });
         }
       } else if(date && !name && currentUser?.uid) {
-        console.log("date only");
         await fetchUserData(date);
       } else if(name && !date && currentUser?.uid){
-        console.log("name only");
         const userDocRef = doc(db, currentUser.uid, "Name list");
         const docSnap = await getDoc(userDocRef);
 
@@ -149,13 +145,13 @@ const FindAdmission = () => {
     const newHeaders = [];
     const newPatientName = [];
     const newAge = [];
-    const newSex = [];
+    const newDate = [];
     const newT_amount = [];
     const newPaid = [];
     const newDues = [];
     const newRebate = [];
+    const newDoctorName = [];
     const newCenterName = [];
-    const newCenterID = [];
     const newPatientID = [];
     const newButtons = [];
     
@@ -185,6 +181,10 @@ const FindAdmission = () => {
             height: "30px",
             borderTop: "1px solid #ddd",
             color: "black",
+            maxWidth: "24vw",
+            whiteSpace: "nowrap",
+            overflowX: "auto",
+            overflowY: "hidden",
           }}
         >
           {data2?.PatientName}
@@ -200,6 +200,7 @@ const FindAdmission = () => {
             height: "30px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.PatientID}
@@ -215,12 +216,13 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.Age}
         </p>
       );
-      newSex.push(
+      newDate.push(
         <p
           style={{
             fontSize: "17px",
@@ -229,9 +231,11 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
-          {data2?.Sex}
+          {data2?.RegistrationOn? `${data2?.RegistrationOn.split("-")[2]} / ${data2?.RegistrationOn.split("-")[1]} / ${" "} 
+          ${data2?.RegistrationOn.split("-")[0][2]}${data2?.RegistrationOn.split("-")[0][3]}`: ""}
         </p>
       );
       newT_amount.push(
@@ -243,6 +247,7 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.GrandAmount}
@@ -257,6 +262,7 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.AdvanceAmount}
@@ -271,6 +277,7 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.BalanceAmount}
@@ -285,9 +292,25 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.Discount}
+        </p>
+      );
+      newDoctorName.push(
+        <p
+          style={{
+            fontSize: "17px",
+            padding: "1px",
+            height: "30px",
+            borderRadius: "1px",
+            borderTop: "1px solid #ddd",
+            color: "black",
+            overflow: "scroll",
+          }}
+        >
+          {data2?.RefByDr}
         </p>
       );
       newCenterName.push(
@@ -299,23 +322,10 @@ const FindAdmission = () => {
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
             color: "black",
+            overflow: "scroll",
           }}
         >
           {data2?.CenterName}
-        </p>
-      );
-      newCenterID.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-          }}
-        >
-          {data2?.CenterID}
         </p>
       );
       newButtons.push(
@@ -356,7 +366,6 @@ const FindAdmission = () => {
               // borderRadius: "2px",
             }}
             onClick={() => {
-              console.log("ask: ",data2),
               navigate("/doctor_use/TestAdmission", {
                 state: {
                   PidValue: data2?.PatientID,
@@ -380,13 +389,13 @@ const FindAdmission = () => {
     ]);
     setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
     setAge((prevAge) => [...prevAge, ...newAge]);
-    setSex((prevSex) => [...prevSex, ...newSex]);
+    setCollDate((prevDate) => [...prevDate, ...newDate]);
     setT_amount((prevT_amount) => [...prevT_amount, ...newT_amount]);
     setPaid((prePaid) => [...prePaid, ...newPaid]);
     setDues((prevDues) => [...prevDues, ...newDues]);
     setRebate((prevRebate) => [...prevRebate, ...newRebate]);
+    setDoctorName((prevDoctorName) => [...prevDoctorName, ...newDoctorName]);
     setCenterName((prevCenterName) => [...prevCenterName, ...newCenterName]);
-    setCenterID((prevCenterID) => [...prevCenterID, ...newCenterID]);
     setUseButton((prevButton) => [...prevButton, ...newButtons]);
   };
 
@@ -515,14 +524,12 @@ const FindAdmission = () => {
                     className="input-button"
                     onClick={() => {
                       if (pidValue){
-                        console.log("pid");
                         navigate("/doctor_use/TestAdmission", {
                           state: {
                             PidValue: pidValue,
                           },
                         });
                       }else{
-                        console.log("searchby");
                         setName(name);
                         searchBy();
                       }
@@ -549,7 +556,7 @@ const FindAdmission = () => {
                         borderTop: "1px solid #ddd",
                       }}
                     >
-                      <label htmlFor="email" className="input-label">
+                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
                         Sr no.&nbsp;
                       </label>
                       {headers}
@@ -563,7 +570,7 @@ const FindAdmission = () => {
                         border: "1px solid #ddd",
                       }}
                     >
-                      <label htmlFor="email" className="input-label">
+                      <label htmlFor="email" className="input-label" >
                         PATIENT NAME
                       </label>
                       {patientName}
@@ -576,7 +583,7 @@ const FindAdmission = () => {
                         border: "1px solid #ddd",
                       }}
                     >
-                      <label htmlFor="email" className="input-label">
+                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
                         PATIENT ID
                       </label>
                       {patientID}
@@ -594,7 +601,7 @@ const FindAdmission = () => {
                       </label>
                       {age}
                     </div>
-                    {/* <div
+                    <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -603,10 +610,10 @@ const FindAdmission = () => {
                       }}
                     >
                       <label htmlFor="email" className="input-label">
-                        Sex&nbsp;
+                        Date&nbsp;
                       </label>
-                      {sex}
-                    </div> */}
+                      {collDate}
+                    </div>
                     <div
                       style={{
                         width: "15%",
@@ -633,7 +640,7 @@ const FindAdmission = () => {
                       </label>
                       {paid}
                     </div>
-                    {/* <div
+                    <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -645,8 +652,8 @@ const FindAdmission = () => {
                         Dues&nbsp;
                       </label>
                       {dues}
-                    </div> */}
-                    {/* <div
+                    </div>
+                    <div
                       style={{
                         width: "15%",
                         display: "flex",
@@ -658,19 +665,6 @@ const FindAdmission = () => {
                         Rebate&nbsp;
                       </label>
                       {rebate}
-                    </div> */}
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Ref Dr.&nbsp;
-                      </label>
-                      {centerName}
                     </div>
                     <div
                       style={{
@@ -680,10 +674,23 @@ const FindAdmission = () => {
                         border: "1px solid #ddd",
                       }}
                     >
-                      <label htmlFor="email" className="input-label">
-                        C. ID&nbsp;
+                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
+                        Ref by Dr.&nbsp;
                       </label>
-                      {centerID}
+                      {doctorName}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
+                        C. NAME&nbsp;
+                      </label>
+                      {centerName}
                     </div>
                     <div
                       style={{
@@ -854,6 +861,34 @@ const Wrapper = styled.section`
     .flexChange {
       flex-direction: column;
     }
+    // .container {
+    //   transform: rotate(90deg);
+    //   transform-origin: center center;
+    //   transition: transform 0.5s ease;
+    //   width: 100vw;
+    //   height: 100vh;
+    //   overflow: auto;
+    //   position: relative;
+    // }
+    // .modal {
+    //   width: 100%;
+    //   background: rgba(51, 51, 51, 0.5);
+    //   display: flex;
+    //   flex-direction: column;
+    //   align-items: center;
+    //   justify-content: center;
+    //   transition: 0.4s;
+    // }
+    // .modal-container {
+    //   display: flex;
+    //   max-width: 100%;
+    //   // width: 100%;
+    //   border-radius: 10px;
+    //   position: relative;
+
+    //   transition-duration: 0.3s;
+    //   background: #fff;
+    // }
   }
 `;
 

@@ -19,7 +19,6 @@ const PendingReport = ({ onAdmissionIDSelect }) => {
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
         setPendingData(Object.values(userFetchData));
-        console.log("pending: ",pendingData);
       } else {
         setError(true);
       }

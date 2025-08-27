@@ -81,7 +81,6 @@ const ConfigureSettings = () => {
   const fetchData = async () => {
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
-      console.log(userDocRef);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
@@ -107,12 +106,10 @@ const ConfigureSettings = () => {
   const handleSubmit = async (e, v) => {
     {
       e.preventDefault();
-      console.log(profileImage);
       const formData = new FormData(e.target);
 
       const file = formData.get("Image");
       if (file.name) {
-        console.log(file);
         const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
 
         try {
@@ -176,7 +173,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="Address1" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
                     </label>
                     <input
                       type="text"
@@ -191,7 +188,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="Address2" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
                     </label>
                     <input
                       type="text"
@@ -206,7 +203,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="city" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
                     </label>
                     <input
                       type="text"
@@ -221,7 +218,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="state" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
                     </label>
                     <input
                       type="text"
@@ -236,7 +233,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="pin code" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
                       Code:&nbsp;
                     </label>
                     <input
@@ -253,7 +250,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="phone" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
                     </label>
                     <input
                       type="text"
@@ -269,7 +266,7 @@ const ConfigureSettings = () => {
                   </div>
                   <div className="input-block">
                     <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMAGE:&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMAGE:&nbsp;
                     </label>
                     <input
                       type="file"
@@ -315,10 +312,11 @@ const ConfigureSettings = () => {
               >
                 <div style={{ paddingTop: "17vh" }}>
                   <div className="input-block">
-                    <label htmlFor="name" className="input-label">
+                    <label htmlFor="name" className="input-label" style={{color: "GrayText"}}>
                       Company Name:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="text"
                       autoComplete="off"
@@ -331,10 +329,11 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
+                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="text"
                       autoComplete="off"
@@ -347,10 +346,11 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="name" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
+                    <label htmlFor="name" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="text"
                       autoComplete="off"
@@ -363,10 +363,11 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
+                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="text"
                       autoComplete="off"
@@ -379,10 +380,11 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
+                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="text"
                       autoComplete="off"
@@ -395,11 +397,12 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
+                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
                       Code:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="^\d*\.?\d{0,2}$"
                       autoComplete="off"
@@ -412,10 +415,11 @@ const ConfigureSettings = () => {
                     />
                   </div>
                   <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
+                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
                     </label>
                     <input
+                      style={{backgroundColor: "black"}}
                       type="text"
                       pattern="^\d*\.?\d{0,2}$"
                       autoComplete="off"
@@ -453,7 +457,7 @@ const Wrapper = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #efedee;
+    background-color: #eef3f3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -482,7 +486,7 @@ const Wrapper = styled.section`
   .modal-title {
     margin: 0;
     font-weight: 400;
-    color: #55311c;
+    color: #023656;
   }
   .form-error {
     font-size: 1.4rem;
@@ -493,7 +497,7 @@ const Wrapper = styled.section`
   }
   .modal-left {
     padding: 60px 30px 20px;
-    background: #fff;
+    background: #e2eff5;
     flex: 1.5;
     transition-duration: 0.5s;
     opacity: 1;
@@ -523,18 +527,20 @@ const Wrapper = styled.section`
   }
 
   .input-button {
+    // padding: 1.2rem 3.2rem;
     outline: none;
     text-transform: uppercase;
     border: 0;
     color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
+    border-radius: 10px;
+    background: #2975ad;
     transition: 0.3s;
     cursor: pointer;
     font-family: "Nunito", sans-serif;
   }
   .input-button:hover {
-    background: #55311c;
+    color: #2975ad;
+    background: #fff;
   }
 
   .input-label {
@@ -542,7 +548,7 @@ const Wrapper = styled.section`
     // text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.7px;
-    color: #8c7569;
+    color: #12263e;
     transition: 0.3s;
   }
 
@@ -562,6 +568,8 @@ const Wrapper = styled.section`
     padding: 4px 4px 1px;
     border-radius: 3px;
     font-size: 15px;
+    color: black;
+    background: #fff;
   }
 
   .input-block input::-moz-placeholder {
@@ -579,9 +587,9 @@ const Wrapper = styled.section`
   .input-block:focus-within {
     border-color: #8c7569;
   }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
+  // .input-block:focus-within .input-label {
+  //   color: rgba(140, 117, 105, 0.8);
+  // }
 
   @media (max-width: 750px) {
     .modal-container {

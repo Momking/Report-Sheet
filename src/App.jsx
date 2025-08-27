@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import TestAdmission from "./pages/doctor_use/TestAdmission";
@@ -21,6 +21,39 @@ import AccountMaster from "./pages/doctor_use/AccountMaster";
 import TestMaster from "./pages/doctor_use/TestMaster";
 
 const App = () => {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter") {
+        const active = document.activeElement;
+        if (
+          active &&
+          (active.tagName === "INPUT" ||
+           active.tagName === "SELECT" ||
+           active.tagName === "TEXTAREA" ||
+           active.isContentEditable)
+        ) {
+          event.preventDefault();
+          const focusable = Array.from(
+            document.querySelectorAll(
+              'input, select, textarea, button, [tabindex]:not([tabindex="-1"])'
+            )
+          ).filter(el => !el.disabled && !el.hasAttribute("readonly") && el.offsetParent !== null && el.tagName !== "BUTTON");
+          
+          const index = focusable.indexOf(active);
+          if (index > -1) {
+            const next = focusable[index + 1] || focusable[0];
+            next.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
 
   const RequireAuth = ({ children }) => {
     const { currentUser, initialSettingsSet } = useAuth();

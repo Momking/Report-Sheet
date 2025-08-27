@@ -36,8 +36,6 @@ const AccountMaster = () => {
         const date = getCurrentDateIST();
         const [year, month, day] = date.split("-");
 
-        console.log(year, month, day);
-
         let yearVal = {
           GrandAmount: 0,
           AdvanceAmount: 0,
@@ -45,7 +43,6 @@ const AccountMaster = () => {
           BalanceAmount: 0
         };
         for(let months in useData[year]){
-          console.log("mon: ",months.split(" ")[1]);
 
           let monthVal = {
             GrandAmount: 0,
@@ -54,16 +51,13 @@ const AccountMaster = () => {
             BalanceAmount: 0
           };
 
-          console.log("value: ", useData[year]);
           for(const day in useData[year][months]){
             monthVal.GrandAmount += parseFloat(useData[year][months][day].GrandAmount);
             monthVal.AdvanceAmount += parseFloat(useData[year][months][day].AdvanceAmount);
             monthVal.Discount += parseFloat(useData[year][months][day].Discount);
             monthVal.BalanceAmount += parseFloat(useData[year][months][day].BalanceAmount);
           }
-          // console.log("monthval: ",monthVal);
           if(month == months.split(" ")[1]){
-            console.log("monval: ",monthVal);
             setDayAmount(useData[year][months][date]);
             setMonthAmount(monthVal);
           }
@@ -82,6 +76,60 @@ const AccountMaster = () => {
       return date;
     };
 
+    const treeData = [
+      {
+        name: "Account Master",
+        children: [
+          {
+            name: "Transaction Account",
+            children: [
+              { name: "Pathology A/C", children: [] },
+            ],
+          },
+          {
+            name: "Doctor",
+            children: [
+              { name: "RAVI SHANKAR.MD" },
+              { name: "DR.RAJEEV RANJAN.(MD)" },
+              { name: "SELF" },
+            ],
+          },
+          {
+            name: "Consulting Pathologists",
+            children: [
+              { name: "NISHANT DIAGNOSTIC" },
+            ],
+          },
+          {
+            name: "Commission Agent",
+            children: [
+              { name: "NISHANT JI" },
+            ],
+          },
+        ],
+      },
+    ];
+    
+
+    const renderTree = (nodes, level = 0) => (
+      <ul style={{ listStyle: "none", paddingLeft: level * 30, textAlign: "left" }}>
+        {nodes.map(node => (
+          <li key={node.name}>
+            <div style={{
+              fontWeight: level === 0 ? "bold" : "normal",
+              fontSize: level === 0 ? "16px" : "15px",
+              padding: "3px 10px",
+              color: level === 0 ? "#204020" : "#222"
+            }}>
+              {node.name}
+            </div>
+            {node.children && node.children.length > 0 && renderTree(node.children, level + 1)}
+          </li>
+        ))}
+      </ul>
+    );
+    
+
     useEffect(() => {
       fetchAccountMaster();
     }, [])
@@ -90,221 +138,95 @@ const AccountMaster = () => {
         <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
             <Navbar destination={"/doctor_use/TestAdmission"} />
             <Wrapper>
-                <div className="container">
+              <div className="container">
                 <div className="modal">
-                    <div className="modal-container">
-                        <div className="modal-left">
-                            <h1 className="modal-title">Account Master</h1>
-                            <br/>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "space-evenly",
-                                    color: "black",
-                                }}
-                            >
-                                <div className="cards">
-                                    <br/>
-                                    <h2 className="modal-title">Daily Cash Report</h2>
-                                    <div style={{ }}>
-                                    <div className="input-block">
-                                      <label htmlFor="name" className="input-label">
-                                        Grand Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        style={{marginLeft: "2vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={dayAmount?.GrandAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="confirm_password" className="input-label">
-                                        Advance Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={dayAmount?.AdvanceAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="name" className="input-label">
-                                        Discount:&nbsp;
-                                      </label>
-                                      <input
-                                      style={{marginLeft: "7vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={dayAmount?.Discount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="confirm_password" className="input-label">
-                                        Balance Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        style={{marginLeft: ".5vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={dayAmount?.BalanceAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="cards">
-                                    <br/>
-                                    <h2 className="modal-title" >Monthly Cash Report</h2>
-                                    <div style={{ }}>
-                                    <div className="input-block">
-                                      <label htmlFor="name" className="input-label">
-                                        Grand Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        style={{marginLeft: "2vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={monthAmount?.GrandAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="confirm_password" className="input-label">
-                                        Advance Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={monthAmount?.AdvanceAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="name" className="input-label">
-                                        Discount:&nbsp;
-                                      </label>
-                                      <input
-                                        style={{marginLeft: "7vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={monthAmount?.Discount}
-                                        readOnly
-                                      />
-                                    </div>
-                                    <div className="input-block">
-                                      <label htmlFor="confirm_password" className="input-label">
-                                        Balance Amount:&nbsp;
-                                      </label>
-                                      <input
-                                        style={{marginLeft: ".5vh"}}
-                                        type="text"
-                                        pattern="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={monthAmount?.BalanceAmount}
-                                        readOnly
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                            </div>
-                            <br/>
-                            <div className="cards" style={{marginLeft: "35%", color: "black"}}>
-                                <br/>
-                                <h2 className="modal-title">Yearly Cash Report</h2>
-                                <div style={{ }}>
-                                  <div className="input-block">
-                                    <label htmlFor="name" className="input-label">
-                                      Grand Amount:&nbsp;
-                                    </label>
-                                    <input
-                                      style={{marginLeft: "2vh"}}
-                                      type="text"
-                                      pattern="text"
-                                      autoComplete="off"
-                                      name="name"
-                                      id="name"
-                                      defaultValue={yearAmount?.GrandAmount}
-                                      readOnly
-                                    />
-                                  </div>
-                                  <div className="input-block">
-                                    <label htmlFor="confirm_password" className="input-label">
-                                      Advance Amount:&nbsp;
-                                    </label>
-                                    <input
-                                      type="text"
-                                      pattern="text"
-                                      autoComplete="off"
-                                      name="name"
-                                      id="name"
-                                      defaultValue={yearAmount?.AdvanceAmount}
-                                      readOnly
-                                    />
-                                  </div>
-                                  <div className="input-block">
-                                    <label htmlFor="name" className="input-label">
-                                      Discount:&nbsp;
-                                    </label>
-                                    <input
-                                      style={{marginLeft: "7vh"}}
-                                      type="text"
-                                      pattern="text"
-                                      autoComplete="off"
-                                      name="name"
-                                      id="name"
-                                      defaultValue={yearAmount?.Discount}
-                                      readOnly
-                                    />
-                                  </div>
-                                  <div className="input-block">
-                                    <label htmlFor="confirm_password" className="input-label">
-                                      Balance Amount:&nbsp;
-                                    </label>
-                                    <input
-                                      style={{marginLeft: ".5vh"}}
-                                      type="text"
-                                      pattern="text"
-                                      autoComplete="off"
-                                      name="name"
-                                      id="name"
-                                      defaultValue={yearAmount?.BalanceAmount}
-                                      readOnly
-                                    />
-                                  </div>
-                                </div>
-                            </div>
-                        </div>
+                  <div className="modal-container">
+                  <div className="modal-left">
+                  <div style={{
+                    display: "flex",
+                    height: "85vh",
+                    borderRadius: "10px",
+                    background: "#c4d2b7",
+                    boxShadow: "0 2px 8px #b4bbad52"
+                  }}>
+                    <div style={{
+                      width: "35%",
+                      background: "#f7f7f7",
+                      borderRight: "2px solid #819182",
+                      padding: "24px"
+                    }}>
+                      {renderTree(treeData)}
                     </div>
+                    <div style={{
+                      flex: 1,
+                      background: "#cad8b6",
+                      borderRadius: "8px",
+                      boxShadow: "0 2px 8px #b4bbad52",
+                      margin: "12px",
+                      padding: "22px",
+                      color: "#204020",
+                    }}>
+                      <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                        {["🔄", "🖨️", "💻", "🗑️"].map(icon => (
+                          <button key={icon} style={{
+                            fontSize: "18px", padding: "5px 14px", background: "#ecf0e2",
+                            border: "1px solid #bcd2ae", borderRadius: "4px", cursor: "pointer"
+                          }}>{icon}</button>
+                        ))}
+                      </div>
+                      <div style={{ marginBottom: "12px" }}>
+                        <label style={{ fontWeight: 500, color: "#204020" }}>
+                          Search:&nbsp;
+                          <input type="text" style={{
+                            padding: "7px 12px", border: "1px solid #bcd2ae", borderRadius: "4px", background: "#fff"
+                          }} />
+                        </label>
+                      </div>
+                      <form style={{
+                        border: "2px solid #bcd2ae", borderRadius: "7px", padding: "20px", background: "#e6f0d2"
+                      }}>
+                        <div style={{ marginBottom: "15px" }}>
+                          <label style={{ fontWeight: 500, width: "230px", display: "inline-block" }}>Group:</label>
+                          <input value="Account Master" readOnly style={{
+                            padding: "6px", width: "180px", borderRadius: "4px", border: "1px solid #bcd2ae",
+                            background: "#f9fbf5", color: "#386030"
+                          }} />
+                        </div>
+                        <div style={{ marginBottom: "15px" }}>
+                          <label style={{ fontWeight: 500, width: "230px", display: "inline-block" }}>Account:</label>
+                          <input type="text" style={{
+                            padding: "6px", width: "180px", borderRadius: "4px", border: "1px solid #bcd2ae",
+                            background: "#fff"
+                          }} />
+                        </div>
+                        <div style={{ marginBottom: "15px" }}>
+                          <label style={{ fontWeight: 500, width: "230px", display: "inline-block" }}>Opening Balance:</label>
+                          <input type="number" style={{
+                            padding: "6px", width: "180px", borderRadius: "4px", border: "1px solid #bcd2ae",
+                            background: "#fff"
+                          }} />
+                        </div>
+                        <div style={{ marginBottom: "15px", fontWeight: "500" }}>
+                          <span style={{ width: "230px", display: "inline-block" }}>Commission:</span>
+                          <input type="radio" name="commType" id="flat" />
+                          <label htmlFor="flat" style={{ marginRight: "14px", color: "#204020" }}>Flat Rate</label>
+                          <input type="radio" name="commType" id="percent" />
+                          <label htmlFor="percent" style={{ color: "#204020" }}>% Rate</label>
+                        </div>
+                        <div>
+                          <label style={{ fontWeight: 500, width: "230px", display: "inline-block" }}>Rate:</label>
+                          <input type="number" style={{
+                            padding: "6px", width: "80px", borderRadius: "4px", border: "1px solid #bcd2ae",
+                            background: "#fff"
+                          }} />
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             </Wrapper>
         </div>
     );

@@ -5,7 +5,7 @@ const About = () => {
   return (
     <div
       style={{
-        backgroundColor: "#efedee",
+        backgroundColor: "#eef3f3",
         color: "black",
         height: "100vh",
         width: "100%",
