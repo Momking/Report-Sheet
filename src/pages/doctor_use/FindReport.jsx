@@ -8,10 +8,13 @@ import Invoice from "../../Components/Print/Invoice";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
+import AppTopNav from "../../Components/TopNavbar";
+import { useSidebar } from "../../Context/SidebarContext";
 
 const FindReport = () => {
   const [data, setData] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [printVisible, setPrintVisible] = useState(false);
   const [pidValue, setPidValue] = useState(null);
   const [headers, setHeaders] = useState([]);
   const [patientName, setPatientName] = useState([]);
@@ -30,6 +33,7 @@ const FindReport = () => {
   const receiptRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { sidebarExpanded } = useSidebar();
   const { enqueueSnackbar } = useSnackbar("");
   const [chooseYear, setChooseYear] = useState(
     `Year: ${new Date().getFullYear()}`
@@ -50,9 +54,19 @@ const FindReport = () => {
 
   const handlePrintReceipt = useReactToPrint({
     content: () => receiptRef.current,
+    onBeforeGetContent: () => {
+      setPrintVisible(true);
+      return new Promise(resolve => {
+        setTimeout(resolve, 200); // allow render before print
+      });
+    },
+    onAfterPrint: () => {
+      setPrintVisible(false);
+    },
   });
 
   const handleFind = async (e, check) => {
+    console.log("e: ", e);
     setUserData([]);
     try {
       const userDocRef = doc(db, currentUser.uid, `${e}`);
@@ -75,9 +89,11 @@ const FindReport = () => {
 
   const searchBy = async () => {
     try {
+      console.log(searchDate);
       if (name && currentUser?.uid && searchDate) {
         const userDocRef = doc(db, currentUser.uid, "Name list");
         const docSnap = await getDoc(userDocRef);
+
 
         if (docSnap.exists()) {
           const new_name = name.toUpperCase();
@@ -109,6 +125,7 @@ const FindReport = () => {
             }
           }
           if(result != undefined){
+            console.log("dont: ", result);
             setData(result);
             handleAddMultipleTests(result, null, null);
           }else{
@@ -150,134 +167,34 @@ const FindReport = () => {
       const data2 = val[key];
 
       newHeaders.push(
-        <h1
-          key={headers.length + i}
-          style={{
-            color: "black",
-            fontSize: "10px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-          }}
-        >
-          {headers.length + i + 1}
-        </h1>
+        [headers.length + i + 1]
       );
       newPatientName.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-            whiteSpace: "nowrap"
-          }}
-        >
-          {data2?.PatientName}
-        </p>
+        [data2?.PatientName]
       );
       newPatientID.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.PatientID}
-        </p>
+        [data2?.PatientID]
       );
       newAge.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.Age}
-        </p>
+        [data2?.Age]
       );
       newSex.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.Sex}
-        </p>
+        [data2?.Sex]
       );
       newStatus.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.Status}
-        </p>
+        [data2?.Status]
       );
       newDate.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-            whiteSpace: "nowrap"
-          }}
-        >
-          {data2?.RegistrationOn? `${data2?.RegistrationOn.split("-")[2]} / ${data2?.RegistrationOn.split("-")[1]} / ${" "}
+        [data2?.RegistrationOn? `${data2?.RegistrationOn.split("-")[2]} / ${data2?.RegistrationOn.split("-")[1]} / ${" "}
           ${data2?.RegistrationOn.split("-")[0][2]}${data2?.RegistrationOn.split("-")[0][3]}` :
           `${day.split(": ")[1]} / ${month.split(": ")[1]} / ${" "}
-          ${chooseYear.split(": ")[1][2]}${chooseYear.split(": ")[1][3]}`}
-        </p>
+          ${chooseYear.split(": ")[1][2]}${chooseYear.split(": ")[1][3]}`]
       );
       newCenterName.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.CenterName}
-        </p>
+        [data2?.CenterName]
       );
       newCenterID.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-            color: "black",
-          }}
-        >
-          {data2?.CenterID}
-        </p>
+        [data2?.CenterID]
       );
       newButtons.push(
         <div
@@ -382,388 +299,304 @@ const FindReport = () => {
   }, [chooseYear, location.state]);
 
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      {userData && (
-        <Invoice ref={receiptRef} printData={userData} />
-      )}
-      <Navbar destination={"/"} />
-      <Wrapper>
-        <div className="container">
-          <div className="modal">
-            <div className="modal-container">
-              <div className="modal-left">
-                <h1 className="modal-title">Find Report</h1>
-                <br/>
-                <div
-                  className="input-block"
-                  style={{
-                    color: "#052d28",
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4 className="search-list">Patient Name: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setName(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4 className="search-list">Patient ID: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setPidValue(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4 className="search-list">Date: &nbsp;</h4>
-                    <input
-                      style={{
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                        border: "2px solid #ddd",
-                        whiteSpace: "nowrap",
-                      }}
-                      type="date"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setSearchDate(e.target.value);
-                      }}
-                      defaultValue={location.state?.date || getCurrentDateIST()}
-                    />
-                  </div>
-                  <button
-                    className="input-button"
-                    onClick={() => {
-                      if (pidValue){
-                        navigate("/doctor_use/TestReport", {
-                          state: {
-                            PidValue: pidValue,
-                          },
-                        });
-                      }else{
-                        setName(name);
-                        searchBy();
-                      }
-                    }}
-                  >
-                    Search
-                  </button>
-                </div>
-                <div
-                  style={{
-                    border: "3px solid #ddd",
-                    borderRadius: "4px",
-                    overflowY: "auto",
-                    maxHeight: "50vh",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
-                  <div style={{ display: "flex" }}>
-                    <div
-                      style={{
-                        width: "10%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderLeft: "1px solid #ddd",
-                        borderTop: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Sr no.&nbsp;
-                      </label>
-                      {headers}
-                    </div>
-                    <div style={{width: "1px", backgroundColor: "#ddd", height: "19.4vh", MaxHeight: "70vh"}}></div>
-                    <div
-                      style={{
-                        width: "40%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        PATIENT NAME&nbsp;
-                      </label>
-                      {patientName}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        P-Age&nbsp;
-                      </label>
-                      {age}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Gender&nbsp;
-                      </label>
-                      {sex}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Date&nbsp;
-                      </label>
-                      {date}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        C Name&nbsp;
-                      </label>
-                      {centerName}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        C ID&nbsp;
-                      </label>
-                      {centerID}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Status&nbsp;
-                      </label>
-                      {status}
-                    </div>
-                    <div
-                      style={{
-                        width: "21%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Buttons&nbsp;
-                      </label>
-                      {useButton}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div>
+      <div style={{display: "none"}}>
+      {printVisible && userData && <Receipt ref={receiptRef} printData={userData} printVisible={printVisible}/>}
+      </div>
+      <PageWrapper>
+        <AppTopNav sidebarExpanded={sidebarExpanded} />
+        <Navbar destination={"/"} />
+        <Main $sidebarExpanded={sidebarExpanded}>
+          <div className="top-info-alert">
+            <span className="info-icon">!</span>
+            <span>Your trial ends in 5 days. Even if you purchase early, duration of trial period is included for free.</span>
           </div>
-        </div>
-      </Wrapper>
-    </div>
-  );
-};
-
-const Wrapper = styled.section`
-  .container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #eef3f3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .modal {
-    width: 100%;
-    background: rgba(51, 51, 51, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: 0.4s;
-  }
-  .modal-container {
-    display: flex;
-    max-width: 95vw;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    position: absolute;
-
-    transition-duration: 0.3s;
-    background: #fff;
-  }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #023656;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 0.375vw 0 3.62vh 0;
-  }
-  .modal-left {
-    padding: 3.75vw 3.62vh 2.14vh;
-    background: #e2eff5;
-    flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
-  }
-
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
-    font-size: 14px;
-  }
-
-  .input-button {
-    // padding: 1.2rem 3.2rem;
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
-    color: #fff;
-    border-radius: 10px;
-    background: #2975ad;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button:hover {
-    color: #2975ad;
-    background: #fff;
-  }
-
-  .input-label {
-    font-size: 15px;
-    // text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.7px;
-    color: #12263e;
-    transition: 0.3s;
-  }
-
-  .input-block {
-    display: flex;
-    flex-direction: column;
-    padding: 0.625hw 1.2vh 0.96vh;
-    // border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-  }
-
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 10px;
-    font-size: 15px;
-  }
-
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
-
-  .search-list {
-    color: #2d4b62;
-    font-size: 20px;
-    font-weight: 300;
-    padding: 10px 10px 10px;
-  }
-
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
-    }
-    .flexChange {
+          <Card>
+            <h1 className="page-title">Search lab reports</h1>
+            <FiltersGrid>
+              <div className="filter-cell">
+                <label>Duration</label>
+                <input
+                  type="date"
+                  className="mini-input"
+                  value={searchDate || ""}
+                  onChange={e => setSearchDate(e.target.value)}
+                />
+              </div>
+              <div className="filter-cell">
+                <label>Patient first name</label>
+                <input
+                  className="mini-input"
+                  value={name || ""}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Type name"
+                />
+              </div>
+              <div className="filter-cell">
+                <label>Status</label>
+                <select className="mini-input">
+                  <option value="">Any</option>
+                  <option>Signed off</option>
+                  <option>Pending</option>
+                </select>
+              </div>
+              <div className="filter-cell">
+                <label>Reg. no.</label>
+                <input
+                  className="mini-input"
+                  value={pidValue || ""}
+                  onChange={e => setPidValue(e.target.value)}
+                  placeholder="Reg. no."
+                />
+              </div>
+              <div className="filter-cell filter-btncell">
+                <button
+                  className="search-btn"
+                  onClick={() => {
+                    if (pidValue){
+                      navigate("/doctor_use/TestAdmission", { state: { PidValue: pidValue } });
+                    }else{
+                      setName(name);
+                      searchBy();
+                    }
+                  }}
+                >Search</button>
+                <button className="clear-btn" onClick={freeSpace}>Clear</button>
+              </div>
+            </FiltersGrid>
+          </Card>
+          {/* --- Data Table Panel --- */}
+          <Card className="table-panel">
+            <ScrollTable>
+              <thead>
+                <tr>
+                  <th>REG. NO.</th>
+                  <th>DATE/TIME</th>
+                  <th>PATIENT</th>
+                  <th>REFERRED BY</th>
+                  <th>TOTAL AMOUNT</th>
+                  <th>CC</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {headers.map((header, idx) => (
+                  <tr key={idx}>
+                    <td>{patientID[idx]}</td>
+                    <td>{date[idx]}</td>
+                    <td>{patientName[idx]}</td>
+                    <td>{centerID[idx]}</td>
+                    <td>{sex[idx]}</td>
+                    <td>{centerName[idx]}</td>
+                    {/* <td>
+                      <span className={`status-chip ${paid[idx] ? "signed" : "pending"}`}>
+                        {paid[idx] ? "Signed off" : "Pending"}
+                      </span>
+                    </td> */}
+                    <td className="table-actions">
+                      {useButton[idx]}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </ScrollTable>
+          </Card>
+        </Main>
+        {/* {userData && <Receipt ref={invoiceRef} printData={userData} />} */}
+      </PageWrapper>
+      </div>
+    );
+  };
+    
+    // --- STYLING ---
+    
+    const PageWrapper = styled.div`
+      min-height: 100vh;
+      background: #f7fafd;
+      display: flex;
+      .navbar {
+        flex-shrink: 0;
+      }
+    `;
+    
+    const Main = styled.main`
+      flex: 1;
+      min-width: 0;
+      padding: 48px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
+      transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
+  
+      @media (max-width: 1100px) {
+        padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "80px" : "41px")};
+      }
+  
+      @media (max-width: 700px) {
+        padding-left: 2vw;
+      }
+  
+  `;
+  
+  const FiltersGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) 110px;
+    row-gap: 14px;
+    column-gap: 18px;
+    margin-bottom: 7px;
+    .filter-cell {
+      display: flex;
       flex-direction: column;
+      label {
+        font-size: 0.93em;
+        color: #5175ac;
+        font-weight: 600;
+        margin-bottom: 3px;
+        padding-left: 1px;
+      }
+      .mini-input {
+        height: 33px;
+        border: 1px solid #d7e2f8;
+        border-radius: 6px;
+        padding: 2px 9px;
+        font-size: 0.97em;
+        background: #fafcff;
+        color: #171d19;
+        transition: border-color 0.13s;
+        &:focus { border: 1.5px solid #3793f4; outline: none; }
+      }
+      select {
+        min-width: 70px;
+      }
+      &.filter-btncell {
+        flex-direction: row;
+        align-items: end;
+        gap: 8px;
+        padding-top: 19px;
+      }
     }
-  }
-`;
-
+    .search-btn {
+      background: #037aff;
+      color: #fff;
+      border: none;
+      border-radius: 6.5px;
+      padding: 0 12px;
+      height: 33px;
+      font-size: 0.97em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.16s;
+      &:hover { background: #035fc7; }
+      margin-right: 7px;
+    }
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #0d63b7;
+      font-weight: 600;
+      font-size: 0.96em;
+      cursor: pointer;
+      margin-left: 0px;
+      &::after { content: ""; }
+    }
+    @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 700px)   { grid-template-columns: 1fr; }
+  `;
+  
+  const Card = styled.section`
+    background: #fff;
+    border-radius: 11px;
+    box-shadow: 0 2px 18px #e0e7f1cc;
+    margin-bottom: 28px;
+    padding: 25px 19px 11px 22px;
+    overflow-x: auto;      /* ENABLE horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+  
+    .page-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #203669;
+      margin-bottom: 18px;
+      letter-spacing: 0.01em;
+    }
+  
+    &.table-panel {
+      margin-top: 0;
+      padding: 24px 19px 16px 19px;
+    }
+  `;
+  
+  const ScrollTable = styled.table`
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: separate;
+    min-width: 800px;  /* Minimum width to force scroll on smaller screens */
+  
+    thead tr {
+      background: #f3f7fa;
+    }
+  
+    thead th {
+      color: #36598b;
+      font-weight: 700;
+      font-size: 0.98em;
+      border-bottom: 1.5px solid #d6e0f7;
+      padding: 10px 12px;
+      white-space: nowrap;
+    }
+  
+    tbody {
+      tr {
+        background: #fff;
+        box-shadow: 0 1px 12px #e0e7f1cc;
+        transition: box-shadow 0.12s;
+      }
+  
+      tr:hover {
+        background: #f5faff;
+      }
+  
+      td {
+        font-size: 0.95em;
+        padding: 8px 10px;
+        border-bottom: 1px solid #e1e7f3;
+        white-space: nowrap;
+        line-height: 1.3;
+        vertical-align: middle;
+        color: #28314d;
+        letter-spacing: 0.01em;
+        min-width: 90px; /* Ensure column min width */
+      }
+  
+      .table-actions {
+        white-space: nowrap;
+      }
+  
+      .status-chip {
+        border-radius: 12px;
+        padding: 4px 14px;
+        font-weight: 600;
+        font-size: 0.9em;
+        &.signed {
+          background: #d5f7e6;
+          color: #1a9a5a;
+        }
+        &.pending {
+          background: #fff4dc;
+          color: #a87811;
+        }
+      }
+    }
+  
+    @media (max-width: 900px) {
+      min-width: 600px;
+    }
+  
+    @media (max-width: 600px) {
+      min-width: 500px;
+    }
+  
+    @media print {
+      min-width: auto;
+      width: 100%;
+    }
+  `;
 export default FindReport;

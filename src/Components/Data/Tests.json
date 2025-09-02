@@ -1,0 +1,420 @@
+{
+    "TestGroup": [
+        {
+            "HAEMATOLOGY": [
+                {
+                    "ABO GROUPING & RH TYPING": [
+                        {
+                            "TESTNAME": "ABO GROUPINGA"
+                        },
+                        {
+                            "TESTNAME": "RH TYPING"
+                        }
+                    ]
+                },
+                {
+                    "BLEEDING TIME": [
+                        {
+                            "TESTNAME": "BLEEDING TIME"
+                        }
+                    ]
+                },
+                {
+                    "COMPLETE BLOOD COUNT(CBC) (W.B.EDTA)": [
+                        {
+                            "TESTNAME": "W.B.C Count",
+                            "UNIT": "cmm",
+                            "NORMAL-VALUE": "(4000-11000 cmm)"
+                        },
+                        {
+                            "TESTNAME": "Platelets Counts",
+                            "UNIT": "/µl",
+                            "NORMAL-VALUE": "(1,50,000-4,50,000/µl)"
+                        },
+                        {
+                            "TESTNAME": "R.B.C",
+                            "UNIT": "mill",
+                            "NORMAL-VALUE": "(3.5-5.5 mill.)"
+                        },
+                        {
+                            "TESTNAME": "Haemoglobin",
+                            "UNIT": "gm",
+                            "NORMAL-VALUE": "(M-15±2.5, F-14±2.5)"
+                        },
+                        {
+                            "TESTNAME": "P.C.V",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(34-47%)"
+                        },
+                        {
+                            "TESTNAME": "M.C.V",
+                            "UNIT": "cu µm",
+                            "NORMAL-VALUE": "(80-96/cu µm)"
+                        },
+                        {
+                            "TESTNAME": "M.C.H",
+                            "UNIT": "Pg",
+                            "NORMAL-VALUE": "(27.5-33.2 Pg)"
+                        },
+                        {
+                            "TESTNAME": "M.C.H.C",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(33.4-35.5%)"
+                        },
+                        {
+                            "TESTNAME": "R.D.W.(cv)",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(10.8-15.0 %)"
+                        },
+                        {
+                            "TESTNAME": "R.D.W (SD)",
+                            "UNIT": "fl",
+                            "NORMAL-VALUE": "(35.0-56.0 fl)"
+                        }
+                    ]
+                },
+                {
+                    "DIFFERENTIAL COUNT OF W.B.C": [
+                        {
+                            "TESTNAME": "Neutrophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "40-70 %"
+                        },
+                        {
+                            "TESTNAME": "Lymphocytes",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "20-45 %"
+                        },
+                        {
+                            "TESTNAME": "Eosinophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "02-06 %"
+                        },
+                        {
+                            "TESTNAME": "Monocytes",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "01-06 %"
+                        },
+                        {
+                            "TESTNAME": "Basophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "00-01 %"
+                        }
+                    ]
+                },
+                {
+                    "COMPLETE BLOOD COUNT(CBC) (W.B.EDTA)": [
+                        {
+                            "TESTNAME": "Red Blood Count (R.B.C)",
+                            "UNIT": "mill./µl",
+                            "NORMAL-VALUE": "(3.5-5.5 mill./µl)"
+                        },
+                        {
+                            "TESTNAME": "Haemoglobin (HB)",
+                            "UNIT": "g/dL",
+                            "NORMAL-VALUE": "(12.0-16.0 .g/dL)"
+                        },
+                        {
+                            "TESTNAME": "Packed Cell Volume (P.C.V)",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(33-51 %)"
+                        },
+                        {
+                            "TESTNAME": "Mean Corpuscular Volume (M.C.V)",
+                            "UNIT": "cu µm",
+                            "NORMAL-VALUE": "(80-100/ fL)"
+                        },
+                        {
+                            "TESTNAME": "Mean Corpuscular Haemoglobin (M.C.H)",
+                            "UNIT": "Pg",
+                            "NORMAL-VALUE": "(26-34 Pg)"
+                        },
+                        {
+                            "TESTNAME": "Mean Corpuscular Hb Concentra.Hb(M.C.H.C)",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(32-36 g/dL)"
+                        },
+                        {
+                            "TESTNAME": "R.D.W.CV",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "(11.6-14 %)"
+                        },
+                        {
+                            "TESTNAME": "R.D.W -SD",
+                            "UNIT": "fl",
+                            "NORMAL-VALUE": "(37-54 fL)"
+                        },
+                        {
+                            "TESTNAME": "Platelets Counts",
+                            "UNIT": "/µl",
+                            "NORMAL-VALUE": "(1,50,000-4,50,000 /µl)"
+                        },
+                        {
+                            "TESTNAME": "Mean Platelet Volume",
+                            "UNIT": "fL",
+                            "NORMAL-VALUE": "(6.5-12.0 fL)"
+                        },
+                        {
+                            "TESTNAME": "PDW-SD",
+                            "UNIT": "Fl",
+                            "NORMAL-VALUE": "(15-18 fL)"
+                        },
+                        {
+                            "TESTNAME": "Total Leucocyte Count (TLC)",
+                            "UNIT": "/cumm",
+                            "NORMAL-VALUE": "(4000-11000 /cumm)"
+                        }
+                    ]
+                },
+                {
+                    "DIFFERENTIAL LEUCOCYTE COUNT D.L.C": [
+                        {
+                            "TESTNAME": "Neutrophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "40-70 %"
+                        },
+                        {
+                            "TESTNAME": "Lymphocytes",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "20-45 %"
+                        },
+                        {
+                            "TESTNAME": "Eosinophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "01-05 %"
+                        },
+                        {
+                            "TESTNAME": "Monocytes",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "02-10 %"
+                        },
+                        {
+                            "TESTNAME": "Basophils",
+                            "UNIT": "%",
+                            "NORMAL-VALUE": "00-01 %"
+                        }
+                    ]
+                },
+                {
+                    "ABSOLUTE LEUCOCYTE COUNT": [
+                        {
+                            "TESTNAME": "Absolute Neutrohils Count",
+                            "UNIT": "thou/mm3",
+                            "NORMAL-VALUE": "2.00-7.00 thou/mm3"
+                        },
+                        {
+                            "TESTNAME": "Absolute Lymphocytes Count",
+                            "UNIT": "thou/mm3",
+                            "NORMAL-VALUE": "1.00-3.00 thou/mm3"
+                        },
+                        {
+                            "TESTNAME": "Absolute Eosinophils Count",
+                            "UNIT": "thou/mm3",
+                            "NORMAL-VALUE": "0.02-0.50 thou/mm3"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "BIO-CHEMISTRY": [
+                {
+                    "A.S.O TITRE": [
+                        {
+                            "TESTNAME": "A.S.O TITRE",
+                            "UNIT": "IU/ml",
+                            "NORMAL-VALUE": "(0-200 IU/ml)",
+                            "INTERPRETATION": "An antistreptolysin O (ASO) titer test measures the amount of antistreptolysin O antibodies in a persons blood plasma. The test can help doctors determine if a patient has recently had a strep infection or if antibodies are present in their blood. ASO titer tests are often ordered when symptoms appear, such as after a sore throat or skin infection"
+                        }
+                    ]
+                },
+                {
+                    "ACID PHOSPHATASE": [
+                        {
+                            "TESTNAME": "ACID PHOSPHATASE"
+                        }
+                    ]
+                },
+                {
+                    "ALKALINE PHOSPHATE": [
+                        {
+                            "TESTNAME": "ALKALINE PHOSPHATE",
+                            "UNIT": "IU/L",
+                            "NORMAL-VALUE": "(30-130 IU/L)",
+                            "INTERPRETATION": "Alkaline phosphatase (ALP) is anthat’s found throughout your body. An enzyme is a type of protein in a cell that acts as a catalyst and allows certain bodily processes to happen. There are thousands of enzymes throughout your body that have important functions.Even though researchers know the function of several other types of enzymes and have studied alkaline phosphatase for decades, they don’t yet know the exact function of ALP. However, researchers believe it’s important for multiple different processes."
+                        }
+                    ]
+                },
+                {
+                    "BLOOD SUGAR (F)": [
+                        {
+                            "TESTNAME": "BLOOD SUGAR (F)",
+                            "UNIT": "mg/dl",
+                            "NORMAL-VALUE": "(60 - 110 mg/dl)"
+                        }
+                    ]
+                },
+                {
+                    "BLOOD SUGAR (R)": [
+                        {
+                            "TESTNAME": "BLOOD SUGAR (R)",
+                            "UNIT": "mg/dl",
+                            "NORMAL-VALUE": "(70 - 150 mg/dl)"
+                        }
+                    ]
+                },
+                {
+                    "BLOOD UREA": [
+                        {
+                            "TESTNAME": "BLOOD UREA",
+                            "UNIT": "mg/dl",
+                            "NORMAL-VALUE": "(15 - 45 mg/dl)"
+                        }
+                    ]
+                },
+                {
+                    "BLOOD UREA NITROGEN": [
+                        {
+                            "TESTNAME": "BLOOD UREA NITROGEN",
+                            "UNIT": "mg/dl",
+                            "NORMAL-VALUE": "(8 - 20 mg/dl)"
+                        }
+                    ]
+                },
+                {
+                    "CHOLESTROL": [
+                        {
+                            "TESTNAME": "CHOLESTROL",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        }
+                    ]
+                },
+                {
+                    "CHOLORIDE": [
+                        {
+                            "TESTNAME": "CHOLORIDE",
+                            "UNIT": "mEq/L",
+                            "NORMAL-VALUE": "(97-107 mEq/L)"
+                        }
+                    ]
+                }
+
+            ]
+        },
+        {
+            "SEROLOGY": [
+                {
+                    "CARD TEST FOR TB": [
+                        {
+                            "TESTNAME": "CARD TEST FOR TB",
+                            "UNIT": "",
+                            "NORMAL-VALUE": "NEGATIVE/POSITIVE"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "SPECIAL TEST": [
+                {
+                    "ALDEHYDE": [
+                        {
+                            "TESTNAME": "ALDEHYDE"
+                        }
+                    ]
+                },
+                {
+                    "ADA TEST": [
+                        {
+                            "TESTNAME": "SERUM ADA",
+                            "UNIT": "mg/dl",
+                            "NORMAL-VALUE": "(5 - 40 mg/dl)"
+                        }
+                    ]
+                },
+                {
+                    "AMH": [
+                        {
+                            "TESTNAME": "AMH",
+                            "UNIT": "ng/ml",
+                            "NORMAL-VALUE": "(2.00 - 6.80 ng/dl)"
+                        }
+                    ]
+                },
+                {
+                    "ANTI CCP": [
+                        {
+                            "TESTNAME": "ANTI CCP",
+                            "UNIT": "EU/ml",
+                            "NORMAL-VALUE": "<20 EU/ml"
+                        }
+                    ]
+                },
+                {
+                    "BEETA HCG": [
+                        {
+                            "TESTNAME": "BEETA HCG",
+                            "UNIT": "mIU/ml",
+                            "NORMAL-VALUE": ""
+                        }
+                    ]
+                },
+                {
+                    "BONE MARROW EXAMINATION": [
+                        {
+                            "TESTNAME": "Site of Punture",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "Cellularity",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "M:E Ratio",
+                            "UNIT": "",
+                            "NORMAL-VALUE": "(N = 2-4)"
+                        },
+                        {
+                            "TESTNAME": "Erythropiosies",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "Leucopoiesis",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "Thromopoiesis",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "Lymphocytes",
+                            "UNIT": "",
+                            "NORMAL-VALUE": "(N = 10.8 - 22.7% of Nucleated Cells)"
+                        },
+                        {
+                            "TESTNAME": "Plasma Cells",
+                            "UNIT": "",
+                            "NORMAL-VALUE": "(N = 0.2 - 2.2% of Nucleated Cells"
+                        },
+                        {
+                            "TESTNAME": "Parasites",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        },
+                        {
+                            "TESTNAME": "Abnormal Cells",
+                            "UNIT": "",
+                            "NORMAL-VALUE": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

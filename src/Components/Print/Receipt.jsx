@@ -4,209 +4,169 @@ import { useAuth } from "../../Context/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db, storage } from "../../config/firebase";
 
-const Receipt = React.forwardRef(({ printData }, ref) => {
+// Utility: get amount in words (add your implementation or import a library)
+function numberToWords(n) {
+  // For demo purposes; you can use a better NPM package for this!
+  return n === 350 ? "Three hundred fifty rupees only" : `${n} rupees only`;
+}
+
+const Receipt = React.forwardRef(({ printData, printVisible }, ref) => {
   const { currentUser } = useAuth();
-  const [img_url, setImg_url] = useState("");
-  const [userData, setUserData] = useState([]);
-  const [test, setTest] = useState([]);
+  const [img_url, setImgUrl] = useState("");
+  const [userData, setUserData] = useState({});
 
-  const fetchData = async () => {
-    try {
-      const userDocRef = doc(db, "Users", currentUser.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (userDocSnapshot.exists()) {
-        const userFetchData = userDocSnapshot.data();
-        const img_url = await getDownloadURL(
-          refReg(storage, `profile-images/${currentUser.uid}`)
-        );
-
-        setImg_url(img_url);
-        setUserData(userFetchData);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!currentUser) return;
+      try {
+        const userDoc = await getDoc(doc(db, "Users", currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          let url = "";
+          try {
+            url = await getDownloadURL(refReg(storage, `profile-images/${currentUser.uid}`));
+          } catch {}
+          setUserData(data);
+          setImgUrl(url);
+        }
+      } catch (err) {
+        console.error("Error fetching data", err);
       }
-    } catch (error) {
-      console.error("Error fetching data from Firestore: ", error);
-    }
-  };
-
-  const refresh = () => {
-    setTest([]);
-  };
-
-  const handleAddMultipleTests = (count) => {
-    const newTests = [];
-
-    for (let i = 0; i < count; i++) {
-      newTests.push(
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "80%",
-            padding: "1%",
-            borderBottom: "1px solid #4d4d4d",
-            borderLeft: "1px solid #4d4d4d",
-            borderRight: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{ maxWidth: "30%" }}>
-            {printData.tests[test.length + i].TestName}
-          </h4>
-          <h4>{(printData.tests[test.length + i].Rate != null) ? printData.tests[test.length + i].Rate: 0}</h4>
-        </div>
-      );
-    }
-    setTest((prevTest) => [...prevTest, ...newTests]);
-  };
-
-  useEffect(() => {
+    };
     fetchData();
-  }, []);
+  }, [currentUser]);
 
-  useEffect(() => {
-    refresh();
-    if (printData.tests) {
-      handleAddMultipleTests(printData.tests.length);
-    }
-  }, [printData]);
+  if (!printVisible) return null;
 
-  const getCurrentDateIST = () => {
-    const now = new Date();
-    const options = { timeZone: "Asia/Kolkata" };
-    const date = now.toLocaleDateString("en-CA", options); // 'en-CA' locale formats date as YYYY-MM-DD
-    return date;
-  };
-
+  // --- Print-friendly styling ---
   return (
-    <div ref={ref}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-          height: "100vh",
-        }}
-      >
-        <h2>{userData.CompanyName}</h2>
-        <h3>{userData.Address1}</h3>
-        <h3>Phone: {userData.Phone}</h3>
-        <div style={{ padding: "1%" }} />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            width: "100%",
-          }}
-        >
-          <h4>Name: {printData.PatientName}</h4>
-          <h4>Date: {getCurrentDateIST()}</h4>
+    <div
+      ref={ref}
+      style={{
+        background: "#fff",
+        maxWidth: 840,
+        margin: "40px auto",
+        boxShadow: "0 0 16px #dce4eb66",
+        fontFamily: "Roboto, Lato, Arial, sans-serif",
+        color: "#333",
+        fontSize: 14,
+        padding: 24,
+        borderRadius: 9
+      }}
+    >
+      <style>{`
+        .receipt-title { font-size: 1.2rem; font-weight: 700; }
+        .receipt-title-bar { font-size: 0.93rem; color: #575b65; }
+        .receipt-table { width: 100%; border-collapse: collapse; margin-top: 14px;}
+        .receipt-table th, .receipt-table td { border: 1px solid #abb9c4; padding: 8px 10px; font-size: 13px; }
+        .receipt-table th {
+          background: #95a4b8; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
+        }
+        .receipt-table .right { text-align: right; }
+        .receipt-meta { margin: 10px 0 0 0; }
+        .receipt-meta span { display: inline-block; min-width: 115px; }
+        .footer { text-align: center; color: #8b98a4; font-size: 1em; margin-top: 28px; letter-spacing: 0.07em;}
+        .inv-amount-desc { font-size: 12px; color: #525a5a; }
+        .barcode, .qr { height: 34px; }
+        @media print {
+          body { background: #fff !important; }
+          .receipt-root { box-shadow: none !important; }
+        }
+      `}</style>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <div className="receipt-title">{userData.CompanyName || "Vikash Diagnostic"}</div>
+          <div className="receipt-title-bar">Phone no.: {userData.Phone || ""}</div>
+          <div className="receipt-title-bar" style={{ margin: "4px 0" }}>{userData.Address1 || ""}</div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            width: "100%",
-          }}
-        >
-          <h4>Age: {printData.Age}</h4>
-          <h4>Ref No: {printData.PatientID}</h4>
+        {img_url && (
+          <img
+            src={img_url}
+            alt="Logo"
+            style={{ height: 44, width: "auto", borderRadius: 5, marginLeft: 10 }}
+          />
+        )}
+      </div>
+      <hr style={{ margin: "12px 0" }} />
+
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 0 }}>
+        <div style={{ flex: 1 }}>
+          <div>Bill / Reg. no {printData?.PatientID || ""}</div>
+          {/* barcode or image if any */}
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            width: "100%",
-          }}
-        >
-          <h4>Sex: {printData.Sex}</h4>
-          <h4>Ref By Dr: {printData.RefByDr}</h4>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontWeight: "600", fontSize: 13 }}>L1</div>
+          {/* QR code image or download link, leave blank or insert here */}
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "80%",
-            borderBottom: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{ paddingLeft: "1%" }}>Investigation</h4>
-          <h4 style={{ paddingRight: "1%" }}>Amount</h4>
+      </div>
+
+      <div style={{ margin: "10px 0 0 0", display: "flex", justifyContent: "space-between" }}>
+        <div>
+          <div>Name : <b>{printData?.PatientName}</b></div>
+          <div>
+            Age / Sex : <b>{printData?.Age}</b> / <b>{printData?.Sex}</b>
+          </div>
+          <div>Mobile number : <b>{printData?.Phone || "1234567890"}</b></div>
         </div>
-        {test}
-        <div style={{ padding: "1%" }} />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginLeft: "40%",
-            width: "40%",
-            padding: "1%",
-            borderTop: "1px solid #4d4d4d",
-            borderBottom: "1px solid #4d4d4d",
-            borderLeft: "1px solid #4d4d4d",
-            borderRight: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{}}>Gross Amount: </h4>
-          <h4 style={{}}>{printData.GrandAmount}</h4>
+        <div style={{ textAlign: "right" }}>
+          <div>
+            Referred by : <b>{printData?.RefByDr || "-"}</b>
+          </div>
+          <div>
+            Date : <b>{printData?.Date || new Date().toLocaleDateString("en-IN")}</b>
+          </div>
+          <div>
+            Received by : <b>{printData?.ReceivedBy || "Vikash Kumar"}</b>
+          </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginLeft: "40%",
-            width: "40%",
-            padding: "1%",
-            borderBottom: "1px solid #4d4d4d",
-            borderLeft: "1px solid #4d4d4d",
-            borderRight: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{}}>Advance Paid: </h4>
-          <h4 style={{}}>{printData.AdvanceAmount}</h4>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginLeft: "40%",
-            width: "40%",
-            padding: "1%",
-            borderBottom: "1px solid #4d4d4d",
-            borderLeft: "1px solid #4d4d4d",
-            borderRight: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{}}>Discount: </h4>
-          <h4 style={{}}>{printData.Discount}</h4>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginLeft: "40%",
-            width: "40%",
-            padding: "1%",
-            borderBottom: "1px solid #4d4d4d",
-            borderLeft: "1px solid #4d4d4d",
-            borderRight: "1px solid #4d4d4d",
-          }}
-        >
-          <h4 style={{}}>Balance Amount: </h4>
-          <h4 style={{}}>{printData.BalanceAmount}</h4>
-        </div>
-        <div style={{ padding: "3%", marginLeft: "70%" }}>Signature</div>
+      </div>
+
+      {/* Investigation Table */}
+      <table className="receipt-table" style={{ marginTop: 18 }}>
+        <thead>
+          <tr>
+            <th>S. NO.</th>
+            <th>INVESTIGATIONS</th>
+            <th className="right">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {printData?.tests?.map((test, i) => (
+            <tr key={i}>
+              <td className="right">{i + 1}.</td>
+              <td>{test.TestName || "-"}</td>
+              <td className="right">
+                {typeof test.Rate === "number" ? `Rs.${test.Rate}` : test.Rate ? test.Rate : "—"}
+              </td>
+            </tr>
+          ))}
+          {/* Summary rows */}
+          <tr>
+            <td colSpan={2} className="right">Total amount</td>
+            <td className="right">Rs.{printData.GrandAmount || 0}</td>
+          </tr>
+          <tr>
+            <td colSpan={2} className="right">Collection charge</td>
+            <td className="right">{printData.CollectionCharge ? `Rs.${printData.CollectionCharge}` : "Rs.100"}</td>
+          </tr>
+          <tr>
+            <td colSpan={2} className="right">Discount</td>
+            <td className="right">{printData.Discount ? `Rs.${printData.Discount}` : "Rs.0"}</td>
+          </tr>
+          <tr>
+            <td colSpan={2} className="right"><b>Amount paid</b></td>
+            <td className="right"><b>Rs.{printData.AdvanceAmount || printData.AmountPaid || 0}</b></td>
+          </tr>
+          <tr>
+            <td colSpan={3} className="inv-amount-desc">
+              Amount Paid (In words): <b>{numberToWords(printData.AdvanceAmount || printData.AmountPaid || 0)}</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div className="footer">
+        ~~~ Thank You ~~~
       </div>
     </div>
   );

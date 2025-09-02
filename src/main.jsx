@@ -5,12 +5,15 @@ import { BrowserRouter } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { AuthProvider } from "./Context/AuthContext";
 import "./styles.css";
+import { SidebarProvider } from "./Context/SidebarContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <SnackbarProvider>
       <AuthProvider>
-        <App />
+        <SidebarProvider>
+          <App />
+        </SidebarProvider>
       </AuthProvider>
     </SnackbarProvider>
   </BrowserRouter>

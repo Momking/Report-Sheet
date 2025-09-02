@@ -15,12 +15,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
 import PopUpCard from "../../Components/PopUpCard";
 import CommentBox from "../../Components/CommentBox";
+import AppTopNav from "../../Components/TopNavbar";
+import { useSidebar } from "../../Context/SidebarContext";
 
 const TestReport = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { AdiValue, date } = location.state || {};
   const [testData, setTestData] = useState({ tests: [] });
+  const { sidebarExpanded } = useSidebar();
   const [headers, setHeaders] = useState([]);
   const [test, setTest] = useState([]);
   const [findings, setFindings] = useState([]);
@@ -272,592 +275,314 @@ const TestReport = () => {
 
   const handleBlur = (e) => {};
   const handleChange = () => {};
-
+  // Top-level wrapper for background, nav, etc.
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      <Navbar destination={"/"} />
-      <Wrapper>
-        {printData && <Invoice ref={invoiceRef} printData={printData} />}
-        {printData && <Receipt ref={receiptRef} printData={printData} />}
-        {cards && <PopUpCard testData={cards} onClose={() => setCards(null)} />}
-        {comment && (
-          <CommentBox testData={comment} onClose={() => setComment(null)} />
-        )}
-        <div className="container">
-          <div className="modal">
-            <div className="modal-container">
-              <button
-                className="input-button"
-                onClick={() => navigate("/doctor_use/FindReport", { state: { date } })}
-                style={{
-                  position: "absolute",
-                  fontSize: "15px",
-                  height: "7%",
-                  padding: "8px",
-                }}
-              >
-                <BsArrowLeft />
-                &nbsp; Go back to Patient List
-              </button>
-              <div className="modal-left">
-                <h1 className="modal-title">TEST REPORT</h1>
-                <br/>
-                <form onSubmit={handleSubmit} id="formId">
-                  <div className="input-block">
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          width: "30%",
-                          textAlign: "left",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Patient Name:
-                          </label>
-                          <input
-                            type="name"
-                            autoComplete="off"
-                            name="Patient Name"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.PatientName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            style={{textTransform: "uppercase", flex: "1"}}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Patient
-                            ID:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="text"
-                            pattern="^\d*\.?\d{0,2}$"
-                            autoComplete="off"
-                            name="Patient ID"
-                            id="name"
-                            placeholder="Name"
-                            defaultValue={testData.PatientID}
-                            onChange={(e) => setAdi(e.target.value)}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Registration On:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="date"
-                            autoComplete="off"
-                            name="Registration On"
-                            id="name"
-                            placeholder="currentDate.toISOString().split('T')[0]"
-                            defaultValue={
-                              testData.RegistrationOn
-                                ? new Date(testData.RegistrationOn)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : getCurrentDateIST()
-                            }
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            readOnly
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Center ID:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="name"
-                            autoComplete="off"
-                            name="Center ID"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.CenterID}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          width: "30%",
-                          textAlign: "left",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Age:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="text"
-                            // pattern="^\d*\.?\d{0,2}$"
-                            autoComplete="off"
-                            name="Age"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.Age}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Contact Details:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            pattern="^\d*\.?\d{0,2}$"
-                            autoComplete="off"
-                            name="Contact Details"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.ContactDetails}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Collection On:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="date"
-                            autoComplete="off"
-                            name="Collection On"
-                            id="name"
-                            placeholder="currentDate.toISOString().split('T')[0]"
-                            defaultValue={
-                              testData.CollectionOn
-                                ? new Date(testData.CollectionOn)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : getCurrentDateIST()
-                            }
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          width: "30%",
-                          textAlign: "left",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Sex:
-                          </label>
-                          <select
-                            id="options"
-                            name="Sex"
-                            defaultValue={testData.Sex}
-                            style={{
-                              fontSize: "15px",
-                              padding: "2px",
-                              borderRadius: "1px",
-                              border: "1px solid #ddd",
-                              flex: "1",
-                            }}
-                          >
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Neutral">Neutral</option>
-                          </select>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Ref
-                            By Dr:
-                          </label>
-                          <input
-                            type="name"
-                            autoComplete="off"
-                            name="Ref By Dr"
-                            id="name"
-                            placeholder="Doctor's Name"
-                            defaultValue={testData.RefByDr}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            style={{textTransform: "uppercase", flex: "1"}}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Reporting On:
-                          </label>
-                          <input
-                            style={{flex: "1"}}
-                            type="date"
-                            autoComplete="off"
-                            name="Reporting On"
-                            id="name"
-                            placeholder="currentDate.toISOString().split('T')[0]"
-                            defaultValue={
-                              testData.ReportingOn
-                                ? new Date(testData.ReportingOn)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : getCurrentDateIST()
-                            }
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
-                            Center
-                            Name:
-                          </label>
-                          <input
-                            type="name"
-                            autoComplete="off"
-                            name="Center Name"
-                            id="email"
-                            placeholder="Email"
-                            defaultValue={testData.CenterName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            style={{textTransform: "uppercase", flex: "1"}}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="testName"
-                    style={{ overflowY: "auto" }} >
-                    <div style={{ display: "flex" }}>
-                      <div
-                        style={{
-                          width: "10%",
-                          display: "flex",
-                          flexDirection: "column",
-                          border: "1px solid #ddd",
-                        }}
-                      >
-                        <label htmlFor="email" className="input-label">
-                          Sr no.&nbsp;
-                        </label>
-                        {headers}
-                      </div>
-                      <div
-                        style={{
-                          width: "50%",
-                          display: "flex",
-                          flexDirection: "column",
-                          border: "1px solid #ddd",
-                          color: "black",
-                        }}
-                      >
-                        <label htmlFor="email" className="input-label">
-                          TEST NAME&nbsp;
-                        </label>
-                        {test}
-                      </div>
-                      <div
-                        style={{
-                          width: "40%",
-                          display: "flex",
-                          flexDirection: "column",
-                          border: "1px solid #ddd",
-                        }}
-                      >
-                        <label htmlFor="email" className="input-label">
-                          Buttons&nbsp;
-                        </label>
-                        {buttons}
-                      </div>
-                    </div>
-                  </div>
-                  <br></br>
-                  <div className="modal-buttons">
-                    <div></div>
-                    <div style={{ padding: "2px", }}>
-                      
-                      <button
-                        className="input-button"
-                        type="submit"
-                        style={{ marginRight: "2px" }}
-                        onClick={() => {
-                          setSaveAndPrint(false);
-                          setSaveAndPrint2(false);
-                        }}
-                      >
-                        SAVE
-                      </button>
-                      <button
-                        className="input-button"
-                        type="submit"
-                        style={{ marginRight: "2px" }}
-                        onClick={() => {
-                          setSaveAndPrint(true);
-                          setSaveAndPrint2(false);
-                        }}
-                      >
-                        SAVE & PRINT INVOICE
-                      </button>
-                      <button
-                        className="input-button"
-                        type="submit"
-                        onClick={() => {
-                          setSaveAndPrint2(true);
-                          setSaveAndPrint(false);
-                        }}
-                      >
-                        SAVE & PRINT RECEIPT
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-              <div
-                className="modal-right"
-                style={{
-                  color: "black",
-                  width: "15%",
-                  overflowY: "auto",
-                  height: "80vh",
-                }}
-              >
-                <PendingReport onAdmissionIDSelect={handleAdmissionIDSelect} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Wrapper>
-    </div>
+    <LabReportWrapper>
+      <AppTopNav sidebarExpanded={sidebarExpanded} />
+      <Navbar destination="/" />
+      <TopInfoBar>
+        <span className="info-icon">!</span>
+        <span>Your trial ends in 5 days. Even if you purchase early, duration of trial period is included for free.</span>
+      </TopInfoBar>
+      <ContentGrid>
+        <MainContent>
+          <BackBtn onClick={() => navigate("/doctor_use/FindReport", { state: { date } })}>
+            <BsArrowLeft /> Back to Patient List
+          </BackBtn>
+          <HeadingRow>
+            <h1 className="lab-title">Lab report</h1>
+            <StatusChip signedOff={testData.Status === "Signed off"}>
+              {testData.Status}
+            </StatusChip>
+          </HeadingRow>
+          <InfoRow>
+            <RegChip>Reg no. {testData.PatientID}</RegChip>
+            <RegChip>L1</RegChip>
+          </InfoRow>
+          <MainCard>
+            <InfoTable>
+              <tbody>
+                <tr>
+                  <td><b>Patient Name:</b></td>
+                  <td>{testData.PatientName}</td>
+                  <td><b>Registered on:</b></td>
+                  <td>{testData.RegistrationOn}</td>
+                </tr>
+                <tr>
+                  <td><b>Age / Sex:</b></td>
+                  <td>{testData.Age} / {testData.Sex}</td>
+                  <td><b>Collected on:</b></td>
+                  <td>{testData.CollectionOn}</td>
+                </tr>
+                <tr>
+                  <td><b>Referred By:</b></td>
+                  <td>{testData.RefByDr}</td>
+                  <td><b>Reported on:</b></td>
+                  <td>{testData.ReportingOn}</td>
+                </tr>
+                <tr>
+                  <td><b>Reg. no.:</b></td>
+                  <td>{testData.PatientID}</td>
+                  <td><b>Center name:</b></td>
+                  <td>{testData.CenterName}</td>
+                </tr>
+              </tbody>
+            </InfoTable>
+          </MainCard>
+          {/* Example: You may display test results below like this */}
+          <SectionTitle>HAEMATOLOGY - COMPLETE BLOOD COUNT (CBC)</SectionTitle>
+          <TestTable>
+            <thead>
+              <tr>
+                <th style={{ width: "34%" }}>Test</th>
+                <th style={{ width: "18%" }}>Value</th>
+                <th style={{ width: "18%" }}>Unit</th>
+                <th style={{ width: "30%" }}>Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(testData.tests || []).map((t, idx) => (
+                <tr key={idx}>
+                  <td><b>{t.TestName}</b></td>
+                  <td style={{ color: '#1748a5', fontWeight: 700 }}>{t.Value}</td>
+                  <td>{t.Unit}</td>
+                  <td>{t.ReferenceRange}</td>
+                </tr>
+              ))}
+            </tbody>
+          </TestTable>
+          <ActionRow>
+            <BlueBtn>Sign off</BlueBtn>
+            <BlueBtn>Final</BlueBtn>
+            <BlueBtn outline>Save only</BlueBtn>
+          </ActionRow>
+        </MainContent>
+        <SidebarBox>
+          <SidebarSection>
+            <SidebarHeading>Sidebar</SidebarHeading>
+            <SidebarMenu>
+              <SidebarMenuItem active><span>Patient info</span> <EditIcon /></SidebarMenuItem>
+              <SidebarMenuItem><span>Doctor info</span> <EditIcon /></SidebarMenuItem>
+              <SidebarMenuItem><span>Patient history</span> <EditIcon /></SidebarMenuItem>
+              <SidebarMenuItem><span>Recent lab reports</span></SidebarMenuItem>
+              <SidebarMenuItem><span>Report activities</span></SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarSection>
+        </SidebarBox>
+      </ContentGrid>
+    </LabReportWrapper>
   );
-};
+}
+  
+const LabReportWrapper = styled.div`
+  min-height: 100vh;
+  background: #f7fafd;
+`;
 
-const Wrapper = styled.section`
-  .container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #eef3f3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .modal {
-    width: 100%;
-    background: rgba(51, 51, 51, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: 0.4s;
-  }
-  .modal-container {
-    display: flex;
-    max-width: 95vw;
-    width: 100%;
-    border-radius: 10px;
-    // height: 90vh;
-    overflow: hidden;
-    position: absolute;
-
-    transition-duration: 0.3s;
-    background: #fff;
-  }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #023656;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 0.375vw 0 3.62vh 0;
-  }
-  .modal-left {
-    padding: 3.75vw 3.62vh 2.14vh;
-    background: #e2eff5;
-    width: 100%;
-    flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
-  }
-
-  .modal-right {
-    border: 2px solid #8c7569;
-    border-radius: 10px;
-    padding: 0px 20px 0px;
-    background: #edf7f9;
-    width: 30%:
-    flex: 2;
-    transition: 0.3s;
-    overflow: hidden;
-  }
-
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
-    font-size: 14px;
-  }
-
-  .input-button {
-    // padding: 1.2rem 3.2rem;
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
+const TopInfoBar = styled.div`
+  background: #ebf3fc;
+  color: #134285;
+  padding: 9px 28px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.01em;
+  .info-icon {
+    background: #358af3;
+    border-radius: 50%;
     color: #fff;
-    border-radius: 10px;
-    background: #2975ad;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button:hover {
-    color: #2975ad;
-    background: #fff;
-  }
-  .input-button2 {
-    outline: none;
-    border: 0;
-    color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button2:hover {
-    background: #55311c;
-  }
-
-  .input-label {
-    font-size: 13px;
-    // text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.7px;
-    color: #12263e;
-    transition: 0.3s;
-  }
-
-  .input-block {
-    display: flex;
-    flex-direction: column;
-    padding: 0.625hw 1.2vh 0.96vh;
-    // border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-    }
-    
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 3px;
-    font-size: 15px;
-    color: black;
-    background: #fff;
-  }
-
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  // .input-block:focus-within .input-label {
-  //   color: rgba(140, 117, 105, 0.8);
-  // }
-
-  .testName {
-    overflowY: auto;
-    border: 3px solid #ddd;
-    borderRadius: 4px;
-    background: #fff;
-    height: 35vh;
-  }
-
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
-    }
-
-    .modal-right {
-      display: none;
-    }
-    .flexChange {
-      flex-direction: column;
-    }
-
-    .testName {
-      height: 20vh;
-    }
-
-    .input-label {
-      font-size: 13px;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .testName {
-      height: 25vh;
-    }
-
-    .modal-right {
-      display: none;
-    }
-  }
-
-  @media (max-height: 720px) {
-    .testName {
-      height: 25vh;
-    }
-
-    .input-label {
-      font-size: 11px;
-    }
+    width: 24px; height: 24px; display: inline-flex;
+    align-items: center; justify-content: center;
+    margin-right: 12px;
+    font-weight: 700;
   }
 `;
+
+const ContentGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1.7fr 0.9fr;
+  gap: 32px;
+  max-width: 1280px;
+  margin: 28px auto 0 auto;
+  padding: 0 18px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+`;
+
+const MainContent = styled.div`
+  min-width: 0;
+`;
+
+const BackBtn = styled.button`
+  background: #e5eefe;
+  color: #114177;
+  border: none;
+  font-weight: 600;
+  font-size: 1.02em;
+  border-radius: 7px;
+  padding: 8px 17px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  box-shadow: 0 1px 7px #b9c9e844;
+  display: flex; align-items: center; gap: 9px;
+`;
+
+const HeadingRow = styled.div`
+  display: flex; align-items: center; gap: 24px; margin-bottom: 5px;
+  .lab-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #104170;
+  }
+`;
+
+const StatusChip = styled.span`
+  background: ${({ signedOff }) => signedOff ? "#e4f5e9" : "#fdf5db"};
+  color: ${({ signedOff }) => signedOff ? "#2b954d" : "#e6a02c"};
+  border-radius: 10px;
+  padding: 3.5px 20px;
+  font-weight: 700;
+  font-size: 0.98em;
+  border: 1.5px solid ${({ signedOff }) => signedOff ? "#6ed997" : "#f1d28e"};
+`;
+
+const InfoRow = styled.div`
+  display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+`;
+
+const RegChip = styled.span`
+  background: #e2e6f9;
+  color: #144098;
+  font-size: 0.93em;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 3.5px 13px;
+  margin-right: 6px;
+  display: inline-block;
+`;
+
+const MainCard = styled.section`
+  background: #fff;
+  border-radius: 11px;
+  box-shadow: 0 2px 18px #e0e7f1bb;
+  margin-bottom: 24px;
+  padding: 19px 20px 15px 20px;
+  font-size: 1em;
+`;
+
+const InfoTable = styled.table`
+  width: 100%;
+  font-size: 0.92em;
+  td { padding: 6px 12px; }
+  b { font-weight: 900; color: #385685; }
+  border-collapse: separate;
+`;
+
+const SectionTitle = styled.h2`
+  color: #1c2884;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 1.13em;
+  margin: 27px 0 16px 0;
+`;
+
+const TestTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  thead th {
+    color: #335596;
+    background: #f3f7fa;
+    font-size: 0.96em;
+    font-weight: 700;
+    border-bottom: 2px solid #e1e7f4;
+    padding: 10px 8px;
+  }
+  tbody td {
+    padding: 9px 8px;
+    border-bottom: 1px solid #e1e7f4;
+    font-size: 1.04em;
+    color: #2b3d4d;
+  }
+  tbody td + td {
+    font-family: "Nunito Mono", "Fira Mono", monospace;
+    font-size: 1.06em;
+  }
+`;
+
+const ActionRow = styled.div`
+  display: flex; gap: 14px; margin: 26px 0 0 0;
+`;
+
+const BlueBtn = styled.button`
+  background: ${({ outline }) => outline ? "#fff" : "#2575f6"};
+  color: ${({ outline }) => outline ? "#2575f6" : "#fff"};
+  border: 1.6px solid #2575f6;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-size: 1em;
+  box-shadow: 0 1.5px 8px #cbe7ff44;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  &:hover {
+    background: ${({ outline }) => outline ? "#ebf2ff" : "#1762c2"};
+    color: ${({ outline }) => outline ? "#144088" : "#fff"};
+  }
+`;
+
+const SidebarBox = styled.aside`
+  background: #f7fafe;
+  border-radius: 14px;
+  box-shadow: 0 2px 18px #e0e7f133;
+  min-width: 230px;
+  padding: 22px 12px 13px 16px;
+  align-self: start;
+  margin-top: 4px;
+  @media (max-width: 900px) {
+    margin-top: 30px;
+    min-width: 0;
+  }
+`;
+
+const SidebarSection = styled.section``;
+const SidebarHeading = styled.h3`
+  color: #2e437a;
+  font-size: 1.08em;
+  font-weight: 800;
+  margin-bottom: 7px;
+`;
+const SidebarMenu = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+const SidebarMenuItem = styled.li`
+  color: ${({ active }) => active ? "#337bdb" : "#355384"};
+  font-weight: ${({ active }) => active ? 700 : 500};
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 5px;
+  border-radius: 7px;
+  font-size: 1em;
+  margin-bottom: 3px;
+  background: ${({ active }) => active ? "#e7f2ff" : "transparent"};
+  cursor: pointer;
+
+  &:hover {
+    background: #e5f0fc;
+    color: #185ebc;
+  }
+`;
+
+const EditIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="#A9ACBC"><path d="M3.2 12.8l9.2-9.2-1.2-1.2-9.2 9.2V14h1.2zM14.0 3.2c.4-.4.4-1 0-1.4l-.8-.8a1 1 0 0 0-1.4 0l-1.0 1.0 2.2 2.2 1-1z"/></svg>
+);
+
 
 export default TestReport;

@@ -8,10 +8,13 @@ import { useAuth } from "../../Context/AuthContext";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import Receipt from "../../Components/Print/Receipt";
+import AppTopNav from "../../Components/TopNavbar";
+import { useSidebar } from "../../Context/SidebarContext";
 
 const FindAdmission = () => {
   const [data, setData] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [printVisible, setPrintVisible] = useState(false);
   const [pidValue, setPidValue] = useState(null);
   const [headers, setHeaders] = useState([]);
   const [patientName, setPatientName] = useState([]);
@@ -33,6 +36,7 @@ const FindAdmission = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { enqueueSnackbar } = useSnackbar("");
+  const { sidebarExpanded } = useSidebar();
   const [chooseYear, setChooseYear] = useState(
     `Year: ${new Date().getFullYear()}`
   );
@@ -56,6 +60,15 @@ const FindAdmission = () => {
 
   const handlePrintInvoice = useReactToPrint({
     content: () => invoiceRef.current,
+    onBeforeGetContent: () => {
+      setPrintVisible(true);
+      return new Promise(resolve => {
+        setTimeout(resolve, 200); // allow render before print
+      });
+    },
+    onAfterPrint: () => {
+      setPrintVisible(false);
+    },
   });
 
   const handleFind = async (e, check) => {
@@ -132,273 +145,90 @@ const FindAdmission = () => {
   };
 
   const handleAddMultipleTests = (val, month1, day1) => {
+    // Clear previous data
     freeSpace();
-    let month = "", day = "";
-    if(!name){
-      month = `Month: ${month1}`;
-      day = `Date: ${day1}`;
-      val = val[month][day];
+  
+    if (!val || typeof val !== "object") return;
+  
+    // Drill down if name is empty
+    if (!name) {
+      const month = `Month: ${month1}`;
+      const day = `Date: ${day1}`;
+      val = val?.[month]?.[day];
+      if (!val) return;
     }
-    const count = Object.keys(val).length;
-    const keys = Object.keys(val);
-    
-    const newHeaders = [];
-    const newPatientName = [];
-    const newAge = [];
-    const newDate = [];
-    const newT_amount = [];
-    const newPaid = [];
-    const newDues = [];
-    const newRebate = [];
-    const newDoctorName = [];
-    const newCenterName = [];
-    const newPatientID = [];
-    const newButtons = [];
-    
-    for (let i = 0; i < count; i++) {
-      const key = keys[i];
-      const data2 = val[key];
-      newHeaders.push(
-        <h1
-          key={headers.length + i}
-          style={{
-            color: "black",
-            fontSize: "12px",
-            borderTop: "1px solid #ddd",
-            height: "30px",
-          }}
-        >
-          {headers.length + i + 1}
-        </h1>
-      );
-
-      newPatientName.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            borderRadius: "1px",
-            height: "30px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            maxWidth: "24vw",
-            whiteSpace: "nowrap",
-            overflowX: "auto",
-            overflowY: "hidden",
-          }}
-        >
-          {data2?.PatientName}
-        </p>
-      );
-
-      newPatientID.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "2px",
-            borderRadius: "1px",
-            height: "30px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.PatientID}
-        </p>
-      );
-
-      newAge.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.Age}
-        </p>
-      );
-      newDate.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.RegistrationOn? `${data2?.RegistrationOn.split("-")[2]} / ${data2?.RegistrationOn.split("-")[1]} / ${" "} 
-          ${data2?.RegistrationOn.split("-")[0][2]}${data2?.RegistrationOn.split("-")[0][3]}`: ""}
-        </p>
-      );
-      newT_amount.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.GrandAmount}
-        </p>
-      );
-      newPaid.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.AdvanceAmount}
-        </p>
-      );
-      newDues.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.BalanceAmount}
-        </p>
-      );
-      newRebate.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.Discount}
-        </p>
-      );
-      newDoctorName.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.RefByDr}
-        </p>
-      );
-      newCenterName.push(
-        <p
-          style={{
-            fontSize: "17px",
-            padding: "1px",
-            height: "30px",
-            borderRadius: "1px",
-            borderTop: "1px solid #ddd",
-            color: "black",
-            overflow: "scroll",
-          }}
-        >
-          {data2?.CenterName}
-        </p>
-      );
-      newButtons.push(
+  
+    const entries = Object.values(val);
+    const startIndex = headers.length;
+  
+    // Collect all rows
+    const rows = entries.map((data, i) => ({
+      idx: startIndex + i + 1,
+      patientName: data.PatientName || "",
+      patientId: data.PatientID || "",
+      age: data.Age || "",
+      registrationDate: data.RegistrationOn
+        ? `${data.RegistrationOn.slice(8, 10)} / ${data.RegistrationOn.slice(5, 7)} / ${data.RegistrationOn.slice(2, 4)}`
+        : "",
+      grandAmount: data.GrandAmount || "",
+      advanceAmount: data.AdvanceAmount || "",
+      balanceAmount: data.BalanceAmount || "",
+      discount: data.Discount || "",
+      refDr: data.RefDr || "",
+      centerName: data.CenterName || "",
+      buttons: (
         <div
           style={{
             display: "flex",
             flexDirection: "row",
-            padding: "2px",
             justifyContent: "space-between",
             borderTop: "1px solid #ddd",
-            height: "30px",
+            height: 30,
+            padding: 2,
           }}
         >
           <button
             className="input-button"
-            style={{
-              fontSize: "15px",
-              padding: "2px",
-              height: "25px",
-              width: "45%",
-              // borderRadius: "2px",
-            }}
-            onClick={() => {
-              handleFind(data2?.PatientID, true);
-            }}
-            name={`button1${headers.length + i}`}
-            id="name"
+            style={{ fontSize: 15, padding: 2, height: 25, width: "45%" }}
+            onClick={() => handleFind(data.PatientID, true)}
+            name={`button1${startIndex + i}`}
           >
             Print
           </button>
           <button
             className="input-button"
-            style={{
-              fontSize: "15px",
-              padding: "2px",
-              height: "25px",
-              width: "45%",
-              // borderRadius: "2px",
-            }}
-            onClick={() => {
+            style={{ fontSize: 15, padding: 2, height: 25, width: "45%" }}
+            onClick={() =>
               navigate("/doctor_use/TestAdmission", {
                 state: {
-                  PidValue: data2?.PatientID,
+                  PidValue: data.PatientID,
                   date: `${chooseYear.split(" ")[1]}-${month1}-${day1}`,
                 },
-              });
-            }}
-            name={`button2${headers.length + i}`}
-            id="name"
+              })
+            }
+            name={`button2${startIndex + i}`}
           >
             Update
           </button>
         </div>
-      );
-    }
-
-    setHeaders((prevHeaders) => [...prevHeaders, ...newHeaders]);
-    setPatientName((prevPatientName) => [
-      ...prevPatientName,
-      ...newPatientName,
-    ]);
-    setPatientID((prevPatientID) => [...prevPatientID, ...newPatientID]);
-    setAge((prevAge) => [...prevAge, ...newAge]);
-    setCollDate((prevDate) => [...prevDate, ...newDate]);
-    setT_amount((prevT_amount) => [...prevT_amount, ...newT_amount]);
-    setPaid((prePaid) => [...prePaid, ...newPaid]);
-    setDues((prevDues) => [...prevDues, ...newDues]);
-    setRebate((prevRebate) => [...prevRebate, ...newRebate]);
-    setDoctorName((prevDoctorName) => [...prevDoctorName, ...newDoctorName]);
-    setCenterName((prevCenterName) => [...prevCenterName, ...newCenterName]);
-    setUseButton((prevButton) => [...prevButton, ...newButtons]);
+      ),
+    }));
+  
+    // Set states from rows
+    setHeaders(h => [...h, ...rows.map(r => r.idx)]);
+    setPatientName(p => [...p, ...rows.map(r => r.patientName)]);
+    setPatientID(p => [...p, ...rows.map(r => r.patientId)]);
+    setAge(a => [...a, ...rows.map(r => r.age)]);
+    setCollDate(c => [...c, ...rows.map(r => r.registrationDate)]);
+    setT_amount(t => [...t, ...rows.map(r => r.grandAmount)]);
+    setPaid(p => [...p, ...rows.map(r => r.advanceAmount)]);
+    setDues(d => [...d, ...rows.map(r => r.balanceAmount)]);
+    setRebate(r => [...r, ...rows.map(rw => rw.discount)]);
+    setDoctorName(d => [...d, ...rows.map(r => r.refDr)]);
+    setCenterName(c => [...c, ...rows.map(r => r.centerName)]);
+    setUseButton(b => [...b, ...rows.map(r => r.buttons)]);
   };
-
+  
   const fetchUserData = async (initialDate) => {
     try {
       if (chooseYear && currentUser?.uid) {
@@ -433,463 +263,317 @@ const FindAdmission = () => {
   }, [chooseYear, location.state]);
 
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      {userData && <Receipt ref={invoiceRef} printData={userData} />}
+  <div>
+    <div style={{display: "none"}}>
+    {printVisible && userData && <Receipt ref={invoiceRef} printData={userData} printVisible={printVisible}/>}
+    </div>
+    <PageWrapper>
+      <AppTopNav sidebarExpanded={sidebarExpanded} />
       <Navbar destination={"/"} />
-      <Wrapper>
-        <div className="container">
-          <div className="modal">
-            <div className="modal-container">
-              <div className="modal-left">
-                <button
-                  className="input-button"
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-evenly",
-                  }}
-                  onClick={() => {
-                    navigate("/doctor_use/TestAdmission");
-                  }}
-                >
-                  <h4>New Registration</h4>
-                </button>
-                <h1 className="modal-title">Admission</h1>
-                <br/>
-                <div
-                  className="input-block"
-                  style={{
-                    color: "#052d28",
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", flexDirection: "row", color: "#052d28" }}>
-                    <h4 className="search-list">Patient Name: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setName(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4 className="search-list">Patient ID: &nbsp;</h4>
-                    <input
-                      style={{
-                        fontSize: "17px",
-                        padding: "2px",
-                        border: "2px solid #ddd",
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                      }}
-                      type="text"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setPidValue(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <h4 className="search-list">Date: &nbsp;</h4>
-                    <input
-                      style={{
-                        backgroundColor: "#ffffff",
-                        color: "black",
-                        border: "2px solid #ddd",
-                      }}
-                      type="date"
-                      autoComplete="off"
-                      name="Date"
-                      id="name"
-                      onChange={(e) => {
-                        setDate(e.target.value);
-                      }}
-                      defaultValue={location.state?.date || getCurrentDateIST()}
-                    />
-                  </div>
-                  <button
-                    className="input-button"
-                    onClick={() => {
-                      if (pidValue){
-                        navigate("/doctor_use/TestAdmission", {
-                          state: {
-                            PidValue: pidValue,
-                          },
-                        });
-                      }else{
-                        setName(name);
-                        searchBy();
-                      }
-                    }}
-                  >
-                    Search
-                  </button>
-                </div>
-                <div
-                  style={{
-                    border: "3px solid #ddd",
-                    borderRadius: "4px",
-                    overflowY: "auto",
-                    MaxHeight: "50vh",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
-                  <div style={{ display: "flex" }}>
-                    <div
-                      style={{
-                        width: "10%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderTop: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
-                        Sr no.&nbsp;
-                      </label>
-                      {headers}
-                    </div>
-                    <div style={{width: "1px", backgroundColor: "#ddd", height: "19.4vh", MaxHeight: "70vh"}}></div>
-                    <div
-                      style={{
-                        width: "35%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label" >
-                        PATIENT NAME
-                      </label>
-                      {patientName}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
-                        PATIENT ID
-                      </label>
-                      {patientID}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Age&nbsp;
-                      </label>
-                      {age}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Date&nbsp;
-                      </label>
-                      {collDate}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        T_Amount&nbsp;
-                      </label>
-                      {t_amount}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Paid&nbsp;
-                      </label>
-                      {paid}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Dues&nbsp;
-                      </label>
-                      {dues}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Rebate&nbsp;
-                      </label>
-                      {rebate}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
-                        Ref by Dr.&nbsp;
-                      </label>
-                      {doctorName}
-                    </div>
-                    <div
-                      style={{
-                        width: "15%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label" style={{whiteSpace: "nowrap"}}>
-                        C. NAME&nbsp;
-                      </label>
-                      {centerName}
-                    </div>
-                    <div
-                      style={{
-                        width: "21%",
-                        display: "flex",
-                        flexDirection: "column",
-                        border: "1px solid #ddd",
-                      }}
-                    >
-                      <label htmlFor="email" className="input-label">
-                        Buttons&nbsp;
-                      </label>
-                      {useButton}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <Main $sidebarExpanded={sidebarExpanded}>
+        <div className="top-info-alert">
+          <span className="info-icon">!</span>
+          <span>Your trial ends in 5 days. Even if you purchase early, duration of trial period is included for free.</span>
         </div>
-      </Wrapper>
+        <Card>
+          <button
+            style={{
+              background: "#037aff",
+              color: "#fff",
+            }}
+            onClick={() => {
+              navigate("/doctor_use/TestAdmission");
+            }}
+          >
+            <h4>New Registration</h4>
+          </button>
+          <h1 className="page-title">Search lab reports</h1>
+          <FiltersGrid>
+            <div className="filter-cell">
+              <label>Duration</label>
+              <input
+                type="date"
+                className="mini-input"
+                value={date || ""}
+                onChange={e => setDate(e.target.value)}
+              />
+            </div>
+            <div className="filter-cell">
+              <label>Patient first name</label>
+              <input
+                className="mini-input"
+                value={name || ""}
+                onChange={e => setName(e.target.value)}
+                placeholder="Type name"
+              />
+            </div>
+            <div className="filter-cell">
+              <label>Status</label>
+              <select className="mini-input">
+                <option value="">Any</option>
+                <option>Signed off</option>
+                <option>Pending</option>
+              </select>
+            </div>
+            <div className="filter-cell">
+              <label>Reg. no.</label>
+              <input
+                className="mini-input"
+                value={pidValue || ""}
+                onChange={e => setPidValue(e.target.value)}
+                placeholder="Reg. no."
+              />
+            </div>
+            <div className="filter-cell filter-btncell">
+              <button
+                className="search-btn"
+                onClick={() => {
+                  if (pidValue){
+                    navigate("/doctor_use/TestAdmission", { state: { PidValue: pidValue } });
+                  }else{
+                    setName(name);
+                    searchBy();
+                  }
+                }}
+              >Search</button>
+              <button className="clear-btn" onClick={freeSpace}>Clear</button>
+            </div>
+          </FiltersGrid>
+        </Card>
+        {/* --- Data Table Panel --- */}
+        <Card className="table-panel">
+          <ScrollTable>
+            <thead>
+              <tr>
+                <th>REG. NO.</th>
+                <th>DATE/TIME</th>
+                <th>PATIENT</th>
+                <th>REFERRED BY</th>
+                <th>TOTAL AMOUNT</th>
+                <th>CC</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {headers.map((header, idx) => (
+                <tr key={idx}>
+                  <td>{patientID[idx]}</td>
+                  <td>{collDate[idx]}</td>
+                  <td>{patientName[idx]}</td>
+                  <td>{doctorName[idx]}</td>
+                  <td>{t_amount[idx]}</td>
+                  <td>{centerName[idx]}</td>
+                  <td>
+                    <span className={`status-chip ${paid[idx] ? "signed" : "pending"}`}>
+                      {paid[idx] ? "Signed off" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="table-actions">
+                    {useButton[idx]}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </ScrollTable>
+        </Card>
+      </Main>
+      {/* {userData && <Receipt ref={invoiceRef} printData={userData} />} */}
+    </PageWrapper>
     </div>
   );
 };
-
-const Wrapper = styled.section`
-  .container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #eef3f3;
+  
+  // --- STYLING ---
+  
+  const PageWrapper = styled.div`
+    min-height: 100vh;
+    background: #f7fafd;
     display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    .navbar {
+      flex-shrink: 0;
+    }
+  `;
+  
+  const Main = styled.main`
+    flex: 1;
+    min-width: 0;
+    padding: 48px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
+    transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
 
-  .modal {
-    width: 100%;
-    background: rgba(51, 51, 51, 0.5);
+    @media (max-width: 1100px) {
+      padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "80px" : "41px")};
+    }
+
+    @media (max-width: 700px) {
+      padding-left: 2vw;
+    }
+
+`;
+
+const FiltersGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) 110px;
+  row-gap: 14px;
+  column-gap: 18px;
+  margin-bottom: 7px;
+  .filter-cell {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: 0.4s;
+    label {
+      font-size: 0.93em;
+      color: #5175ac;
+      font-weight: 600;
+      margin-bottom: 3px;
+      padding-left: 1px;
+    }
+    .mini-input {
+      height: 33px;
+      border: 1px solid #d7e2f8;
+      border-radius: 6px;
+      padding: 2px 9px;
+      font-size: 0.97em;
+      background: #fafcff;
+      color: #171d19;
+      transition: border-color 0.13s;
+      &:focus { border: 1.5px solid #3793f4; outline: none; }
+    }
+    select {
+      min-width: 70px;
+    }
+    &.filter-btncell {
+      flex-direction: row;
+      align-items: end;
+      gap: 8px;
+      padding-top: 19px;
+    }
   }
-  .modal-container {
-    display: flex;
-    max-width: 95vw;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    position: absolute;
-
-    transition-duration: 0.3s;
-    background: #fff;
-  }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #023656;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 0.375vw 0 3.62vh 0;
-  }
-  .modal-left {
-    padding: 3.75vw 3.62vh 2.14vh;
-    background: #e2eff5;
-    flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
-  }
-
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
-    font-size: 14px;
-  }
-
-  .input-button {
-    // padding: 1.2rem 3.2rem;
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
+  .search-btn {
+    background: #037aff;
     color: #fff;
-    border-radius: 10px;
-    background: #2975ad;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button:hover {
-    color: #2975ad;
-    background: #fff;
-  }
-
-  .input-label {
-    font-size: 15px;
-    // text-transform: uppercase;
+    border: none;
+    border-radius: 6.5px;
+    padding: 0 12px;
+    height: 33px;
+    font-size: 0.97em;
     font-weight: 600;
-    letter-spacing: 0.7px;
-    color: #12263e;
-    transition: 0.3s;
+    cursor: pointer;
+    transition: background 0.16s;
+    &:hover { background: #035fc7; }
+    margin-right: 7px;
+  }
+  .clear-btn {
+    background: none;
+    border: none;
+    color: #0d63b7;
+    font-weight: 600;
+    font-size: 0.96em;
+    cursor: pointer;
+    margin-left: 0px;
+    &::after { content: ""; }
+  }
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 700px)   { grid-template-columns: 1fr; }
+`;
+
+const Card = styled.section`
+  background: #fff;
+  border-radius: 11px;
+  box-shadow: 0 2px 18px #e0e7f1cc;
+  margin-bottom: 28px;
+  padding: 25px 19px 11px 22px;
+  overflow-x: auto;      /* ENABLE horizontal scroll */
+  -webkit-overflow-scrolling: touch;
+
+  .page-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #203669;
+    margin-bottom: 18px;
+    letter-spacing: 0.01em;
   }
 
-  .input-block {
-    display: flex;
-    flex-direction: column;
-    padding: 0.625hw 1.2vh 0.96vh;
-    // border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-  }
-
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 10px;
-    font-size: 15px;
-  }
-
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
-
-  .search-list {
-    color: #2d4b62;
-    font-size: 20px;
-    font-weight: 300;
-    padding: 10px 10px 10px;
-  }
-
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
-    }
-    .flexChange {
-      flex-direction: column;
-    }
-    // .container {
-    //   transform: rotate(90deg);
-    //   transform-origin: center center;
-    //   transition: transform 0.5s ease;
-    //   width: 100vw;
-    //   height: 100vh;
-    //   overflow: auto;
-    //   position: relative;
-    // }
-    // .modal {
-    //   width: 100%;
-    //   background: rgba(51, 51, 51, 0.5);
-    //   display: flex;
-    //   flex-direction: column;
-    //   align-items: center;
-    //   justify-content: center;
-    //   transition: 0.4s;
-    // }
-    // .modal-container {
-    //   display: flex;
-    //   max-width: 100%;
-    //   // width: 100%;
-    //   border-radius: 10px;
-    //   position: relative;
-
-    //   transition-duration: 0.3s;
-    //   background: #fff;
-    // }
+  &.table-panel {
+    margin-top: 0;
+    padding: 24px 19px 16px 19px;
   }
 `;
 
-export default FindAdmission;
+const ScrollTable = styled.table`
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  min-width: 800px;  /* Minimum width to force scroll on smaller screens */
+
+  thead tr {
+    background: #f3f7fa;
+  }
+
+  thead th {
+    color: #36598b;
+    font-weight: 700;
+    font-size: 0.98em;
+    border-bottom: 1.5px solid #d6e0f7;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+
+  tbody {
+    tr {
+      background: #fff;
+      box-shadow: 0 1px 12px #e0e7f1cc;
+      transition: box-shadow 0.12s;
+    }
+
+    tr:hover {
+      background: #f5faff;
+    }
+
+    td {
+      font-size: 0.95em;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e1e7f3;
+      white-space: nowrap;
+      line-height: 1.3;
+      vertical-align: middle;
+      color: #28314d;
+      letter-spacing: 0.01em;
+      min-width: 90px; /* Ensure column min width */
+    }
+
+    .table-actions {
+      white-space: nowrap;
+    }
+
+    .status-chip {
+      border-radius: 12px;
+      padding: 4px 14px;
+      font-weight: 600;
+      font-size: 0.9em;
+      &.signed {
+        background: #d5f7e6;
+        color: #1a9a5a;
+      }
+      &.pending {
+        background: #fff4dc;
+        color: #a87811;
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    min-width: 600px;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 500px;
+  }
+
+  @media print {
+    min-width: auto;
+    width: 100%;
+  }
+`;
+
+  export default FindAdmission;
+  

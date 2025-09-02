@@ -11,11 +11,15 @@ import { BsArrowLeft, BsInputCursorText } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import Receipt from "../../Components/Print/Receipt";
 import Select from "react-select";
+import AppTopNav from "../../Components/TopNavbar";
+import { useSidebar } from "../../Context/SidebarContext";
 
 const TestAdmission = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { PidValue, date } = location.state || {};
+  const { sidebarExpanded } = useSidebar();
+  const [printVisible, setPrintVisible] = useState(false);
   const [headers, setHeaders] = useState([]);
   const [testData, setTestData] = useState({ tests: [] });
   const [test, setTest] = useState([]);
@@ -323,6 +327,15 @@ const TestAdmission = () => {
 
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
+    onBeforeGetContent: () => {
+      setPrintVisible(true);
+      return new Promise(resolve => {
+        setTimeout(resolve, 200); // allow render before print
+      });
+    },
+    onAfterPrint: () => {
+      setPrintVisible(false);
+    },
   });
 
   const handleNew = () => {
@@ -605,17 +618,19 @@ const TestAdmission = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
+    <div style={{ backgroundColor: "#eef3f3", width: "100%", height: "100vh" }}>
+      <AppTopNav sidebarExpanded={sidebarExpanded} />
       <Navbar destination={"/"} />
-      <Wrapper>
-        {printData && <Receipt ref={componentRef} printData={printData} />}
-        <div className="container">
+      <Wrapper $sidebarExpanded={sidebarExpanded}>
+        {printData && <Receipt ref={componentRef} printData={printData} printVisible={printVisible}/>}
+        <div className="container" >
           <div className="modal">
             <div className="modal-container">
               <button
               className="input-button"
                 onClick={() => navigate("/doctor_use/FindAdmission", { state: { date } })}
                 style={{
+                  margin: "10px",
                   position: "absolute",
                   fontSize: "15px",
                   height: "7%",
@@ -631,13 +646,15 @@ const TestAdmission = () => {
                 <form onSubmit={handleSubmit} id="formId">
                   <div className="input-block">
                     <div
+                      className="form-row"
                       style={{
                         display: "flex",
-                        flexDirection: "row",
+                        // flexDirection: "row",
                         justifyContent: "space-between",
                       }}
                     >
                       <div
+                        className="form-row"
                         style={{
                           display: "flex",
                           flexDirection: "column",
@@ -646,7 +663,7 @@ const TestAdmission = () => {
                         }}
                       >
                         <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                        <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
+                          <label htmlFor="email" className="input-label" style={{ width: "15vh", textAlign: "left", }}>
                             Patient Name:
                           </label>
                           <input
@@ -721,6 +738,7 @@ const TestAdmission = () => {
                         </div>
                       </div>
                       <div
+                        className="form-row"
                         style={{
                           display: "flex",
                           flexDirection: "column",
@@ -785,6 +803,7 @@ const TestAdmission = () => {
                         </div>
                       </div>
                       <div
+                        className="form-row"
                         style={{
                           display: "flex",
                           flexDirection: "column",
@@ -915,6 +934,7 @@ const TestAdmission = () => {
                   </div>
                   <div className="input-block">
                     <div
+                      className="form-row"
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -968,7 +988,7 @@ const TestAdmission = () => {
                             defaultValue={testData.GrandAmount || 0}
                             onChange={handleChange}
                             readOnly
-                          />
+                            />
                         </label>
                         <label htmlFor="Email" className="input-label">
                           Advance Amount:&nbsp;
@@ -1050,191 +1070,207 @@ const TestAdmission = () => {
 const Wrapper = styled.section`
   .container {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 48px;
+    left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "200px" : "70px")};
     right: 0;
     bottom: 0;
-    background-color: #eef3f3;
+    width: ${({ $sidebarExpanded }) =>
+      $sidebarExpanded ? "calc(100vw - 200px)" : "calc(100vw - 90px)"};
+    background-color: #eef2f8;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 1rem;
+    overflow-y: auto;
+    max-height: 95vh;
+    transition: left 0.2s ease, width 0.2s ease;
   }
 
+  /* Modal Dialog */
   .modal {
     width: 100%;
-    background: rgba(51, 51, 51, 0.5);
-    display: flex;
+    background: rgba(34, 57, 87, 0.15);
+    display: fixed;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: 0.4s;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
   }
-  .modal-container {
+
+  .modal .modal-container {
     display: flex;
     max-width: 95vw;
-    width: 100%;
+    height: 90vh;
     border-radius: 10px;
     overflow: hidden;
-    position: absolute;
-    height: 90vh;
-    transition-duration: 0.3s;
+    position: relative;
     background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #023656;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 0.375vw 0 3.62vh 0;
-  }
+
+  /* Left Section */
   .modal-left {
-    padding: 3.75vw 3.62vh 2.14vh;
-    background: #e2eff5;
+    background: #f5faff;
     flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
-  }
-
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
-    font-size: 14px;
-  }
-
-  .input-button {
-    // padding: 1.2rem 3.2rem;
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
-    color: #fff;
-    border-radius: 10px;
-    background: #2975ad;
-    transition: 0.3s;
-    cursor: pointer;
+    padding: 1.5rem 2rem 1rem 2rem;
+    overflow-y: auto;
     font-family: "Nunito", sans-serif;
   }
-  .input-button:hover {
-    color: #2975ad;
-    background: #fff;
-  }
-  .input-button2 {
-    outline: none;
-    border: 0;
-    color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button2:hover {
-    background: #55311c;
+
+  .modal-left .modal-title {
+    color: #103d72;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
   }
 
-  .input-label {
-    font-size: 13px;
-    // text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 0.7px;
-    color: #12263e;
-    transition: 0.3s;
+  /* Errors */
+  .form-error {
+    font-size: 1.1rem;
+    color: #c53030;
+    font-weight: 600;
+    margin-bottom: 1rem;
   }
 
+  /* Labels */
+  .modal-left label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #124880;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.025em;
+  }
+
+  /* Input Fields */
   .input-block {
+    margin-bottom: 1rem;
+  }
+
+  .input-block input,
+  .input-block select {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.85rem;
+    border: 1.5px solid #cbd7e6;
+    border-radius: 6px;
+    background-color: #f6fbff;
+    color: #1f3c68;
+    outline-offset: 2px;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .input-block input::placeholder,
+  .input-block select:disabled {
+    color: #a1b5d1;
+  }
+
+  .input-block input:focus,
+  .input-block select:focus {
+    border-color: #2a6ade;
+    background-color: #e9f0fd;
+    outline: none;
+  }
+
+  /* Inline input groups (2-3 inputs side by side) */
+  .input-inline-groups {
     display: flex;
-    flex-direction: column;
-    padding: 0.625hw 1.2vh 0.96vh;
-    // border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
+    gap: 0.8rem;
   }
 
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 3px;
-    font-size: 15px;
-    color: black;
-    background: #fff;
+  /* Form layout groups */
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  // .input-block:focus-within .input-label {
-  //   color: black;
-  // }
-
-  .testName {
-    overflowY: auto;
-    border: 3px solid #ddd;
-    borderRadius: 4px;
-    background: #fff;
-    height: 35vh;
+  .form-col {
+    flex: 1 1 23%;
+    min-width: 150px;
   }
 
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
+  /* Buttons */
+  .input-button {
+    background: #1a73e8;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.6rem 1.25rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+
+  .input-button:hover:not(:disabled) {
+    background-color: #155ab6;
+  }
+
+  .input-button:disabled {
+    background-color: #8faecc;
+    cursor: not-allowed;
+  }
+
+  .input-button-small {
+    background: #ccc9c0;
+    color: #59534a;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.8rem;
+    margin-left: 0.6rem;
+  }
+
+  .input-button-small:hover:not(:disabled) {
+    background-color: #bfb8ad;
+  }
+
+  /* Scrollable test list */
+  .test-list {
+    max-height: 26vh;
+    overflow-y: auto;
+    border: 1.8px solid #c7d0db;
+    border-radius: 6px;
+    background-color: #fff;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .container {
+      left: 10px;
+      width: 95%;
     }
 
-    .modal-right {
-      display: none;
+    .modal-left {
+      padding: 1rem 1rem 0.75rem 1rem;
     }
-    .flexChange {
+
+    .modal .modal-container {
       flex-direction: column;
+      height: auto;
+      max-height: 94vh;
     }
 
-    .testName {
-      height: 20vh;
+    .form-row {
+      flex-direction: column;
+      gap: 0.6rem;
     }
 
-    .input-label {
-      font-size: 13px;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .testName {
-      height: 25vh;
-    }
-  }
-
-  @media (max-height: 720px) {
-    .testName {
-      height: 25vh;
+    .form-col {
+      flex: 1 1 100%;
+      min-width: auto;
     }
 
-    .input-label {
-      font-size: 11px;
+    .input-button {
+      width: 100%;
+      margin-top: 0.5rem;
     }
   }
 `;
