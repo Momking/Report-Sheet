@@ -6,29 +6,39 @@ import {
 } from "react-icons/fa";
 import { doSignOut } from "../config/auth";
 import { useSidebar } from "../Context/SidebarContext";
+import { FaHospitalUser } from "react-icons/fa6";
+import ThemeToggle from "./ThemeToggle";
 
 const menus = [
   { icon: <FaHome />, title: "Dashboard", path: "/" },
   {
-    icon: <FaFlask />,
-    title: "Test",
+    icon: <FaHospitalUser />,
+    title: "PATIENT ENTRY",
     dropdown: [
       { text: "Admission", path: "/doctor_use/FindAdmission" },
       { text: "Report", path: "/doctor_use/FindReport" },
-      { text: "Master", path: "/doctor_use/TestMaster" },
+    ],
+  },
+  {
+    icon: <FaFlask />,
+    title: "TEST",
+    dropdown: [
+      { text: "Test Categories", path: "/doctor_use/TestCategories" },
+      { text: "SubTest Categories", path: "/doctor_use/SubTestCategories" },
+      { text: "Test Data", path: "/doctor_use/TestMaster" },
     ],
   },
   {
     icon: <FaUserMd />,
-    title: "Account",
+    title: "ACCOUNT",
     dropdown: [
-      { text: "Account Master", path: "/doctor_use/AccountMaster" },
-      { text: "Daily Cash", path: "/doctor_use/DailyCash" },
+      { text: "Daily Cash", path: "/doctor_use/DailyCashReport" },
+      { text: "Monthly Cash", path: "/doctor_use/MonthlyCashReport" },
     ],
   },
   {
     icon: <FaBookMedical />,
-    title: "Patients",
+    title: "PATIENTS",
     dropdown: [
       { text: "Patient List", path: "/doctor_use/PatientList" },
       { text: "History", path: "/doctor_use/PatientHistory" },
@@ -36,13 +46,13 @@ const menus = [
   },
   {
     icon: <FaCogs />,
-    title: "Settings",
+    title: "SETTINGS",
     dropdown: [
       { text: "Configure", path: "/doctor_use/Configure" },
       { text: "Security", path: "/doctor_use/Security" },
     ],
   },
-  { icon: <FaUser />, title: "About", path: "/About" },
+  { icon: <FaUser />, title: "ABOUT", path: "/About" },
 ];
 
 const Sidebar = () => {
@@ -190,7 +200,7 @@ const SideNav = styled.aside`
   position: fixed;
   left: 0; top: 0; bottom: 0;
   width: ${({ $expanded }) => ($expanded ? '200px' : '56px')};
-  background: linear-gradient(170deg, #ffffff 40%, #cae0fb 90%);
+  background: ${({ theme }) => (theme.isDark) ? theme.bg : "#ffffff 40%"};
   border-right: 1px solid #dbe3f1;
   padding-bottom: 1rem;
   z-index: 1002;
@@ -211,7 +221,7 @@ const SideNav = styled.aside`
 
   .brand {
     font-size: 1rem;
-    color: #37517e;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#37517e"};
     font-weight: 500;
     white-space: nowrap;
     opacity: ${({ $expanded }) => ($expanded ? 1 : 0)};
@@ -220,7 +230,7 @@ const SideNav = styled.aside`
 
   .sidebar-toggle {
     margin-left: auto;
-    color: #8492b2;
+    color: ${({ theme }) => (theme.isDark) ? theme.texts : "#8492b2"};
     cursor: pointer;
     padding: 0px 0px;
     font-weight: 500;
@@ -253,8 +263,8 @@ const SideNav = styled.aside`
   }
 
   .sidebar-nav li.active > .sidebar-link {
-    background: #d2e2fc;
-    color: #2a57b5;
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#d2e2fc"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#2a57b5"};
   }
 
   .sidebar-link {
@@ -262,7 +272,7 @@ const SideNav = styled.aside`
     align-items: center;
     gap: 7px;
     padding: 10px 10px;
-    color: #4a5a7a;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#4a5a7a"};
     text-decoration: none;
     border-radius: 5px;
     font-weight: 500;
@@ -272,8 +282,8 @@ const SideNav = styled.aside`
   }
 
   .sidebar-link:hover {
-    background: #f0f4ff;
-    color: #2a57b5;
+    background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#f0f4ff"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#2a57b5"};
   }
 
   .chevron {
@@ -292,7 +302,7 @@ const SideNav = styled.aside`
   }
 
   .sidebar-dropdown {
-    background: #fff;
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fff"};
     border-radius: 0 0 10px 0px;
     margin-top: 0.25rem;
     padding: 6px 0 6px 30px;
@@ -303,15 +313,15 @@ const SideNav = styled.aside`
   .dropdown-link {
     display: block;
     padding: 8px 12px;
-    color: #37517e;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#37517e"};
     text-decoration: none;
     border-radius: 5px;
     font-weight: 500;
     transition: background 0.2s ease;
 
     &:hover {
-      background: #e6f0ff;
-      color: #2a57b5;
+      background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#e6f0ff"};
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#2a57b5"};
     }
   }
 
@@ -389,7 +399,7 @@ const MobileNavBar = styled.nav`
   position: fixed;
   top: 0; left: 0; right: 0;
   height: 40px;
-  background: linear-gradient(170deg, #f6fafe 38%, #cbe2fa 89%);
+  background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f6fafe 38%"};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -400,13 +410,13 @@ const MobileNavBar = styled.nav`
   .brand {
     font-weight: 700;
     font-size: 1.2rem;
-    color: #2b4973;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#2b4973"};
   }
 
   .mobile-menu-button {
     background: transparent;
     border: none;
-    color: #3978d7;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#3978d7"};
     cursor: pointer;
     font-size: 0rem;
   }
@@ -417,7 +427,7 @@ const MobileDropdown = styled.div`
   top: 40px; /* below mobile nav */
   left: 0;
   right: 0;
-  background: white;
+  background: ${({ theme }) => (theme.isDark) ? theme.bg : "white"};
   border-top: 1.5px solid #dde9f6;
   box-shadow: 0 3px 15px #aac8f577;
   z-index: 1005;

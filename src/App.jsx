@@ -17,8 +17,12 @@ import ExcelReader from "./Components/Data/ExcelReader";
 import FindReport from "./pages/doctor_use/FindReport";
 import FindAdmission from "./pages/doctor_use/FindAdmission";
 import ViewReport from "./pages/doctor_use/ViewReport";
-import AccountMaster from "./pages/doctor_use/AccountMaster";
-import TestMaster from "./pages/doctor_use/TestMaster";
+import MonthlyCashReport from "./pages/doctor_use/AccountMaster/MonthlyCashReport";
+import DailyCashReport from "./pages/doctor_use/AccountMaster/DailyCashReport";
+import TestMaster from "./pages/doctor_use/TestMaster/TestData";
+import TestCategories from "./pages/doctor_use/TestMaster/TestCategories";
+import SubtestsCategories from "./pages/doctor_use/TestMaster/SubTestCategories";
+import EditTestPanel from "./pages/doctor_use/TestMaster/EditTestPanel";
 
 const App = () => {
   useEffect(() => {
@@ -86,8 +90,12 @@ const App = () => {
       <Route path="/doctor_use/FindReport" element={<RequireAuth><FindReport/></RequireAuth>}/>
       <Route path="/doctor_use/FindAdmission" element={<RequireAuth><FindAdmission/></RequireAuth>}/>
       <Route path="/doctor_use/ViewReport" element={<RequireAuth><ViewReport/></RequireAuth>}/>
-      <Route path="/doctor_use/AccountMaster" element={<RequireAuth><AccountMaster/></RequireAuth>}/>
+      <Route path="/doctor_use/DailyCashReport" element={<RequireAuth><DailyCashReport/></RequireAuth>}/>
+      <Route path="/doctor_use/MonthlyCashReport" element={<RequireAuth><MonthlyCashReport/></RequireAuth>}/>
       <Route path="/doctor_use/TestMaster" element={<RequireAuth><TestMaster/></RequireAuth>}/>
+      <Route path="/doctor_use/TestCategories" element={<RequireAuth><TestCategories/></RequireAuth>}/>
+      <Route path="/doctor_use/SubTestCategories" element={<RequireAuth> <SubtestsCategories /></RequireAuth>}/>
+      <Route path="/doctor_use/EditTestPanel" element={<RequireAuth><EditTestPanel/></RequireAuth>}/>
     </Routes>
   );
 }

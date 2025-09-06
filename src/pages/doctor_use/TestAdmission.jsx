@@ -76,10 +76,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: "black",
+            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: "#fff",
+            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -99,10 +99,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: "black",
+            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: "#fff",
+            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -128,7 +128,7 @@ const TestAdmission = () => {
         <h1
           key={index}
           style={{
-            color: "black",
+            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
             fontSize: "13px",
             borderTop: "1px solid #ddd",
             height: "29px",
@@ -154,14 +154,26 @@ const TestAdmission = () => {
             menuPortal: (base) => ({ ...base, zIndex: 9999 }),
             option: (provided, state) => ({
               ...provided,
-              color: state.isSelected ? "black" : "black",       // Selected vs non-selected text color
-              backgroundColor: state.isSelected ? "#fff" : "#fff", // Selected vs default background
+              backgroundColor: state.isFocused
+                ? ({ theme }) => (theme.isDark ? theme.bg : "#eee") // Hover effect
+                : ({ theme }) => (theme.isDark ? theme.bg : "#fff"),
+              color: state.isFocused ? ({ theme }) => (theme.isDark ? theme.text : "#000") : ({ theme }) => (theme.isDark ? theme.text : "#000"),
               padding: 10,
               zIndex: "100",
+            }),
+            singleValue: (provided) => ({
+              ...provided,
+              color: isDark ? "#fff" : "#000", // Selected value text color
+            }),
+            placeholder: (provided) => ({
+              ...provided,
+              color: isDark ? "#aaa" : "#555", // Placeholder text color
             }),
             control: (provided) => ({
               ...provided,
               minWidth: "50%",
+              color: ({ theme }) => (theme.isDark) ? theme.text : "black",       // Selected vs non-selected text color
+              backgroundColor: ({ theme }) => (theme.isDark) ? theme.bg : "#fff", // Selected vs default background
               borderRadius: "1px",
               borderTop: "1px solid #ddd",
               fontSize: "17px",
@@ -177,10 +189,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "21px",
             padding: "3px",
-            color: "#ccc",
+            color: ({ theme }) => (theme.isDark) ? theme.text : "#ccc",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: "#fff",
+            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -215,7 +227,7 @@ const TestAdmission = () => {
       newHeaders.push(
         <h1
           key={headers.length + i}
-          style={{ color: "black", fontSize: "13px", borderTop: "1px solid #ddd", height: "29px"}}
+          style={{ color: ({ theme }) => (theme.isDark) ? theme.text : "black", fontSize: "13px", borderTop: "1px solid #ddd", height: "29px"}}
         >
           {headers.length + i + 1}
         </h1>
@@ -228,8 +240,8 @@ const TestAdmission = () => {
             padding: "2px",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            color: "black",
-            background: "#fff",
+            color: ({ theme }) => (theme.isDark) ? theme.text :"black",
+            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           autoComplete="off"
@@ -250,8 +262,8 @@ const TestAdmission = () => {
             padding: "2px",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            color: "black",
-            background: "#fff",
+            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
+            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -626,21 +638,10 @@ const TestAdmission = () => {
         <div className="container" >
           <div className="modal">
             <div className="modal-container">
-              <button
-              className="input-button"
-                onClick={() => navigate("/doctor_use/FindAdmission", { state: { date } })}
-                style={{
-                  margin: "10px",
-                  position: "absolute",
-                  fontSize: "15px",
-                  height: "7%",
-                  padding: "8px",
-                }}
-              >
-                <BsArrowLeft />
-                &nbsp; Go back to Patient List
-              </button>
               <div className="modal-left">
+                <BackButton onClick={() => navigate("/doctor_use/FindAdmission", { state: { date } })}>
+                  <BsArrowLeft /> Go back to Patient List
+                </BackButton>
                 <h1 className="modal-title">NEW REGISTRATION</h1>
                 <br/>
                 <form onSubmit={handleSubmit} id="formId">
@@ -1076,7 +1077,7 @@ const Wrapper = styled.section`
     bottom: 0;
     width: ${({ $sidebarExpanded }) =>
       $sidebarExpanded ? "calc(100vw - 200px)" : "calc(100vw - 90px)"};
-    background-color: #eef2f8;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.bg : "#eef2f8"};
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -1089,7 +1090,7 @@ const Wrapper = styled.section`
   /* Modal Dialog */
   .modal {
     width: 100%;
-    background: rgba(34, 57, 87, 0.15);
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "rgba(34, 57, 87, 0.15)"};
     display: fixed;
     flex-direction: column;
     align-items: center;
@@ -1105,13 +1106,13 @@ const Wrapper = styled.section`
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-    background: #fff;
+    background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#fff"};
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   }
 
   /* Left Section */
   .modal-left {
-    background: #f5faff;
+    background: ${({ theme }) => (theme.isDark) ? theme.card : "#f5faff"};
     flex: 1.5;
     padding: 1.5rem 2rem 1rem 2rem;
     overflow-y: auto;
@@ -1119,7 +1120,7 @@ const Wrapper = styled.section`
   }
 
   .modal-left .modal-title {
-    color: #103d72;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#103d72"};
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -1138,7 +1139,7 @@ const Wrapper = styled.section`
     display: block;
     font-weight: 600;
     font-size: 0.8rem;
-    color: #124880;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#124880"};
     margin-bottom: 0.3rem;
     letter-spacing: 0.025em;
   }
@@ -1155,8 +1156,8 @@ const Wrapper = styled.section`
     font-size: 0.85rem;
     border: 1.5px solid #cbd7e6;
     border-radius: 6px;
-    background-color: #f6fbff;
-    color: #1f3c68;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.bg : "#f6fbff"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#1f3c68"};
     outline-offset: 2px;
     transition: border-color 0.2s ease;
     box-sizing: border-box;
@@ -1164,13 +1165,13 @@ const Wrapper = styled.section`
 
   .input-block input::placeholder,
   .input-block select:disabled {
-    color: #a1b5d1;
+    color:${({ theme }) => (theme.isDark) ? theme.text :  "#a1b5d1"};
   }
 
   .input-block input:focus,
   .input-block select:focus {
     border-color: #2a6ade;
-    background-color: #e9f0fd;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#e9f0fd"};
     outline: none;
   }
 
@@ -1195,7 +1196,7 @@ const Wrapper = styled.section`
   /* Buttons */
   .input-button {
     background: #1a73e8;
-    color: #fff;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#fff"};
     font-weight: 700;
     padding: 0.6rem 1.25rem;
     margin-top: 1rem;
@@ -1212,13 +1213,13 @@ const Wrapper = styled.section`
   }
 
   .input-button:disabled {
-    background-color: #8faecc;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.text : "#8faecc"};
     cursor: not-allowed;
   }
 
   .input-button-small {
-    background: #ccc9c0;
-    color: #59534a;
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#ccc9c0"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#59534a"};
     border-radius: 6px;
     font-size: 0.75rem;
     padding: 0.35rem 0.8rem;
@@ -1235,7 +1236,7 @@ const Wrapper = styled.section`
     overflow-y: auto;
     border: 1.8px solid #c7d0db;
     border-radius: 6px;
-    background-color: #fff;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.card : "#fff"};
     padding: 0.5rem;
     margin-bottom: 1rem;
     font-size: 0.9rem;
@@ -1274,5 +1275,22 @@ const Wrapper = styled.section`
     }
   }
 `;
+
+const BackButton = styled.button`
+  background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#e5eefe"};
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#114177"};
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 8px 18px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 9px;
+  box-shadow: 0 1px 7px #b9c9e844;
+
+  &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#c7daf5"}; }
+`;
+
 
 export default TestAdmission;

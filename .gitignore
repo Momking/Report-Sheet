@@ -15,7 +15,7 @@ dist-ssr
 *.local
 
 # Rust build and Tauri
-src-tauri/target/
+src-tauri
 src-tauri/icons/
 .Tauri.lock
 src-tauri/bundled/
@@ -26,10 +26,17 @@ release/
 !.vscode/extensions.json
 .idea
 .DS_Store
-./src/config/*
+src/config/*
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-src/pages/doctor_use/file.txt
+file.txt
+firebaserc
+firebase.json
+extension.json
+.vscode/extensions.json
+.firebase/hosting.ZGlzdA.cache
+.firebaserc
+package-lock.json

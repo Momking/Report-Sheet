@@ -189,7 +189,7 @@ const FindAdmission = () => {
         >
           <button
             className="input-button"
-            style={{ fontSize: 15, padding: 2, height: 25, width: "45%" }}
+            style={{ fontSize: 15, padding: 2, height: 25, width: "45%", background: "#499c5eff" }}
             onClick={() => handleFind(data.PatientID, true)}
             name={`button1${startIndex + i}`}
           >
@@ -197,7 +197,7 @@ const FindAdmission = () => {
           </button>
           <button
             className="input-button"
-            style={{ fontSize: 15, padding: 2, height: 25, width: "45%" }}
+            style={{ fontSize: 15, padding: 2, height: 25, width: "45%", background: "#4c77c7ff" }}
             onClick={() =>
               navigate("/doctor_use/TestAdmission", {
                 state: {
@@ -271,22 +271,14 @@ const FindAdmission = () => {
       <AppTopNav sidebarExpanded={sidebarExpanded} />
       <Navbar destination={"/"} />
       <Main $sidebarExpanded={sidebarExpanded}>
-        <div className="top-info-alert">
-          <span className="info-icon">!</span>
-          <span>Your trial ends in 5 days. Even if you purchase early, duration of trial period is included for free.</span>
-        </div>
         <Card>
-          <button
-            style={{
-              background: "#037aff",
-              color: "#fff",
-            }}
+          <BackButton
             onClick={() => {
-              navigate("/doctor_use/TestAdmission");
+              navigate("/doctor_use/TestAdmission"), { state: { date } }
             }}
           >
             <h4>New Registration</h4>
-          </button>
+          </BackButton>
           <h1 className="page-title">Search lab reports</h1>
           <FiltersGrid>
             <div className="filter-cell">
@@ -388,7 +380,7 @@ const FindAdmission = () => {
   
   const PageWrapper = styled.div`
     min-height: 100vh;
-    background: #f7fafd;
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f7fafd"};
     display: flex;
     .navbar {
       flex-shrink: 0;
@@ -398,7 +390,7 @@ const FindAdmission = () => {
   const Main = styled.main`
     flex: 1;
     min-width: 0;
-    padding: 48px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
+    padding: 78px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
     transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
 
     @media (max-width: 1100px) {
@@ -422,7 +414,7 @@ const FiltersGrid = styled.div`
     flex-direction: column;
     label {
       font-size: 0.93em;
-      color: #5175ac;
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#5175ac"};
       font-weight: 600;
       margin-bottom: 3px;
       padding-left: 1px;
@@ -433,8 +425,8 @@ const FiltersGrid = styled.div`
       border-radius: 6px;
       padding: 2px 9px;
       font-size: 0.97em;
-      background: #fafcff;
-      color: #171d19;
+      background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fafcff"};
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#171d19"};
       transition: border-color 0.13s;
       &:focus { border: 1.5px solid #3793f4; outline: none; }
     }
@@ -449,8 +441,8 @@ const FiltersGrid = styled.div`
     }
   }
   .search-btn {
-    background: #037aff;
-    color: #fff;
+    background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#037aff"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#fff"};
     border: none;
     border-radius: 6.5px;
     padding: 0 12px;
@@ -459,17 +451,20 @@ const FiltersGrid = styled.div`
     font-weight: 600;
     cursor: pointer;
     transition: background 0.16s;
-    &:hover { background: #035fc7; }
+    &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#035fc7"}; }
     margin-right: 7px;
   }
   .clear-btn {
-    background: none;
+    background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#037aff"};
     border: none;
-    color: #0d63b7;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#0d63b7"};
     font-weight: 600;
+    padding: 0 12px;
+    height: 33px;
     font-size: 0.96em;
     cursor: pointer;
     margin-left: 0px;
+    &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#035fc7"}; }
     &::after { content: ""; }
   }
   @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
@@ -477,7 +472,7 @@ const FiltersGrid = styled.div`
 `;
 
 const Card = styled.section`
-  background: #fff;
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#fff"};
   border-radius: 11px;
   box-shadow: 0 2px 18px #e0e7f1cc;
   margin-bottom: 28px;
@@ -488,7 +483,7 @@ const Card = styled.section`
   .page-title {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #203669;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#203669"};
     margin-bottom: 18px;
     letter-spacing: 0.01em;
   }
@@ -506,11 +501,11 @@ const ScrollTable = styled.table`
   min-width: 800px;  /* Minimum width to force scroll on smaller screens */
 
   thead tr {
-    background: #f3f7fa;
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f3f7fa"};
   }
 
   thead th {
-    color: #36598b;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#36598b"};
     font-weight: 700;
     font-size: 0.98em;
     border-bottom: 1.5px solid #d6e0f7;
@@ -520,13 +515,13 @@ const ScrollTable = styled.table`
 
   tbody {
     tr {
-      background: #fff;
+      background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fff"};
       box-shadow: 0 1px 12px #e0e7f1cc;
       transition: box-shadow 0.12s;
     }
 
     tr:hover {
-      background: #f5faff;
+      background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#f5faff"};
     }
 
     td {
@@ -536,7 +531,7 @@ const ScrollTable = styled.table`
       white-space: nowrap;
       line-height: 1.3;
       vertical-align: middle;
-      color: #28314d;
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#28314d"};
       letter-spacing: 0.01em;
       min-width: 90px; /* Ensure column min width */
     }
@@ -574,6 +569,23 @@ const ScrollTable = styled.table`
     width: 100%;
   }
 `;
+
+const BackButton = styled.button`
+  background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#e5eefe"};
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#114177"};
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 8px 18px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 9px;
+  box-shadow: 0 1px 7px #b9c9e844;
+
+  &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#c7daf5"}; }
+`;
+
 
   export default FindAdmission;
   

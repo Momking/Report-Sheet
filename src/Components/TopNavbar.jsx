@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FiSearch } from "react-icons/fi";      // search icon
 import { FiHelpCircle } from "react-icons/fi"; // help icon
 import { FiShoppingCart } from "react-icons/fi"; // buy icon
+import ThemeToggle from "./ThemeToggle";
 
 export default function AppTopNav({ sidebarExpanded }) {
   return (
@@ -12,6 +13,7 @@ export default function AppTopNav({ sidebarExpanded }) {
         <SearchInput placeholder="Search cases" aria-label="Search cases" />
       </SearchWrapper>
       <RightActions>
+        <ThemeToggle/>
         <HelpIcon title="Help" />
         <BuyButton type="button" aria-label="Buy plan">
           <CartIcon />
@@ -28,7 +30,7 @@ const TopNavbar = styled.nav`
   left: ${({ sidebarExpanded }) => (sidebarExpanded ? "200px" : "56px")};
   right: 0;
   height: 62px;
-  background: #fff;
+  background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fff"};
   border-bottom: 1px solid #e2e6f0;
   box-shadow: 0 2px 8px rgb(33 48 77 / 0.1);
   display: flex;
@@ -55,7 +57,7 @@ const SearchWrapper = styled.div`
 const SearchIcon = styled(FiSearch)`
   position: absolute;
   left: 12px;
-  color: #5a7abf;
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#5a7abf"};
   font-size: 1.25rem;
   pointer-events: none;
 `;
@@ -64,16 +66,16 @@ const SearchInput = styled.input`
   width: 100%;
   padding: 8px 12px 8px 36px;
   font-size: 0.95rem;
-  border: 1.8px solid #d3daf6;
+  border: 1.8px solid ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#d3daf6"};
   border-radius: 8px;
-  background-color: #f7fbff;
+  background-color: ${({ theme }) => (theme.isDark) ? theme.bg : "#f7fbff"};
   color: #2a3f7d;
   transition: border-color 0.3s ease;
 
   &:focus {
     border-color: #436bcc;
     outline: none;
-    background-color: #ecf2ff;
+    background-color: ${({ theme }) => (theme.isDark) ? theme.bg : "#ecf2ff"};
   }
 
   &::placeholder {

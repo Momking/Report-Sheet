@@ -206,7 +206,7 @@ const FindReport = () => {
             borderTop: "1px solid #ddd",
             height: "30px",
           }}
-        >
+          >
           <button
             className="input-button"
             style={{
@@ -214,6 +214,7 @@ const FindReport = () => {
               padding: "2px",
               height: "25px",
               width: "45%",
+              background: "#499c5eff",
               // borderRadius: "2px",
             }}
             onClick={() => {
@@ -231,6 +232,7 @@ const FindReport = () => {
               padding: "2px",
               height: "25px",
               width: "45%",
+              background: "#4c77c7ff"
               // borderRadius: "2px",
             }}
             onClick={() => {
@@ -307,10 +309,6 @@ const FindReport = () => {
         <AppTopNav sidebarExpanded={sidebarExpanded} />
         <Navbar destination={"/"} />
         <Main $sidebarExpanded={sidebarExpanded}>
-          <div className="top-info-alert">
-            <span className="info-icon">!</span>
-            <span>Your trial ends in 5 days. Even if you purchase early, duration of trial period is included for free.</span>
-          </div>
           <Card>
             <h1 className="page-title">Search lab reports</h1>
             <FiltersGrid>
@@ -377,7 +375,6 @@ const FindReport = () => {
                   <th>TOTAL AMOUNT</th>
                   <th>CC</th>
                   <th>STATUS</th>
-                  <th>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -389,14 +386,14 @@ const FindReport = () => {
                     <td>{centerID[idx]}</td>
                     <td>{sex[idx]}</td>
                     <td>{centerName[idx]}</td>
+                    <td>
+                      {useButton[idx]}
+                    </td>
                     {/* <td>
                       <span className={`status-chip ${paid[idx] ? "signed" : "pending"}`}>
                         {paid[idx] ? "Signed off" : "Pending"}
                       </span>
                     </td> */}
-                    <td className="table-actions">
-                      {useButton[idx]}
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -413,7 +410,7 @@ const FindReport = () => {
     
     const PageWrapper = styled.div`
       min-height: 100vh;
-      background: #f7fafd;
+      background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f7fafd"};
       display: flex;
       .navbar {
         flex-shrink: 0;
@@ -423,7 +420,7 @@ const FindReport = () => {
     const Main = styled.main`
       flex: 1;
       min-width: 0;
-      padding: 48px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
+      padding: 78px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
       transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
   
       @media (max-width: 1100px) {
@@ -447,7 +444,7 @@ const FindReport = () => {
       flex-direction: column;
       label {
         font-size: 0.93em;
-        color: #5175ac;
+        color: ${({ theme }) => (theme.isDark) ? theme.text : "#5175ac"};
         font-weight: 600;
         margin-bottom: 3px;
         padding-left: 1px;
@@ -458,8 +455,8 @@ const FindReport = () => {
         border-radius: 6px;
         padding: 2px 9px;
         font-size: 0.97em;
-        background: #fafcff;
-        color: #171d19;
+        background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fafcff"};
+        color: ${({ theme }) => (theme.isDark) ? theme.text : "#171d19"};
         transition: border-color 0.13s;
         &:focus { border: 1.5px solid #3793f4; outline: none; }
       }
@@ -474,8 +471,8 @@ const FindReport = () => {
       }
     }
     .search-btn {
-      background: #037aff;
-      color: #fff;
+      background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#037aff"};
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#fff"};
       border: none;
       border-radius: 6.5px;
       padding: 0 12px;
@@ -484,17 +481,20 @@ const FindReport = () => {
       font-weight: 600;
       cursor: pointer;
       transition: background 0.16s;
-      &:hover { background: #035fc7; }
+      &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#035fc7"}; }
       margin-right: 7px;
     }
     .clear-btn {
-      background: none;
+      background: ${({ theme }) => (theme.isDark) ? "#33a3fd" : "#037aff"};
       border: none;
-      color: #0d63b7;
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#0d63b7"};
       font-weight: 600;
+      padding: 0 12px;
+      height: 33px;
       font-size: 0.96em;
       cursor: pointer;
       margin-left: 0px;
+      &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#035fc7"}; }
       &::after { content: ""; }
     }
     @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
@@ -502,7 +502,7 @@ const FindReport = () => {
   `;
   
   const Card = styled.section`
-    background: #fff;
+    background: ${({ theme }) => (theme.isDark) ? theme.card : "#fff"};
     border-radius: 11px;
     box-shadow: 0 2px 18px #e0e7f1cc;
     margin-bottom: 28px;
@@ -513,7 +513,7 @@ const FindReport = () => {
     .page-title {
       font-size: 1.2rem;
       font-weight: 700;
-      color: #203669;
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#203669"};
       margin-bottom: 18px;
       letter-spacing: 0.01em;
     }
@@ -531,11 +531,11 @@ const FindReport = () => {
     min-width: 800px;  /* Minimum width to force scroll on smaller screens */
   
     thead tr {
-      background: #f3f7fa;
+      background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f3f7fa"};
     }
   
     thead th {
-      color: #36598b;
+      color: ${({ theme }) => (theme.isDark) ? theme.text : "#36598b"};
       font-weight: 700;
       font-size: 0.98em;
       border-bottom: 1.5px solid #d6e0f7;
@@ -545,13 +545,13 @@ const FindReport = () => {
   
     tbody {
       tr {
-        background: #fff;
+        background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fff"};
         box-shadow: 0 1px 12px #e0e7f1cc;
         transition: box-shadow 0.12s;
       }
   
       tr:hover {
-        background: #f5faff;
+        background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f5faff"};
       }
   
       td {
@@ -561,7 +561,7 @@ const FindReport = () => {
         white-space: nowrap;
         line-height: 1.3;
         vertical-align: middle;
-        color: #28314d;
+        color: ${({ theme }) => (theme.isDark) ? theme.text : "#28314d"};
         letter-spacing: 0.01em;
         min-width: 90px; /* Ensure column min width */
       }
