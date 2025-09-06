@@ -64,10 +64,10 @@ npm run tauri dev
 ## 🖼 Screenshots
 
 ### Light Mode
-![Light Mode](/public/lightMode.png)
+![Light Mode](/assets/lightMode.png)
 
 ### Dark Mode
-![Dark Mode](./public/darkMode.png)
+![Dark Mode](./assets/darkMode.png)
 
 
 ## 🧑‍💻 Author
