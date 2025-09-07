@@ -13,7 +13,6 @@ Live Demo: [View the App](https://fir-project-ac28e.web.app/)
 #### ✔ Theme Toggle – Light/Dark mode support for better UX
 #### ✔ Responsive Design – Mobile, Tablet & Desktop support
 #### ✔ Secure & Reliable – Powered by Firebase Authentication & Firestore
-#### ✔ Offline Support – Use as a desktop application even without the internet
 
 
 ## 🛠 Tech Stack
