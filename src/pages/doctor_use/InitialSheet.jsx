@@ -1,28 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
 import { storeUserData2 } from "../../Components/storeUserData";
 import { useAuth } from "../../Context/AuthContext";
-import { storage } from "../../config/firebase";
+import { storage, db } from "../../config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import WaitBar from "../../Components/WaitBar";
-import { Link, useNavigate } from "react-router-dom";
-import { doSignOut } from "../../config/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../../config/firebase";
-import TestList from "../../Components/Data/TestList.json"
+import WaitBar from "../../Components/WaitBar";
+import TestList from "../../Components/Data/TestList.json";
+import { doSignOut } from "../../config/auth";
 
 const InitialSheet = () => {
   const { currentUser, setInitialSettingsSet } = useAuth();
-  const { enqueueSnackbar } = useSnackbar("");
+  const { enqueueSnackbar } = useSnackbar();
   const [correct, setCorrect] = useState(false);
   const [waitBar, setWaitBar] = useState("");
-  const [profileImage, setProfileImage] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    setWaitBar("Trying to Fetch Your Data");
+    setWaitBar("Loading your settings...");
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);
@@ -31,355 +29,241 @@ const InitialSheet = () => {
         const img_url = await getDownloadURL(
           ref(storage, `profile-images/${currentUser.uid}`)
         );
-        setProfileImage(`url(${img_url})`);
+        setPreviewImage(img_url);
         setInitialSettingsSet(true);
         setCorrect(true);
       } else {
         setWaitBar("");
-        enqueueSnackbar("First save your settings", { variant: "info" });
+        enqueueSnackbar("Please fill your initial settings", { variant: "info" });
       }
     } catch (error) {
       setWaitBar("");
-      console.error("Failed to fetch data:", error);
-      enqueueSnackbar("Something went wrong while loading your settings", {
-        variant: "error",
-    });
+      enqueueSnackbar("Failed to load settings", { variant: "error" });
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const handleSubmit = async (e, v) => {
-    {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-
-      const file = formData.get("Image");
-      const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
-
-      try {
-        setWaitBar("Please Wait...");
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        
-        const exportData = {
-          CompanyName: formData.get("Company Name"),
-          Address1: formData.get("Address1"),
-          Address2: formData.get("Address2"),
-          City: formData.get("City"),
-          State: formData.get("State"),
-          PinCode: formData.get("Pin Code"),
-          Phone: formData.get("Phone"),
-          VID: 1,
-          Image: `url(${downloadURL})`,
-        };
-        await storeUserData2(exportData, currentUser);
-
-        await setDoc(doc(db, currentUser.uid, "TestName"), TestList);
-
-        setInitialSettingsSet(true);
-        setCorrect(true);
-      } catch (error) {
-        enqueueSnackbar("Error uploading image", { variant: "error" });
-      }
+  const handleImagePreview = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
-  if (correct) {
-    return <Navigate to={"/"} replace={true} />;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const file = formData.get("Image");
+
+    try {
+      setWaitBar("Saving your settings...");
+      const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      const exportData = {
+        CompanyName: formData.get("CompanyName"),
+        Address1: formData.get("Address1"),
+        Address2: formData.get("Address2"),
+        City: formData.get("City"),
+        State: formData.get("State"),
+        PinCode: formData.get("PinCode"),
+        Phone: formData.get("Phone"),
+        VID: 0,
+        Image: downloadURL,
+      };
+
+      await storeUserData2(exportData, currentUser);
+      await setDoc(doc(db, currentUser.uid, "TestName"), TestList);
+      setInitialSettingsSet(true);
+      setCorrect(true);
+    } catch (error) {
+      enqueueSnackbar("Error saving settings", { variant: "error" });
+    } finally {
+      setWaitBar("");
+    }
+  };
+
+  if (correct) return <Navigate to="/" replace />;
+
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      <Wrapper>
-      {waitBar && <WaitBar message={waitBar}/>}
-        <div className="container">
-          <div className="modal">
-            <div className="modal-container">
-              <div className="modal-left">
-              <button
-                onClick={() => {
-                  doSignOut().then(() => {
-                    navigate("/login");
-                  });
-                }}
-                style={{
-                  display: "flex",
-                  marginLeft: "auto",
-                  fontSize: "small",
-                  backgroundColor: "CaptionText",
-                }}
-              >
-                Logout
-              </button>
-                <br></br>
-                <h1 className="modal-title">SETTINGS</h1>
-                <br></br>
-                <form onSubmit={handleSubmit} style={{ marginLeft: "30vw" }}>
-                  <div className="input-block">
-                    <label htmlFor="name" className="input-label">
-                      Company Name:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Company Name"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="Address1" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Address1"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="Address2" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Address2"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="city" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="City"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="state" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="State"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="pin code" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
-                      Code:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="Pin Code"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="phone" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="Phone"
-                      id="name"
-                      placeholder="Name"
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMAGE:&nbsp;
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      name="Image"
-                      style={{ paddingBottom: "4px" }}
-                    />
-                  </div>
-                  <div className="modal-buttons">
-                    <div style={{ padding: "2px" }}>
-                      <button
-                        className="input-button"
-                        type="submit"
-                        style={{ marginRight: "2px" }}
-                      >
-                        SAVE CHANGES
-                      </button>
-                    </div>
-                  </div>
-                </form>
-                <br></br>
-                <br></br>
-                <br></br>
-              </div>
+    <PageWrapper>
+      {waitBar && <WaitBar message={waitBar} />}
+      <Card>
+        <Header>
+          <h2>Initial Settings</h2>
+          <button
+            onClick={() => {
+              doSignOut().then(() => navigate("/login"));
+            }}
+            className="logout-btn"
+          >
+            Logout
+          </button>
+        </Header>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Company Name</label>
+            <input type="text" name="CompanyName" placeholder="Enter company name" required />
+          </div>
+
+          <div className="form-group">
+            <label>Address 1</label>
+            <input type="text" name="Address1" placeholder="Address line 1" />
+          </div>
+
+          <div className="form-group">
+            <label>Address 2</label>
+            <input type="text" name="Address2" placeholder="Address line 2" />
+          </div>
+
+          <div className="form-group-row">
+            <div className="form-group">
+              <label>City</label>
+              <input type="text" name="City" placeholder="City" />
+            </div>
+            <div className="form-group">
+              <label>State</label>
+              <input type="text" name="State" placeholder="State" />
             </div>
           </div>
-        </div>
-      </Wrapper>
-    </div>
+
+          <div className="form-group-row">
+            <div className="form-group">
+              <label>Pin Code</label>
+              <input type="text" name="PinCode" placeholder="Pin Code" pattern="\d{6}" />
+            </div>
+            <div className="form-group">
+              <label>Phone</label>
+              <input type="text" name="Phone" placeholder="Phone" pattern="\d{10}" />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Profile Image</label>
+            <input type="file" accept="image/*" name="Image" onChange={handleImagePreview} />
+            {previewImage && <img src={previewImage} alt="Preview" className="image-preview" />}
+          </div>
+
+          <button type="submit" className="primary-btn">
+            Save Settings
+          </button>
+        </form>
+      </Card>
+    </PageWrapper>
   );
 };
 
 export default InitialSheet;
 
-const Wrapper = styled.section`
-  .container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #efedee;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+const PageWrapper = styled.div`
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-  .modal {
-    width: 100%;
-    background: rgba(51, 51, 51, 0.5);
+const Card = styled.div`
+  background: #fff;
+  width: 90%;
+  max-width: 550px;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+
+  form {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: 0.4s;
-  }
-  .modal-container {
-    display: flex;
-    max-width: 95vw;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    position: absolute;
-
-    transition-duration: 0.3s;
-    background: #fff;
-  }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #55311c;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 6px 0 30px 0;
-  }
-  .modal-left {
-    padding: 60px 30px 20px;
-    background: #fff;
-    flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
+    gap: 15px;
   }
 
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
+  .form-group {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
   }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
+
+  .form-group-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+    }
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="file"] {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+  }
+
+  input[type="text"]:focus {
+    border-color: #007bff;
+  }
+
+  .image-preview {
+    width: 80px;
+    height: 80px;
+    margin-top: 8px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #007bff;
+  }
+
+  .primary-btn {
+    background: #007bff;
+    color: #fff;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .primary-btn:hover {
+    background: #0056b3;
+  }
+
+  .logout-btn {
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
     font-size: 14px;
   }
 
-  .input-button {
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
-    color: #fff;
-    border-radius: 4px;
-    background: #8c7569;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
+  .logout-btn:hover {
+    background: #d9363e;
   }
-  .input-button:hover {
-    background: #55311c;
-  }
+`;
 
-  .input-label {
-    font-size: 15px;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.7px;
-    color: #8c7569;
-    transition: 0.3s;
-  }
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 
-  .input-block {
-    display: flex;
-    flex-direction: row;
-    padding: 10px 10px 8px;
-    // border: 1px solid #ddd;
-    // border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-  }
-
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 3px;
-    font-size: 15px;
-  }
-
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  .input-block:focus-within .input-label {
-    color: rgba(140, 117, 105, 0.8);
-  }
-
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
-    }
-
-    .modal-right {
-      display: none;
-    }
-    .flexChange {
-      flex-direction: column;
-    }
+  h2 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
   }
 `;

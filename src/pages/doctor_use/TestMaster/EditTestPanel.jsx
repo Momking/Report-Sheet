@@ -78,35 +78,6 @@ const defaultPanel = {
   hideMethod: false,
 };
 
-// -------------------- Theme --------------------
-// const lightTheme = {
-//   mode: "light",
-//   bg: "#f6f9fc",
-//   card: "#ffffff",
-//   soft: "#eff4ff",
-//   text: "#1f2a44",
-//   textSoft: "#6a7ba0",
-//   brand: "#377cfb",
-//   brandSoft: "#e8f0ff",
-//   border: "#d7e3ff",
-//   shadow: "rgba(32, 72, 125, 0.12)",
-//   inputBg: "#f7faff",
-// };
-
-// const darkTheme = {
-//   mode: "dark",
-//   bg: "#0f172a",
-//   card: "#111827",
-//   soft: "#0b1222",
-//   text: "#e6eefc",
-//   textSoft: "#9fb1db",
-//   brand: "#6ea8ff",
-//   brandSoft: "#17223a",
-//   border: "#1f2d4a",
-//   shadow: "rgba(9, 20, 40, 0.6)",
-//   inputBg: "#0b1324",
-// };
-
 const Global = createGlobalStyle`
   :root { color-scheme: ${({ theme }) => (theme.mode === "dark" ? "dark" : "light")}; }
   * { box-sizing: border-box; }
@@ -125,15 +96,6 @@ const Global = createGlobalStyle`
 // -------------------- Component --------------------
 const EditTestPanel = () => {
   const { sidebarExpanded } = useSidebar();
-
-  // Theming
-  // const [themeMode, setThemeMode] = useState(
-  //   () => localStorage.getItem("themeMode") || "light"
-  // );
-  // useEffect(() => {
-  //   localStorage.setItem("themeMode", themeMode);
-  // }, [themeMode]);
-  // const theme = themeMode === "dark" ? theme.darkTheme : theme.lightTheme;
 
   // Form state
   const [form, setForm] = useState(defaultPanel);

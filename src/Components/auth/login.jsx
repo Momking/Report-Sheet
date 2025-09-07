@@ -21,17 +21,14 @@ const Login = () => {
     e.preventDefault();
     if (!isSigningIn) {
       setIsSigningIn(true);
-      try{
+      try {
         await doSignInWithEmailAndPassword(email, password);
-      }catch (error){
+      } catch (error) {
         enqueueSnackbar(error.message, {
           variant: "error",
-          anchorOrigin: {
-            horizontal: "center",
-            vertical: "bottom",
-          },
+          anchorOrigin: { horizontal: "center", vertical: "bottom" },
         });
-      } finally{
+      } finally {
         setIsSigningIn(false);
         doSendEmailVerification();
       }
@@ -42,31 +39,32 @@ const Login = () => {
     e.preventDefault();
     if (!isSigningIn) {
       setIsSigningIn(true);
-      doSignInWithGoogle().catch((err) => {
-        setIsSigningIn(false);
-      });
+      doSignInWithGoogle().catch(() => setIsSigningIn(false));
     }
   };
 
   return (
-    <div>
-      {userLoggedIn && <Navigate to={"/"} replace={true} />}
+    <>
+      {userLoggedIn && <Navigate to="/" replace={true} />}
       <Wrapper>
-        <main className="container">
-          <div className="card">
-            <div className="card-title">
-              <h3>Welcome Back</h3>
-            </div>
-            <form onSubmit={onSubmit} className="form-group">
-              <label>Email</label>
+        <div className="card">
+          <h2 className="title">Welcome Back 👋</h2>
+          <p className="subtitle">Login to continue</p>
+
+          <form onSubmit={onSubmit} className="form">
+            <div className="form-group">
+              <label>Email Address</label>
               <input
                 type="email"
                 autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                className="input"
               />
+            </div>
+
+            <div className="form-group">
               <label>Password</label>
               <input
                 type="password"
@@ -74,185 +72,192 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                className="input"
               />
-              {errorMessage && (
-                <span className="error-message">{errorMessage}</span>
-              )}
-              <button
-                type="submit"
-                disabled={isSigningIn}
-                className={`button ${isSigningIn ? "disabled" : "enabled"}`}
-              >
-                {isSigningIn ? "Signing In..." : "Sign In"}
-              </button>
-            </form>
-            <p className="link">
-              Don't have an account? <Link to={"/register"}>Sign up</Link>
-            </p>
-            <div className="divider">
-              <div className="divider-line"></div>
-              <div className="divider-text">OR</div>
-              <div className="divider-line"></div>
             </div>
+
+            {errorMessage && <span className="error">{errorMessage}</span>}
+
             <button
+              type="submit"
               disabled={isSigningIn}
-              onClick={onGoogleSignIn}
-              className={`google-button ${
-                isSigningIn ? "disabled" : "enabled"
-              }`}
+              className="btn primary-btn"
             >
-              <svg
-                className="google-icon"
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.9181H37.4434C36.9055 31.8988 35.177 34.5356 32.6461 36.2111V42.2078H40.3801C44.9217 38.0278 47.532 31.8547 47.532 24.5528Z"
-                  fill="#4285F4"
-                />
-                <path
-                  d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.3888 42.2078L32.6549 36.2111C30.5031 37.675 27.7252 38.5039 24.4888 38.5039C18.2275 38.5039 12.9187 34.2798 11.0139 28.6006H3.03296V34.7825C7.10718 42.8868 15.4056 48.0016 24.48 48.0016Z"
-                  fill="#34A853"
-                />
-                <path
-                  d="M11.0051 28.6006C9.99973 25.6199 9.99973 22.3922 11.0051 19.4115V13.2296H3.03298C-0.371021 20.0112 -0.371021 28.0009 3.03298 34.7825L11.005 19.4115C12.901 13.7235 18.2187 9.49932 24.48 9.49932Z"
-                  fill="#FBBC04"
-                />
-                <path
-                  d="M24.48 9.49932C27.9016 9.44641 31.2086 10.7339 33.6866 13.0973L40.5387 6.24523C36.2 2.17101 30.4414 -0.068932 24.48 0.00161733C15.4055 0.00161733 7.10718 5.11644 3.03296 13.2296L11.005 19.4115C12.901 13.7235 18.2187 9.49932 24.48 9.49932Z"
-                  fill="#EA4335"
-                />
-              </svg>
-              {isSigningIn ? "Signing In..." : "Continue with Google"}
+              {isSigningIn ? "Signing In..." : "Sign In"}
             </button>
+          </form>
+
+          <p className="text">
+            Don't have an account? <Link to="/register">Sign Up</Link>
+          </p>
+
+          <div className="divider">
+            <span>OR</span>
           </div>
-        </main>
+
+          <button
+            disabled={isSigningIn}
+            onClick={onGoogleSignIn}
+            className="btn google-btn"
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google"
+              className="google-icon"
+            />
+            {isSigningIn ? "Signing In..." : "Continue with Google"}
+          </button>
+        </div>
       </Wrapper>
-    </div>
+    </>
   );
 };
 
+export default Login;
+
+// ✅ STYLES
 const Wrapper = styled.section`
-  .container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+
+  .card {
     width: 100%;
-    height: 100vh;
+    max-width: 400px;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    text-align: center;
+  }
+
+  .title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+    transition: 0.3s;
+  }
+
+  .input:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 0.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .card {
-    width: 24rem;
-    color: #4b5563; /* text-gray-600 */
-    margin: auto;
-    padding: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border-radius: 0.5rem;
+  .primary-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
   }
 
-  .card-title {
-    text-align: center;
+  .primary-btn:hover {
+    background: #1e40af;
   }
 
-  .form-group {
-    margin-top: 1rem;
-  }
-
-  .input-field {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.75rem;
-    color: #4b5563; /* text-gray-600 */
-    background-color: transparent;
-    border: 1px solid #e2e8f0; /* border */
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    border-radius: 0.375rem;
-  }
-
-  .input-field:focus {
-    border-color: #2563eb; /* focus:border-indigo-600 */
-  }
-
-  .error-message {
-    color: #e53e3e; /* text-red-600 */
-    font-weight: bold;
-  }
-
-  .button {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    color: #fff;
-    font-weight: 500;
-    border-radius: 0.375rem;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-  }
-
-  .button:disabled {
-    background-color: #d1d5db; /* bg-gray-300 */
+  .primary-btn:disabled {
+    background: #93c5fd;
     cursor: not-allowed;
   }
 
-  .button:hover {
-    background-color: #2563eb; /* hover:bg-indigo-700 */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  .google-btn {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-weight: 500;
   }
 
-  .link {
-    text-align: center;
-    margin-top: 0.5rem;
+  .google-btn:hover {
+    background: #f3f4f6;
+  }
+
+  .google-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  .text {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .text a {
+    color: #2563eb;
+    font-weight: bold;
   }
 
   .divider {
     display: flex;
     align-items: center;
-    width: 100%;
-  }
-
-  .divider-line {
-    flex-grow: 1;
-    border-bottom: 2px solid #cbd5e0; /* border-b-2 */
-    margin: 0.25rem;
-  }
-
-  .divider-text {
-    font-size: 0.875rem;
+    text-align: center;
+    margin: 1rem 0;
+    color: #9ca3af;
+    font-size: 0.85rem;
     font-weight: bold;
   }
 
-  .google-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 0.625rem;
-    margin-top: 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: background-color 0.3s;
-    cursor: pointer;
+  .divider::before,
+  .divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #d1d5db;
   }
 
-  .google-button:disabled {
-    cursor: not-allowed;
+  .divider:not(:empty)::before {
+    margin-right: 0.75em;
   }
 
-  .google-button:hover {
-    background-color: #f3f4f6; /* hover:bg-gray-100 */
+  .divider:not(:empty)::after {
+    margin-left: 0.75em;
   }
 
-  .google-icon {
-    width: 1.25rem;
-    height: 1.25rem;
+  .error {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: block;
   }
 `;
-
-export default Login;
