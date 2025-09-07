@@ -21,6 +21,7 @@ import {
   Droppable,
   Draggable,
 } from "@hello-pangea/dnd";
+import { useNavigate } from "react-router-dom";
 
 // -------------------- Data --------------------
 const CATEGORY_OPTIONS = [
@@ -144,6 +145,7 @@ const EditTestPanel = () => {
   const [activeSugIndex, setActiveSugIndex] = useState(-1);
   const suggestBoxRef = useRef(null);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   // Live preview expand
   const [showPreview, setShowPreview] = useState(true);
@@ -283,7 +285,7 @@ const EditTestPanel = () => {
         <Content $sidebarExpanded={sidebarExpanded}>
           <StickyBar>
             <BreadCrumb>
-              <span className="muted">Test Panels</span>
+              <span onClick={() => {navigate("/doctor_use/TestMaster")}} style={{cursor: "pointer"}} className="muted">Test Panels</span>
               <FiChevronRight />
               <span className="muted">{defaultPanel.name}</span>
               <FiChevronRight />

@@ -205,7 +205,7 @@ const FindReport = () => {
             padding: "2px",
             justifyContent: "space-around",
             borderTop: "1px solid #ddd",
-            height: "30px",
+            // height: "30px",
           }}
           >
           <button

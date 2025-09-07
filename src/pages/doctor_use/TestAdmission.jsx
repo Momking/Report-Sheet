@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../../Components/Navbar";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { useSnackbar } from "notistack";
 import { storeUserData } from "../../Components/storeUserData";
 import { useAuth } from "../../Context/AuthContext";
@@ -13,6 +13,7 @@ import Receipt from "../../Components/Print/Receipt";
 import Select from "react-select";
 import AppTopNav from "../../Components/TopNavbar";
 import { useSidebar } from "../../Context/SidebarContext";
+import { useTheme } from "../../Context/themeContext";
 
 const TestAdmission = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const TestAdmission = () => {
   const [balanceAmount, setBalanceAmount] = useState(0);
   const [TestName, setTestName] = useState([]);
   const [initials, setInitials] = useState({grandAmount: 0, advanceAmount: 0, discount: 0, balanceAmount: 0})
+  const theme = useTheme();
 
   useEffect(() => {
     let total = 0;
@@ -76,10 +78,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
+            color: (theme.isDark) ? theme.text : "black",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
+            background: (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -99,10 +101,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "17px",
             padding: "2px",
-            color: ({ theme }) => (theme.isDark) ? theme.text : "black",
+            color: (theme.isDark) ? theme.text : "black",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
+            background: (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -155,25 +157,25 @@ const TestAdmission = () => {
             option: (provided, state) => ({
               ...provided,
               backgroundColor: state.isFocused
-                ? ({ theme }) => (theme.isDark ? theme.bg : "#eee") // Hover effect
-                : ({ theme }) => (theme.isDark ? theme.bg : "#fff"),
-              color: state.isFocused ? ({ theme }) => (theme.isDark ? theme.text : "#000") : ({ theme }) => (theme.isDark ? theme.text : "#000"),
+                ? (!theme.isDark ? theme.bg : "#240b0bff") // Hover effect
+                : (!theme.isDark ? theme.bg : "#160404ff"),
+              color: state.isFocused ? (theme.isDark ? theme.text : "#000") : (theme.isDark ? theme.text : "#000"),
               padding: 10,
               zIndex: "100",
             }),
             singleValue: (provided) => ({
               ...provided,
-              color: isDark ? "#fff" : "#000", // Selected value text color
+              color: ({theme}) => theme.isDark ? theme.text : "#000", // Selected value text color
             }),
             placeholder: (provided) => ({
               ...provided,
-              color: isDark ? "#aaa" : "#555", // Placeholder text color
+              color: ({theme}) => theme.isDark ? "#aaa" : "#000", // Placeholder text color
             }),
             control: (provided) => ({
               ...provided,
               minWidth: "50%",
-              color: ({ theme }) => (theme.isDark) ? theme.text : "black",       // Selected vs non-selected text color
-              backgroundColor: ({ theme }) => (theme.isDark) ? theme.bg : "#fff", // Selected vs default background
+              color: (theme.isDark) ? theme.text : "black",       // Selected vs non-selected text color
+              backgroundColor: (theme.isDark) ? theme.bg : "#fff", // Selected vs default background
               borderRadius: "1px",
               borderTop: "1px solid #ddd",
               fontSize: "17px",
@@ -189,10 +191,10 @@ const TestAdmission = () => {
           style={{
             fontSize: "21px",
             padding: "3px",
-            color: ({ theme }) => (theme.isDark) ? theme.text : "#ccc",
+            color: (theme.isDark) ? theme.text : "#ccc",
             borderRadius: "1px",
             borderTop: "1px solid #ddd",
-            background: ({ theme }) => (theme.isDark) ? theme.bg : "#fff",
+            background: (theme.isDark) ? theme.bg : "#fff",
           }}
           type="text"
           pattern="^\d*\.?\d{0,2}$"
@@ -629,8 +631,15 @@ const TestAdmission = () => {
     return date;
   };
 
+  const GlobalStyle = createGlobalStyle`
+    :root {
+    background: ${({ theme }) => (theme.isDark ? theme.bg : "#eef3f8")};
+    }
+  `;
+
   return (
-    <div style={{ backgroundColor: "#eef3f3", width: "100%", height: "100vh" }}>
+    <div>
+      <GlobalStyle/>
       <AppTopNav sidebarExpanded={sidebarExpanded} />
       <Navbar destination={"/"} />
       <Wrapper $sidebarExpanded={sidebarExpanded}>
@@ -1077,7 +1086,7 @@ const Wrapper = styled.section`
     bottom: 0;
     width: ${({ $sidebarExpanded }) =>
       $sidebarExpanded ? "calc(100vw - 200px)" : "calc(100vw - 90px)"};
-    background-color: ${({ theme }) => (theme.isDark) ? theme.bg : "#eef2f8"};
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#eef2f8"};
     display: flex;
     justify-content: center;
     align-items: flex-start;

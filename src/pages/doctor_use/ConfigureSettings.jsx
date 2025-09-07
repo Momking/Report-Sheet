@@ -194,9 +194,7 @@ const ConfigureSettings = () => {
             <h3>{userData.CompanyName || "Your Company"}</h3>
             <p style={{ margin: "4px 0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a", fontSize: "0.95rem" }}>
               {userData.Address1 || "—"}
-            </p>
-            <p style={{ margin: "4px 0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a", fontSize: "0.95rem" }}> 
-              {userData.City ? ` ${userData.City}` : ""}
+              {userData.City ? `, ${userData.City}` : ""}
             </p>
             <p style={{ margin: "0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a" }}>{userData.Phone || "-"}</p>
           </ReviewPanel>
@@ -405,7 +403,7 @@ const TopTitle = styled.div`
   align-items: center;
   gap: 14px;
   justify-content: space-between;
-  h1 { margin: 0; font-size: 1.3rem; color: ${({ theme }) => (theme.isDark) ? theme.card :"#11263b"}; text-transform: none; }
+  h1 { margin: 0; font-size: 1.3rem; color: ${({ theme }) => (theme.isDark) ? theme.text :"#11263b"}; text-transform: none; }
 `;
 
 const PlanBadge = styled.span`
@@ -476,7 +474,7 @@ const Info = styled.div`
 
 const PlanTitle = styled.div`
   font-weight: 800;
-  color: #12263b;
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#12263b"};
   font-size: 1rem;
 `;
 
@@ -646,6 +644,7 @@ const SaveButton = styled.button`
   padding: 10px 16px;
   border-radius: 8px;
   font-weight: 800;
+  &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft: "#0d3991ff"};
 `;
 
 const DangerButton = styled.button`
@@ -655,6 +654,7 @@ const DangerButton = styled.button`
   border: 1px solid #f2d1d1;
   padding: 9px 12px;
   border-radius: 8px;
+  &:hover { background: ${({ theme }) => (theme.isDark) ? theme.brandSoft: theme.brandSoft};
 `;
 
 /* Review panel */
