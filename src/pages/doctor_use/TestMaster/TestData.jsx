@@ -76,7 +76,7 @@ const TestMaster = () => {
           <BreadCrumb>
             <span className="muted">Test Panels</span>
             <FiChevronRight />
-            <span className="muted">Test Data</span>
+            <span className="active">Test Data</span>
           </BreadCrumb>
         </StickyBar>
         <Header>
@@ -252,6 +252,11 @@ const BreadCrumb = styled.div`
   .muted {
     color: ${({ theme }) => theme.textSoft};
     font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.text};
+    font-weight: 800;
   }
 
   svg {

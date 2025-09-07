@@ -52,7 +52,7 @@ const TestCategories = () => {
             <BreadCrumb>
               <span className="muted">Test Panels</span>
               <FiChevronRight />
-              <span className="muted">Test Categories</span>
+              <span className="active">Test Categories</span>
             </BreadCrumb>
           </StickyBar>
 
@@ -152,6 +152,11 @@ const BreadCrumb = styled.div`
   .muted {
     color: ${({ theme }) => theme.textSoft};
     font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.text};
+    font-weight: 800;
   }
 
   svg {

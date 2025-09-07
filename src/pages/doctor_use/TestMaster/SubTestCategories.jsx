@@ -68,7 +68,7 @@ const SubtestsCategories = () => {
           <BreadCrumb>
             <span className="muted">Test Panels</span>
             <FiChevronRight />
-            <span className="muted">Test SubCategories</span>
+            <span className="active">Test SubCategories</span>
           </BreadCrumb>
         </StickyBar>
         <HeaderRow>
@@ -199,6 +199,11 @@ const BreadCrumb = styled.div`
   .muted {
     color: ${({ theme }) => theme.textSoft};
     font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.text};
+    font-weight: 800;
   }
 
   svg {

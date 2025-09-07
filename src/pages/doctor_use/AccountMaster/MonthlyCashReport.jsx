@@ -8,7 +8,7 @@ import { MdOutlineAttachMoney } from "react-icons/md";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { LineChart, CartesianGrid, ResponsiveContainer, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { useSidebar } from "../../../Context/SidebarContext";
-import { FiChevronsRight } from "react-icons/fi";
+import { FiChevronRight } from "react-icons/fi";
 
 // --- MOCK DATA ---
 const sampleMonthlyData = [
@@ -56,7 +56,7 @@ const MonthlyCashReport = () => {
           <StickyBar>
             <BreadCrumb>
               <span className="muted">Account</span>
-              <FiChevronsRight />
+              <FiChevronRight />
               <span className="active">Monthly Cash Report</span>
             </BreadCrumb>
           </StickyBar>
@@ -263,6 +263,11 @@ const BreadCrumb = styled.div`
   .muted {
     color: ${({ theme }) => theme.textSoft};
     font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.textSoft};
+    font-weight: 800;
   }
 
   svg {

@@ -54,7 +54,7 @@ const DailyCashReport = () => {
           <BreadCrumb>
             <span className="muted">Account</span>
             <FiChevronRight />
-            <span className="muted">Daily Cash Report</span>
+            <span className="active">Daily Cash Report</span>
           </BreadCrumb>
         </StickyBar>
           <HeaderRow>
@@ -251,6 +251,11 @@ const BreadCrumb = styled.div`
   .muted {
     color: ${({ theme }) => theme.textSoft};
     font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.text};
+    font-weight: 800;
   }
 
   svg {

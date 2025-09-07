@@ -1,7 +1,7 @@
+// ConfigureSettings.jsx
 import React, { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
-import Navbar from "../../Components/Navbar";
-import styled from "styled-components";
+import styled, { css, createGlobalStyle } from "styled-components";
 import { useAuth } from "../../Context/AuthContext";
 import { storeUserData2 } from "../../Components/storeUserData";
 import { db, storage } from "../../config/firebase";
@@ -21,23 +21,53 @@ import {
 } from "firebase/firestore";
 import { getAuth, deleteUser as deleteFirebaseUser } from "firebase/auth";
 import { useNavigate, Navigate } from "react-router-dom";
+import Navbar from "../../Components/Navbar";
+import AppTopNav from "../../Components/TopNavbar";
+import { useSidebar } from "../../Context/SidebarContext";
 
+/* ---------------------- Global styles (smooth scroll, fonts) ---------------------- */
+const Global = createGlobalStyle`
+  html, body, #root {
+    // height: 100vh;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#233142"};
+    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f0f4fb"};
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height: 1.45;
+  }
+
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; }
+`;
+
+/* ---------------------- Main component ---------------------- */
 const ConfigureSettings = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { currentUser } = useAuth();
   const [profileImage, setProfileImage] = useState("");
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState({});
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const user = getAuth().currentUser;
+  const { sidebarExpanded } = useSidebar();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (currentUser) fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
   const deleteUser = async () => {
     if (!currentUser) {
-      console.error("No user is signed in.");
+      enqueueSnackbar("No user signed in", { variant: "warning" });
       return;
     }
 
@@ -47,34 +77,21 @@ const ConfigureSettings = () => {
     const snapshot = await getDocs(subCollectionRef);
     const batch = writeBatch(db);
 
-    snapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
+    snapshot.docs.forEach((d) => batch.delete(d.ref));
 
     try {
       await batch.commit();
-      await deleteObject(imageRef)
-        .then(() => {
-          console.log("Profile image deleted successfully.");
-        })
-        .catch((error) => {
-          console.error("Error deleting profile image:", error);
-          enqueueSnackbar("Failed to delete profile image.", {
-            variant: "error",
-          });
-        });
+      await deleteObject(imageRef).catch((err) => {
+        console.warn("deleteObject:", err?.message || err);
+        enqueueSnackbar("Failed to delete profile image (maybe not present).", { variant: "info" });
+      });
       await deleteDoc(userDocRef);
-      await deleteFirebaseUser(user).then(() => {
-        enqueueSnackbar("User account and data deleted successfully.", {
-          variant: "success",
-        });
-        navigate("/Login", { replace: true });
-      });
-    } catch (error) {
-      console.error("Error deleting user data and account:", error);
-      enqueueSnackbar("Failed to delete user data and account.", {
-        variant: "error",
-      });
+      await deleteFirebaseUser(user);
+      enqueueSnackbar("User account and data deleted successfully.", { variant: "success" });
+      navigate("/Login", { replace: true });
+    } catch (err) {
+      console.error("deleteUser error:", err);
+      enqueueSnackbar("Failed to delete user account & data.", { variant: "error" });
     }
   };
 
@@ -82,527 +99,588 @@ const ConfigureSettings = () => {
     try {
       const userDocRef = doc(db, "Users", currentUser.uid);
       const userDocSnapshot = await getDoc(userDocRef);
-
       if (userDocSnapshot.exists()) {
         const userFetchData = userDocSnapshot.data();
-        const img_url = await getDownloadURL(
-          ref(storage, `profile-images/${currentUser.uid}`)
-        );
-        setProfileImage(`url(${img_url})`);
+        let imgUrl = "";
+        try {
+          imgUrl = await getDownloadURL(ref(storage, `profile-images/${currentUser.uid}`));
+        } catch {
+          imgUrl = "";
+        }
+        setProfileImage(imgUrl ? `url(${imgUrl})` : "");
         setUserData(userFetchData);
       } else {
         setError(true);
         enqueueSnackbar("First save your settings", { variant: "info" });
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("fetchData:", err);
       setError(true);
-      console.error("Error fetching data from Firestore: ", error);
-      enqueueSnackbar("First save your settings", {
-        variant: "info",
-      });
+      enqueueSnackbar("Error fetching data from Firestore", { variant: "error" });
     }
   };
 
-  const handleSubmit = async (e, v) => {
-    {
-      e.preventDefault();
-      const formData = new FormData(e.target);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const file = formData.get("Image");
 
-      const file = formData.get("Image");
-      if (file.name) {
-        const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
-
-        try {
-          const snapshot = await uploadBytes(storageRef, file);
-        } catch (error) {
-          enqueueSnackbar("Error uploading image", { variant: "error" });
-        }
+    if (file && file.name) {
+      const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
+      try {
+        await uploadBytes(storageRef, file);
+      } catch (err) {
+        console.error("uploadBytes:", err);
+        enqueueSnackbar("Error uploading image", { variant: "error" });
       }
-
-      const exportData = {
-        CompanyName: formData.get("Company Name"),
-        Address1: formData.get("Address1"),
-        Address2: formData.get("Address2"),
-        City: formData.get("City"),
-        State: formData.get("State"),
-        PinCode: formData.get("Pin Code"),
-        Phone: formData.get("Phone"),
-        Image: profileImage,
-      };
-      await storeUserData2(exportData, currentUser);
-      fetchData();
     }
+
+    const exportData = {
+      CompanyName: formData.get("Company Name") || "",
+      Address1: formData.get("Address1") || "",
+      Address2: formData.get("Address2") || "",
+      City: formData.get("City") || "",
+      State: formData.get("State") || "",
+      PinCode: formData.get("Pin Code") || "",
+      Phone: formData.get("Phone") || "",
+      Image: profileImage,
+    };
+
+    await storeUserData2(exportData, currentUser);
+    await fetchData();
+    enqueueSnackbar("Profile saved", { variant: "success" });
   };
+
   const handleBlur = (e) => {
-    if (e.target.value.length <= 1) {
+    if (e.target.value.trim().length <= 1) {
       enqueueSnackbar("Please enter a valid input", { variant: "info" });
     }
   };
-  const handleChange = () => {};
 
   if (error) {
     return <Navigate to={"doctor_use/InitialSheet"} replace={true} />;
   }
 
   return (
-    <div style={{ backgroundColor: "#efedee", width: "100%", height: "100vh" }}>
-      <Navbar destination={"/doctor_use/TestAdmission"} />
-      <Wrapper>
-        <div className="container">
-          <div className="modal">
-            <div className="modal-container">
-              <div className="modal-left" style={{ paddingLeft: "100px" }}>
-                <br></br>
-                <h1 className="modal-title">SETTINGS</h1>
-                <br></br>
-                <form onSubmit={handleSubmit}>
-                  <div className="input-block">
-                    <label htmlFor="name" className="input-label">
-                      Company Name:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Company Name"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.CompanyName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="Address1" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Address1"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.Address1}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="Address2" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="Address2"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.Address2}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="city" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="City"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.City}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="state" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      autoComplete="off"
-                      name="State"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.State}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="pin code" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
-                      Code:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="Pin Code"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.PinCode}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="phone" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
-                    </label>
-                    <input
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="Phone"
-                      id="name"
-                      placeholder="Name"
-                      defaultValue={userData.Phone}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label">
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMAGE:&nbsp;
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      name="Image"
-                      style={{ paddingBottom: "4px" }}
-                      // onChange={(e) => previewImage(e)}
-                    />
-                  </div>
-                  <div className="modal-buttons">
-                    <div style={{ padding: "2px" }}>
-                      <button
-                        className="input-button"
-                        type="button"
-                        style={{ marginLeft: "2px", marginRight: "2px" }}
-                        onClick={deleteUser}
-                      >
-                        Delete Your Account
-                      </button>
-                      <button className="input-button" type="button">
-                        no change
-                      </button>
-                      <button
-                        className="input-button"
-                        type="submit"
-                        style={{ marginLeft: "2px" }}
-                      >
-                        SAVE CHANGES
-                      </button>
-                    </div>
-                  </div>
-                </form>
-                <br></br>
-                <br></br>
-                <br></br>
-              </div>
-              <div
-                className="modal-right"
-                style={{
-                  backgroundImage:
-                    "url('https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600')",
-                }}
-              >
-                <div style={{ paddingTop: "17vh" }}>
-                  <div className="input-block">
-                    <label htmlFor="name" className="input-label" style={{color: "GrayText"}}>
-                      Company Name:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="text"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.CompanyName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address1:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="text"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.Address1}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="name" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address2:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="text"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.Address2}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;City:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="text"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.City}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;State:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="text"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.State}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pin
-                      Code:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.PinCode}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label htmlFor="confirm_password" className="input-label" style={{color: "GrayText"}}>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phone:&nbsp;
-                    </label>
-                    <input
-                      style={{backgroundColor: "black"}}
-                      type="text"
-                      pattern="^\d*\.?\d{0,2}$"
-                      autoComplete="off"
-                      name="name"
-                      id="name"
-                      placeholder={userData.Phone}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      readOnly
-                    />
-                  </div>
-                  <div
-                    style={{
-                      marginLeft: "40%",
-                      backgroundImage: profileImage,
-                      width: "130px",
-                      height: "120px",
-                      backgroundSize: "cover",
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Wrapper>
-    </div>
+    <>
+      <Global />
+      <AppTopNav sidebarExpanded={sidebarExpanded} />
+      <Navbar />
+      <Page>
+        <SettingsArea $sidebarExpanded={sidebarExpanded}>
+          <SidebarNav />
+          <MainArea>
+            <TopTitle>
+              <h1>Lab account</h1>
+              <PlanBadge>Annual Subscription</PlanBadge>
+            </TopTitle>
+
+            <SubscriptionCard />
+
+            <FormCard>
+              <h2 style={{ marginTop: 0 }}>Company Information</h2>
+              <CompanyForm
+                userData={userData}
+                profileImage={profileImage}
+                onSubmit={handleSubmit}
+                onDelete={deleteUser}
+                onBlur={handleBlur}
+              />
+            </FormCard>
+          </MainArea>
+
+          <ReviewPanel>
+            <Avatar style={{ backgroundImage: profileImage }} />
+            <h3>{userData.CompanyName || "Your Company"}</h3>
+            <p style={{ margin: "4px 0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a", fontSize: "0.95rem" }}>
+              {userData.Address1 || "—"}
+            </p>
+            <p style={{ margin: "4px 0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a", fontSize: "0.95rem" }}> 
+              {userData.City ? ` ${userData.City}` : ""}
+            </p>
+            <p style={{ margin: "0", color: ({ theme }) => (theme.isDark) ? theme.card :"#54687a" }}>{userData.Phone || "-"}</p>
+          </ReviewPanel>
+        </SettingsArea>
+      </Page>
+    </>
   );
 };
 
-const Wrapper = styled.section`
-  .container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #eef3f3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* ---------------------- Small components (UI only) ---------------------- */
+
+const SidebarNav = React.memo(() => {
+  return (
+    <Sidebar>
+      <Brand>LabXpert</Brand>
+      <Nav>
+        <NavItem active>Subscription</NavItem>
+        <NavItem>Billing</NavItem>
+        <NavItem>Users</NavItem>
+        <NavItem>Security</NavItem>
+      </Nav>
+    </Sidebar>
+  );
+});
+
+const SubscriptionCard = () => {
+  return (
+    <Card>
+      <Tabs>
+        <Tab active>Subscription details</Tab>
+        <Tab>SMS credits</Tab>
+        <Tab>Invoices</Tab>
+      </Tabs>
+
+      <CardBody>
+        <StatusRow>
+          <StatusBadge>Trial</StatusBadge>
+
+          <Info>
+            <PlanTitle>Pathology Lab Basic</PlanTitle>
+            <PlanText>Rs. 5,000 + 18% GST (Rs. 5,900) — Every 12 months</PlanText>
+            <ContactLink href="#">Contact sales for addons</ContactLink>
+          </Info>
+
+          <RenewInfo>
+            <Price>Rs. 5,900</Price>
+            <SmallMuted>Renewal price (inc. GST)</SmallMuted>
+            <SmallMuted style={{ marginTop: 8 }}>Bill limit • 12,000 bills</SmallMuted>
+            <Expiry>Expires on 04 Sep 2025</Expiry>
+          </RenewInfo>
+        </StatusRow>
+
+        <Divider />
+
+        <BottomRow>
+          <Note>
+            Your trial ends in <strong>3 days</strong>. Even if you purchase early,
+            the remaining trial duration will be included for free.
+          </Note>
+
+          <ActionRow>
+            <GhostButton>Change plan</GhostButton>
+            <PrimaryButton>Buy now</PrimaryButton>
+          </ActionRow>
+        </BottomRow>
+      </CardBody>
+    </Card>
+  );
+};
+
+const CompanyForm = ({ userData, profileImage, onSubmit, onDelete, onBlur }) => {
+  return (
+    <Form onSubmit={onSubmit} noValidate>
+      <Field>
+        <Label>Company Name</Label>
+        <Input name="Company Name" defaultValue={userData.CompanyName || ""} placeholder="Your company" onBlur={onBlur} />
+      </Field>
+
+      <Row2>
+        <Field>
+          <Label>Address 1</Label>
+          <Input name="Address1" defaultValue={userData.Address1 || ""} placeholder="Address line 1" onBlur={onBlur} />
+        </Field>
+        <Field>
+          <Label>Address 2</Label>
+          <Input name="Address2" defaultValue={userData.Address2 || ""} placeholder="Address line 2" />
+        </Field>
+      </Row2>
+
+      <Row2>
+        <Field>
+          <Label>City</Label>
+          <Input name="City" defaultValue={userData.City || ""} placeholder="City" onBlur={onBlur} />
+        </Field>
+        <Field>
+          <Label>State</Label>
+          <Input name="State" defaultValue={userData.State || ""} placeholder="State" onBlur={onBlur} />
+        </Field>
+      </Row2>
+
+      <Row2>
+        <Field>
+          <Label>Pin Code</Label>
+          <Input name="Pin Code" defaultValue={userData.PinCode || ""} placeholder="Pin Code" pattern="\d{6}" onBlur={onBlur} />
+        </Field>
+        <Field>
+          <Label>Phone</Label>
+          <Input name="Phone" defaultValue={userData.Phone || ""} placeholder="Phone" pattern="\d{10,}" onBlur={onBlur} />
+        </Field>
+      </Row2>
+
+      <Field>
+        <Label>Profile Image</Label>
+        <File name="Image" accept="image/*" />
+      </Field>
+
+      <FormActions>
+        <DangerButton type="button" onClick={onDelete}>Delete Account</DangerButton>
+        <SaveButton type="submit">Save Changes</SaveButton>
+      </FormActions>
+    </Form>
+  );
+};
+
+/* ---------------------- Styles ---------------------- */
+
+const Page = styled.div`
+  min-height: calc(100vh - 72px);
+  padding-top: 16px;
+`;
+
+const SettingsArea = styled.div`
+  display: grid;
+  grid-template-columns: 220px 1fr 300px;
+  gap: 22px;
+  width: calc(100% - 64px);
+  // margin: 18px auto;
+  // max-width: 1300px;
+  transition: padding-left 160ms ease;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+    width: calc(100% - 32px);
+    margin: 12px;
   }
 
-  .modal {
-    width: 100%;
-    background: rgba(51, 51, 51, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: 0.4s;
-  }
-  .modal-container {
-    display: flex;
-    max-width: 95vw;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    position: absolute;
+  flex: 1;
+  min-width: 0;
+  padding: 88px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
+  transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
 
-    transition-duration: 0.3s;
-    background: #fff;
-  }
-  .modal-title {
-    margin: 0;
-    font-weight: 400;
-    color: #023656;
-  }
-  .form-error {
-    font-size: 1.4rem;
-    color: #b22b27;
-  }
-  .modal-desc {
-    margin: 6px 0 30px 0;
-  }
-  .modal-left {
-    padding: 60px 30px 20px;
-    background: #e2eff5;
-    flex: 1.5;
-    transition-duration: 0.5s;
-    opacity: 1;
+  @media (max-width: 1100px) {
+    padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "80px" : "41px")};
   }
 
-  .modal-right {
-    flex: 2;
-    font-size: 0;
-    transition: 0.3s;
-    overflow: hidden;
-    // background-image: url("https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600");
-  }
-
-  .modal.is-open .modal-left {
-    transform: translateY(0);
-    opacity: 1;
-    transition-delay: 0.1s;
-  }
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-buttons a {
-    color: rgba(51, 51, 51, 0.6);
-    font-size: 14px;
-  }
-
-  .input-button {
-    // padding: 1.2rem 3.2rem;
-    outline: none;
-    text-transform: uppercase;
-    border: 0;
-    color: #fff;
-    border-radius: 10px;
-    background: #2975ad;
-    transition: 0.3s;
-    cursor: pointer;
-    font-family: "Nunito", sans-serif;
-  }
-  .input-button:hover {
-    color: #2975ad;
-    background: #fff;
-  }
-
-  .input-label {
-    font-size: 11px;
-    // text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.7px;
-    color: #12263e;
-    transition: 0.3s;
-  }
-
-  .input-block {
-    display: flex;
-    flex-direction: row;
-    padding: 10px 10px 8px;
-    // border: 1px solid #ddd;
-    // border-radius: 4px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-  }
-
-  .input-block input {
-    outline: 0;
-    border: 0;
-    padding: 4px 4px 1px;
-    border-radius: 3px;
-    font-size: 15px;
-    color: black;
-    background: #fff;
-  }
-
-  .input-block input::-moz-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input:-ms-input-placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block input::placeholder {
-    color: #ccc;
-    opacity: 1;
-  }
-  .input-block:focus-within {
-    border-color: #8c7569;
-  }
-  // .input-block:focus-within .input-label {
-  //   color: rgba(140, 117, 105, 0.8);
-  // }
-
-  @media (max-width: 750px) {
-    .modal-container {
-      max-width: 90vw;
-    }
-
-    .modal-right {
-      display: none;
-    }
-    .flexChange {
-      flex-direction: column;
-    }
+  @media (max-width: 700px) {
+    padding-left: 2vw;
   }
 `;
 
+/* Sidebar */
+const Sidebar = styled.aside`
+  background: ${({ theme }) => (theme.isDark) ? theme.card :"#fff"};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(20,40,80,0.06);
+  height: fit-content;
+`;
+
+const Brand = styled.div`
+  font-weight: 700;
+  color: ${({ theme }) => (theme.isDark) ? theme.brand : "#123047"};
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+`;
+
+const Nav = styled.nav`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const NavItem = styled.button`
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: ${({ active }) => (active ? "#e9f1ff" : "transparent")};
+  color: ${({ active }) => (active ? "#123b6b" : "#8894a1ff")};
+  font-weight: ${({ active }) => (active ? 700 : 600)};
+  transition: background 140ms, color 140ms;
+  &:hover { background: #f3f8ff; }
+`;
+
+/* Main area */
+const MainArea = styled.main`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+`;
+
+/* Title row */
+const TopTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: space-between;
+  h1 { margin: 0; font-size: 1.3rem; color: ${({ theme }) => (theme.isDark) ? theme.card :"#11263b"}; text-transform: none; }
+`;
+
+const PlanBadge = styled.span`
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#faf0f6"};
+  color: #b31d6c;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+`;
+
+/* Card / subscription */
+const Card = styled.section`
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#fff"};
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(20,40,80,0.05);
+  overflow: hidden;
+`;
+
+const Tabs = styled.div`
+  display: flex;
+  gap: 6px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #eef2f7;
+`;
+
+const Tab = styled.button`
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-weight: ${({ active }) => (active ? 700 : 600)};
+  color: ${({ active }) => (active ? "#2568cd" : "#6e7d97")};
+  border-bottom: ${({ active }) => (active ? "3px solid #2568cd" : "none")};
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+`;
+
+const CardBody = styled.div`
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const StatusRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  @media (max-width: 900px) { flex-direction: column; gap: 12px; }
+`;
+
+const StatusBadge = styled.span`
+  background: #fff9e6;
+  color: #a35f00;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  align-self: flex-start;
+`;
+
+const Info = styled.div`
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const PlanTitle = styled.div`
+  font-weight: 800;
+  color: #12263b;
+  font-size: 1rem;
+`;
+
+const PlanText = styled.div`
+  color: #6e8196;
+  font-size: 0.9rem;
+`;
+
+const ContactLink = styled.a`
+  color: #2e71e3;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 6px;
+`;
+
+const RenewInfo = styled.div`
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+`;
+
+const Price = styled.div`
+  color: #2568cd;
+  font-weight: 800;
+  font-size: 1.05rem;
+`;
+
+const SmallMuted = styled.div`
+  color: #7b8ba3;
+  font-size: 0.85rem;
+`;
+
+const Expiry = styled.div`
+  color: #b47c05;
+  font-size: 0.85rem;
+  margin-top: 4px;
+`;
+
+const Divider = styled.hr`
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid #eef2f7;
+`;
+
+const BottomRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  @media (max-width: 650px) { flex-direction: column; align-items: stretch; }
+`;
+
+const Note = styled.div`
+  color: #586b82;
+  font-size: 0.92rem;
+  flex: 1;
+`;
+
+const ActionRow = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+/* Buttons - shared styles */
+const btnBase = css`
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 120ms;
+  &:active { transform: translateY(1px); }
+`;
+
+/* Ghost / secondary button */
+const GhostButton = styled.button`
+  ${btnBase}
+  background: #eef5ff;
+  color: #1f4f8a;
+  border: 1px solid #d7e8ff;
+`;
+
+/* Primary button gradient */
+const PrimaryButton = styled.button`
+  ${btnBase}
+  background: linear-gradient(90deg,#3a7ef2 0%, #2abdff 100%);
+  color: #fff;
+  box-shadow: 0 6px 22px rgba(46,122,255,0.18);
+`;
+
+/* Form card and form */
+const FormCard = styled.section`
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#fff"};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(20,40,80,0.04);
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const Field = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const Label = styled.label`
+  font-weight: 700;
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#2f4a63"};
+  font-size: 0.92rem;
+`;
+
+const Input = styled.input`
+  border: 1px solid #d8e3f7;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.96rem;
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#fbfdff"};
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "black"};
+  outline: none;
+  transition: box-shadow 140ms, border-color 140ms;
+  &:focus {
+    box-shadow: 0 6px 20px rgba(50,120,255,0.08);
+    border-color: #7fb3ff;
+  }
+`;
+
+/* File input */
+const File = styled.input.attrs({ type: "file" })`
+  padding: 8px 6px;
+  font-size: 0.95rem;
+  color: #2e71e3;
+  &::file-selector-button {
+    background: #2f68d7;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+`;
+
+const Row2 = styled.div`
+  display: flex;
+  gap: 12px;
+  @media (max-width: 900px) { flex-direction: column; }
+`;
+
+/* Form actions */
+const FormActions = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 6px;
+`;
+
+const SaveButton = styled.button`
+  ${btnBase}
+  background: #2f68d7;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+`;
+
+const DangerButton = styled.button`
+  ${btnBase}
+  background: #fff;
+  color: #b33a3a;
+  border: 1px solid #f2d1d1;
+  padding: 9px 12px;
+  border-radius: 8px;
+`;
+
+/* Review panel */
+const ReviewPanel = styled.aside`
+  background: ${({ theme }) => (theme.isDark) ? theme.card : "#f8fbff 0%"};
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 12px 36px rgba(10,40,80,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+
+  @media (max-width: 1100px) { display: none; }
+`;
+
+const Avatar = styled.div`
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 3px solid #d6e6fc;
+  box-shadow: 0 6px 18px rgba(100,150,255,0.12);
+`;
+
+/* export component */
 export default ConfigureSettings;

@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useAuth } from "../../Context/AuthContext";
 import Invoice from "../../Components/Print/Invoice";
+import { FiChevronRight } from "react-icons/fi";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -309,6 +310,13 @@ const FindReport = () => {
         <AppTopNav sidebarExpanded={sidebarExpanded} />
         <Navbar destination={"/"} />
         <Main $sidebarExpanded={sidebarExpanded}>
+          <StickyBar>
+            <BreadCrumb>
+              <span className="muted">Patient Entry</span>
+              <FiChevronRight />
+              <span className="active">Find Report</span>
+            </BreadCrumb>
+          </StickyBar>
           <Card>
             <h1 className="page-title">Search lab reports</h1>
             <FiltersGrid>
@@ -432,6 +440,39 @@ const FindReport = () => {
       }
   
   `;
+
+  const StickyBar = styled.div`
+  position: sticky;
+  top: 58px;
+  z-index: 50;
+  // background: ${({ theme }) => theme.bg};
+  padding: 8px 2px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const BreadCrumb = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.92em;
+
+  .muted {
+    color: ${({ theme }) => theme.textSoft};
+    font-weight: 500;
+  }
+
+  .active {
+    color: ${({ theme }) => theme.text};
+    font-weight: 800;
+  }
+
+  svg {
+    color: ${({ theme }) => theme.textSoft};
+    font-size: 1.1em;
+  }
+`;
   
   const FiltersGrid = styled.div`
     display: grid;
