@@ -15,10 +15,6 @@ dist-ssr
 *.local
 
 # Rust build and Tauri
-src-tauri
-src-tauri/icons/
-.Tauri.lock
-src-tauri/bundled/
 release/
 
 # Editor directories and files
@@ -33,10 +29,7 @@ src/config/*
 *.sln
 *.sw?
 file.txt
-firebaserc
-firebase.json
 extension.json
 .vscode/extensions.json
 .firebase/hosting.ZGlzdA.cache
-.firebaserc
 package-lock.json
