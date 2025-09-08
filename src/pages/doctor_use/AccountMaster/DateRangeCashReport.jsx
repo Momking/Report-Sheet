@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 import Navbar from "../../../Components/Navbar";
 import AppNav from "../../../Components/TopNavbar";
@@ -11,39 +11,50 @@ import { useSidebar } from "../../../Context/SidebarContext";
 import { FiChevronRight } from "react-icons/fi";
 
 // --- MOCK DATA ---
-const sampleMonthlyData = [
-  { day: "01", amount: 1200 },
-  { day: "02", amount: 800 },
-  { day: "03", amount: 950 },
-  { day: "04", amount: 1600 },
-  { day: "05", amount: 1200 },
-  { day: "06", amount: 0 },
-  // ...add as many days as the month needs
+const sampleData = [
+  { date: "2025-09-01", amount: 1200 },
+  { date: "2025-09-02", amount: 800 },
+  { date: "2025-09-03", amount: 950 },
+  { date: "2025-09-04", amount: 1600 },
+  { date: "2025-09-05", amount: 1200 },
+  { date: "2025-09-06", amount: 0 },
+  { date: "2025-09-07", amount: 600 },
+  { date: "2025-09-08", amount: 1450 },
 ];
 
-const ACCOUNT_TYPES = [
-  { name: "Pathology Lab Cash", subAccounts: ["Front Desk", "Sample Collection"] },
-  { name: "Doctor Cash", subAccounts: ["Dr. Ravi", "Dr. Rajeev"] },
-  { name: "Self", subAccounts: [] },
-];
-
-const MonthlyCashReport = () => {
-  const [month, setMonth] = useState("2025-09");
+const DateRangeCashReport = () => {
+  const [fromDate, setFromDate] = useState("2025-09-01");
+  const [toDate, setToDate] = useState("2025-09-08");
   const [search, setSearch] = useState("");
-  const [accountType, setAccountType] = useState(ACCOUNT_TYPES.name);
-  const [subAccount, setSubAccount] = useState("");
   const { sidebarExpanded } = useSidebar();
 
-  const currentType = ACCOUNT_TYPES.find((t) => t.name === accountType);
 
-  useEffect(() => {
-    setSubAccount("");
-  }, [accountType]);
+  const ACCOUNT_TYPES = [
+    { name: "Pathology Lab Cash", subAccounts: ["Front Desk", "Sample Collection"] },
+    { name: "Doctor Cash", subAccounts: ["Dr. Ravi", "Dr. Rajeev"] },
+    { name: "Self", subAccounts: [] },
+  ];
+  
+    const [accountType, setAccountType] = useState(ACCOUNT_TYPES.name);
+    const [subAccount, setSubAccount] = useState("");
 
-  const filteredData = sampleMonthlyData.filter((d) =>
-    d.day.includes(search)
-  );
-  const totalCollected = sampleMonthlyData.reduce((sum, d) => sum + d.amount, 0);
+    const currentType = ACCOUNT_TYPES.find((t) => t.name === accountType);
+  
+    useEffect(() => {
+      setSubAccount("");
+    }, [accountType]);
+
+  // Filter data based on date range
+  const filteredData = useMemo(() => {
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    return sampleData.filter(d => {
+      const current = new Date(d.date);
+      return current >= from && current <= to && d.date.includes(search);
+    });
+  }, [fromDate, toDate, search]);
+
+  const totalCollected = filteredData.reduce((sum, d) => sum + d.amount, 0);
 
   return (
     <Page>
@@ -57,62 +68,65 @@ const MonthlyCashReport = () => {
             <BreadCrumb>
               <span className="muted">Account</span>
               <FiChevronRight />
-              <span className="active">Monthly Cash Report</span>
+              <span className="active">Cash Report</span>
             </BreadCrumb>
           </StickyBar>
           <H2>
             <FaRegCalendarAlt style={{ marginRight: "9px", color: "#377cfb" }} />
-            Monthly Cash Report
+            Cash Report
           </H2>
+
+          {/* Stats */}
           <StatsRow>
             <StatCard color="#377cfb1a" border="#377cfb">
               <Circle color="#377cfb">
                 <MdOutlineAttachMoney size={18} />
               </Circle>
               <div>
-                <span className="stat-label">Total Cash Collected</span>
+                <span className="stat-label" style={{color: "#819cc3"}}>Total Cash Collected</span>
                 <div className="stat-value" style={{ color: "#377cfb" }}>Rs. {totalCollected.toLocaleString()}</div>
               </div>
             </StatCard>
-            <StatCard color="#5ee6641a" border="#29b84f">
-              <Circle color="#29b84f">
-                <svg height="16" width="16" fill="#29b84f" viewBox="0 0 20 20"><path d="M10 2a8 8 0 108 8 8.009 8.009 0 00-8-8zm0 14a6 6 0 116-6 6.006 6.006 0 01-6 6zm0-11a5 5 0 105 5 5.006 5.006 0 00-5-5zm0 7a2 2 0 112-2 2.003 2.003 0 01-2 2z"></path></svg>
-              </Circle>
-              <div>
-                <span className="stat-label">No. of Days</span>
-                <div className="stat-value" style={{ color: "#29b84f" }}>{sampleMonthlyData.length}</div>
-              </div>
+            <StatCard color="#e6edff" border="#7b7fff" compact>
+              <CalendarBox>
+                From:
+                <DateInput
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                />
+              </CalendarBox>
+            </StatCard>
+            <StatCard color="#e6edff" border="#7b7fff" compact>
+              <CalendarBox>
+                To:
+                <DateInput
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                />
+              </CalendarBox>
             </StatCard>
             <StatCard color="#fde2d7" border="#f56642">
               <Circle color="#f56642">
                 <HiOutlineDownload size={16} />
               </Circle>
               <div>
-                <span className="stat-label">Download Report</span>
+                <span className="stat-label" style={{color: "#85a1c9"}}>Download Report</span>
                 <DownloadBtn>
-                  <HiOutlineDownload size={14} style={{ marginRight: 4 }} /> Report
+                  <HiOutlineDownload size={14} /> Report
                 </DownloadBtn>
               </div>
             </StatCard>
-            <StatCard color="#e6edff" border="#7b7fff" compact>
-              <CalendarBox>
-                Date:
-                <DateInput
-                  type="month"
-                  value={month}
-                  onChange={(e) => setMonth(e.target.value)}
-                  aria-label="Select month"
-                />
-              </CalendarBox>
-            </StatCard>
           </StatsRow>
 
+          {/* Chart */}
           <ChartCard>
-            <LineChartTitle>Daily Cash Pattern</LineChartTitle>
+            <LineChartTitle>Cash Trend</LineChartTitle>
             <ResponsiveContainer width="100%" height={140}>
-              <LineChart data={sampleMonthlyData} margin={{ left: 0, right: 0, top: 5, bottom: 5 }}>
+              <LineChart data={filteredData} margin={{ left: 0, right: 0, top: 5, bottom: 5 }}>
                 <CartesianGrid stroke="#f1f4fa" strokeDasharray="3 3" />
-                <XAxis dataKey="day" fontSize={11} stroke="#aec1e9" tick={{ fill: '#657d96' }} />
+                <XAxis dataKey="date" fontSize={11} stroke="#aec1e9" tick={{ fill: '#657d96' }} />
                 <YAxis fontSize={10} stroke="#aec1e9" tick={{ fill: '#657d96' }} width={38}/>
                 <Tooltip contentStyle={{ fontSize: 10 }} cursor={{ fill: "#eaf3ff" }}/>
                 <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2.2} dot={{ r: 2.5 }} activeDot={{ r: 5 }} />
@@ -120,16 +134,17 @@ const MonthlyCashReport = () => {
             </ResponsiveContainer>
           </ChartCard>
 
+          {/* Table */}
           <Card>
             <TableHeader>
-              Patient Cash Transactions
+              Transactions
               <Chip>{filteredData.length}</Chip>
             </TableHeader>
             <FlexTableWrap>
               <TableSearchWrap>
                 <BiSearch style={{ color: "#aec2e3", fontSize: 15 }} />
                 <SearchField
-                  placeholder="Search day"
+                  placeholder="Search date"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   type="text"
@@ -139,15 +154,15 @@ const MonthlyCashReport = () => {
             <Table>
               <thead>
                 <tr>
-                  <th>Day</th>
+                  <th>Date</th>
                   <th>Amount Paid</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredData.length ? (
                   filteredData.map(d => (
-                    <tr key={d.day}>
-                      <td>{d.day}</td>
+                    <tr key={d.date}>
+                      <td>{d.date}</td>
                       <td style={{ fontWeight: 700, color: "#1c4dc2" }}>Rs.{d.amount.toLocaleString()}</td>
                     </tr>
                   ))
@@ -160,7 +175,6 @@ const MonthlyCashReport = () => {
             </Table>
           </Card>
         </Left>
-
         <Right>
           <SidebarCard>
             <SidebarLabel>Account Type</SidebarLabel>
@@ -216,21 +230,17 @@ const AppWrapper = styled.div`
 const Body = styled.div`
   display: flex;
   gap: 26px;
-  // max-width: 1300px;
   margin: 0 auto;
-  padding: 23px 14px 35px 14px;
-
-  @media (max-width: 1100px) {
-    flex-direction: column;
-    gap: 22px;
-  }
-
+  transition: padding-left 0.18s;
+    
   flex: 1;
   min-width: 0;
   padding: 88px 36px 20px ${({ $sidebarExpanded }) => ($sidebarExpanded ? "225px" : "76px")};
   transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
 
   @media (max-width: 1100px) {
+    flex-direction: column;
+    gap: 22px;
     padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "220px" : "70px")};
   }
 
@@ -262,22 +272,11 @@ const BreadCrumb = styled.div`
 
   .muted {
     color: ${({ theme }) => theme.textSoft};
-    font-weight: 500;
   }
 
   .active {
-    color: ${({ theme }) => theme.textSoft};
     font-weight: 800;
   }
-
-  svg {
-    color: ${({ theme }) => theme.textSoft};
-    font-size: 1.1em;
-  }
-`;
-
-const Right = styled.div`
-  flex: 1;
 `;
 
 const H2 = styled.h2`
@@ -285,7 +284,6 @@ const H2 = styled.h2`
   font-weight: 700;
   color: ${({ theme }) => (theme.isDark) ? theme.text : "#153060"};
   margin-bottom: 22px;
-  letter-spacing: -0.5px;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -295,37 +293,26 @@ const StatsRow = styled.div`
   display: flex;
   gap: 16px;
   margin-bottom: 18px;
+
   @media (max-width: 700px) {
     flex-direction: column;
   }
 `;
 
 const StatCard = styled.div`
-  background: ${({ color }) => color || "#f1f4fa"};
+  background: ${({ color }) => color};
   border-radius: 13px;
   min-width: 185px;
-  border: 1.6px solid ${({ border }) => border || "#e4e8ee"};
+  border: 1.6px solid ${({ border }) => border};
   padding: 13px 22px;
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 14.2px;
-  box-shadow: 0 1.5px 8px #e4eefa44;
   flex: 1;
+
   ${({ compact }) => compact && `
     justify-content: center;
-    min-width: 140px;
   `}
-  .stat-label {
-    font-size: .95em;
-    color: #85a1c9;
-    font-weight: 600;
-  }
-  .stat-value {
-    font-size: 1.16em;
-    font-weight: 700;
-    margin-top: 1px;
-  }
 `;
 
 const Circle = styled.div`
@@ -333,13 +320,9 @@ const Circle = styled.div`
   border-radius: 100%;
   width: 37px;
   height: 37px;
-  min-width: 37px;
-  min-height: 37px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ color }) => color};
-  font-size: 19px;
 `;
 
 const DownloadBtn = styled.button`
@@ -354,9 +337,8 @@ const DownloadBtn = styled.button`
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-  transition: background 0.12s;
-  svg { margin-right: 2px;}
-  &:hover{
+
+  &:hover {
     background: #fff4f1;
   }
 `;
@@ -369,6 +351,7 @@ const CalendarBox = styled.div`
   align-items: center;
   gap: 8px;
 `;
+
 const DateInput = styled.input`
   border: 1.2px solid #b6caef;
   border-radius: 7px;
@@ -390,15 +373,16 @@ const ChartCard = styled.div`
 
 const LineChartTitle = styled.div`
   font-size: 0.99em;
-  color: ${({ theme }) => (theme.isDark) ? theme.text : "#364968"};
   font-weight: 700;
   margin-bottom: 12px;
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#566a92ff"};
 `;
 
 const Card = styled.div`
   margin-top: 5px;
   padding: 0 0 10px 0;
   background: ${({ theme }) => (theme.isDark) ? theme.bg : "#fff"};
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#566a92ff"};
   border-radius: 13px;
   box-shadow: 0 1.5px 12px #e6eefa22;
 `;
@@ -406,8 +390,6 @@ const Card = styled.div`
 const TableHeader = styled.div`
   font-size: 1.02rem;
   font-weight: 700;
-  color: ${({ theme }) => (theme.isDark) ? theme.text : "#162850"};
-  background: none;
   padding: 23px 23px 0 23px;
   display: flex;
   align-items: center;
@@ -418,11 +400,10 @@ const Chip = styled.span`
   font-size: .96em;
   font-weight: bold;
   margin-left: 8px;
-  color: ${({ theme }) => (theme.isDark) ? theme.text : "#3b60e4"};
-  background: ${({ theme }) => (theme.isDark) ? theme.bg : "#e6edff"};
+  background: ${({ theme }) => (theme.isDark) ? theme.brand : "#e6edff"};
+  color: ${({ theme }) => (theme.isDark) ? theme.text : "#7b8bab"};
   padding: 2px 11px;
   border-radius: 12px;
-  display: inline-block;
 `;
 
 const FlexTableWrap = styled.div`
@@ -431,6 +412,7 @@ const FlexTableWrap = styled.div`
   align-items: center;
   padding: 9px 15px 0 0;
 `;
+
 const TableSearchWrap = styled.div`
   display: flex;
   align-items: center;
@@ -441,9 +423,10 @@ const TableSearchWrap = styled.div`
   min-width: 230px;
   gap: 7px;
 `;
+
 const SearchField = styled.input`
   border: none;
-  background: transparent;
+  background: ${({ theme }) => (theme.isDark) ? theme.bg : "transparent"};
   outline: none;
   padding: 3px 4px;
   width: 100%;
@@ -456,30 +439,33 @@ const Table = styled.table`
   border-collapse: separate;
   border-spacing: 0 8px;
   margin-top: 0;
+
   thead th {
-    background: none;
-    font-size: 0.99em;
+    font-size: .99em;
     font-weight: 700;
     color: ${({ theme }) => (theme.isDark) ? theme.text : "#7b8bab"};
-    border-bottom: none;
     padding: 12px 18px 8px 23px;
     text-align: left;
   }
+
   tbody tr {
-    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#f8fafd"};
-    box-shadow: 0 0 0.5px #e0e5ef;
-    border-radius: 10px;
-    transition: background 0.16s;
+    background: ${({ theme }) => (theme.isDark) ? theme.card : "#f8fafd"};
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "black"};
+    transition: background .16s;
   }
+
   tbody tr:hover {
-    background: ${({ theme }) => (theme.isDark) ? theme.bg : "#eaf3ff"};
+    background: ${({ theme }) => (theme.isDark) ? theme.brandSoft : "#eaf3ff"};
   }
+
   tbody td {
     padding: 11px 18px 8px 23px;
-    border: none;
-    font-size: 0.98em;
-    color: ${({ theme }) => (theme.isDark) ? theme.text : "#32426a"};
+    font-size: .98em;
   }
+`;
+
+const Right = styled.div`
+  flex: 1;
 `;
 
 const SidebarCard = styled.div`
@@ -524,7 +510,7 @@ const SidebarSub = styled.div`
     display:block;
     margin-bottom: 5px;
     font-weight: 700;
-    color: #253064;
+    color: ${({ theme }) => (theme.isDark) ? theme.text : "#253064"};
   }
   ul {
     margin:0 0 0 1.21em;
@@ -536,4 +522,5 @@ const SidebarSub = styled.div`
   }
 `;
 
-export default MonthlyCashReport;
+
+export default DateRangeCashReport;

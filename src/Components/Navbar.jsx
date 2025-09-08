@@ -34,6 +34,7 @@ const menus = [
     dropdown: [
       { text: "Daily Cash", path: "/doctor_use/DailyCashReport" },
       { text: "Monthly Cash", path: "/doctor_use/MonthlyCashReport" },
+      { text: "Cash Report", path: "/doctor_use/CashReport" },
     ],
   },
   {

@@ -23,6 +23,7 @@ import TestMaster from "./pages/doctor_use/TestMaster/TestData";
 import TestCategories from "./pages/doctor_use/TestMaster/TestCategories";
 import SubtestsCategories from "./pages/doctor_use/TestMaster/SubTestCategories";
 import EditTestPanel from "./pages/doctor_use/TestMaster/EditTestPanel";
+import DateRangeCashReport from "./pages/doctor_use/AccountMaster/DateRangeCashReport";
 
 const App = () => {
   useEffect(() => {
@@ -96,6 +97,7 @@ const App = () => {
       <Route path="/doctor_use/TestCategories" element={<RequireAuth><TestCategories/></RequireAuth>}/>
       <Route path="/doctor_use/SubTestCategories" element={<RequireAuth> <SubtestsCategories /></RequireAuth>}/>
       <Route path="/doctor_use/EditTestPanel" element={<RequireAuth><EditTestPanel/></RequireAuth>}/>
+      <Route path="/doctor_use/CashReport" element={<RequireAuth><DateRangeCashReport/></RequireAuth>}/>
     </Routes>
   );
 }

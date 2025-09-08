@@ -196,7 +196,7 @@ const Container = styled.div`
 
   @media (max-width: 1100px) {
     padding-right: 0px;
-    padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "80px" : "41px")};
+    padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "220px" : "70px")};
   }
 
   @media (max-width: 700px) {

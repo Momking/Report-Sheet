@@ -216,7 +216,7 @@ const MainContent = styled.div`
   transition: padding-left 0.18s cubic-bezier(.61,-0.01,.51,.99);
 
   @media (max-width: 1100px) {
-    padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "80px" : "41px")};
+    padding-left: ${({ $sidebarExpanded }) => ($sidebarExpanded ? "220px" : "70px")};
   }
 
   @media (max-width: 700px) {
