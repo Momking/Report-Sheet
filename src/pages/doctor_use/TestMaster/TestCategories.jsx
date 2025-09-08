@@ -165,25 +165,6 @@ const BreadCrumb = styled.div`
   }
 `;
 
-const ModeToggle = styled.button`
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.card};
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
-  padding: 6px 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 0 6px 18px ${({ theme }) => theme.shadow};
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.brandSoft};
-    border-color: ${({ theme }) => theme.brand};
-  }
-`;
-
 const Container = styled.div`
 //   max-width: 700px;
   margin: 0 auto;

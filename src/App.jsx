@@ -24,6 +24,9 @@ import TestCategories from "./pages/doctor_use/TestMaster/TestCategories";
 import SubtestsCategories from "./pages/doctor_use/TestMaster/SubTestCategories";
 import EditTestPanel from "./pages/doctor_use/TestMaster/EditTestPanel";
 import DateRangeCashReport from "./pages/doctor_use/AccountMaster/DateRangeCashReport";
+import AddSubTestPanel from "./pages/doctor_use/TestMaster/AddSubTestPanel";
+import CaseReport from "./pages/doctor_use/CaseReport/CaseReport";
+import TotalCasesReported from "./pages/doctor_use/CaseReport/TotalCasesReported";
 
 const App = () => {
   useEffect(() => {
@@ -96,8 +99,11 @@ const App = () => {
       <Route path="/doctor_use/TestMaster" element={<RequireAuth><TestMaster/></RequireAuth>}/>
       <Route path="/doctor_use/TestCategories" element={<RequireAuth><TestCategories/></RequireAuth>}/>
       <Route path="/doctor_use/SubTestCategories" element={<RequireAuth> <SubtestsCategories /></RequireAuth>}/>
+      <Route path="/doctor_use/SubTestCategories/AddSubTestPanel" element={<RequireAuth><AddSubTestPanel/></RequireAuth>}/>
       <Route path="/doctor_use/EditTestPanel" element={<RequireAuth><EditTestPanel/></RequireAuth>}/>
       <Route path="/doctor_use/CashReport" element={<RequireAuth><DateRangeCashReport/></RequireAuth>}/>
+      <Route path="/doctor_use/CaseReport" element={<RequireAuth><CaseReport/></RequireAuth>}/>
+      <Route path="/doctor_use/TotalCasesReported" element={<RequireAuth><TotalCasesReported/></RequireAuth>}/>
     </Routes>
   );
 }

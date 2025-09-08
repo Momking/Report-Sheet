@@ -41,8 +41,8 @@ const menus = [
     icon: <FaBookMedical />,
     title: "PATIENTS",
     dropdown: [
-      { text: "Patient List", path: "/doctor_use/PatientList" },
-      { text: "History", path: "/doctor_use/PatientHistory" },
+      { text: "Cases Reported", path: "/doctor_use/CaseReport" },
+      { text: "Total Cases Reported", path: "/doctor_use/TotalCasesReported" },
     ],
   },
   {

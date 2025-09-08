@@ -8,6 +8,7 @@ import { AiOutlineEye } from "react-icons/ai";
 import { IoMdCheckmarkCircle, IoMdCloseCircle } from "react-icons/io";
 import { FiChevronRight } from "react-icons/fi";
 import { useSidebar } from "../../../Context/SidebarContext";
+import { useNavigate } from "react-router-dom";
 
 const CATEGORIES = [
   "All", "Biochemistry", "Haematology", "Serology & Immunology",
@@ -51,6 +52,7 @@ const SubtestsCategories = () => {
   const [usedInTest, setUsedInTest] = useState("All");
   const [selected, setSelected] = useState(null);
   const { sidebarExpanded } = useSidebar();
+  const navigate = useNavigate();
 
   const filtered = mockSubtests.filter(
     s =>
@@ -73,7 +75,7 @@ const SubtestsCategories = () => {
         </StickyBar>
         <HeaderRow>
           <Title>Subtests</Title>
-          <AddBtn>+ Add new subtest</AddBtn>
+          <AddBtn onClick={() => navigate("/doctor_use/SubTestCategories/AddSubTestPanel")}>+ Add new subtest</AddBtn>
         </HeaderRow>
 
         <Card>
